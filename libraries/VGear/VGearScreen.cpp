@@ -1,6 +1,6 @@
-#include "VComScreen.h"
+#include "VGearScreen.h"
 
-void VComScreen::begin(String* menu, int size) 
+void VGearScreen::begin(String* menu, int size) 
 {
   _menu = menu;
   _size = size;
@@ -11,7 +11,7 @@ void VComScreen::begin(String* menu, int size)
   next(0);
 }
 
-void VComScreen::next(int i) 
+void VGearScreen::next(int i) 
 {  
   String page = _matchMenu(_word);
 
@@ -26,7 +26,7 @@ void VComScreen::next(int i)
   _iterateData(page, _position);
 }
 
-void VComScreen::click(std::function<bool(String)> callback)
+void VGearScreen::click(std::function<bool(String)> callback)
 {
   String line = _getData(_matchMenu(_word), _position);
   
@@ -41,7 +41,7 @@ void VComScreen::click(std::function<bool(String)> callback)
   }
 }
 
-String VComScreen::_enumMenu()
+String VGearScreen::_enumMenu()
 {
   String out = "";
 
@@ -64,7 +64,7 @@ String VComScreen::_enumMenu()
   return out;
 }
 
-String VComScreen::_matchMenu(String command)
+String VGearScreen::_matchMenu(String command)
 {
   if (command == "") {
     return _enumMenu();
@@ -83,7 +83,7 @@ String VComScreen::_matchMenu(String command)
   return out;
 }
 
-String VComScreen::_addData(String data, String command) 
+String VGearScreen::_addData(String data, String command) 
 {
   if (data.indexOf(command) == -1) {
     if (data != "") {
@@ -95,7 +95,7 @@ String VComScreen::_addData(String data, String command)
   return data;
 }
 
-int VComScreen::_countData(String data)
+int VGearScreen::_countData(String data)
 {
   int length = 1;
   
@@ -108,7 +108,7 @@ int VComScreen::_countData(String data)
   return length;
 }
 
-String VComScreen::_getData(String data, int position)
+String VGearScreen::_getData(String data, int position)
 {
   int rank = 0;
   int index = 0;
@@ -127,7 +127,7 @@ String VComScreen::_getData(String data, int position)
   }
 }
 
-void VComScreen::_iterateData(String data, int position)
+void VGearScreen::_iterateData(String data, int position)
 {
   int rank = 0;
   int index = 0;

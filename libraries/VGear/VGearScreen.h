@@ -1,15 +1,15 @@
 /*
  * Display info on TFT ST7789
  * use (modify in Arduino/libraries/TFT_eSPI/User_Setups/Setup24_ST7789.h)
- *  - SCL  18
- *  - SDA  23
+ *  - SDA  18
+ *  - SCL  23
  *  - RES  19
  *  - DC    5
  * Implementation:
  *
- *   #include "VComScreen.h"
+ *   #include "VGearScreen.h"
  *
- *   VComScreen screen;
+ *   VGearScreen screen;
  *
  *   void setup() {
  *     screen.begin();
@@ -18,15 +18,15 @@
  *   }
  */
 
-#ifndef VComScreen_h
-#define VComScreen_h
+#ifndef VGearScreen_h
+#define VGearScreen_h
 
 #include "Arduino.h"
 #include "TFT_eSPI.h"
 
 #define SCREEN_BACK_WORD "< back"
 
-class VComScreen
+class VGearScreen
 {
   public:
 

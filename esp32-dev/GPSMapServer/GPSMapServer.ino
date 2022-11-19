@@ -1,9 +1,9 @@
-#include "VComWifi.h"
-#include "VComWebApi.h"
+#include "VGearWifi.h"
+#include "VGearWebApi.h"
 #include "VSensorGPS.h"
 
-VComWifi net;
-VComWebApi api;
+VGearWifi net;
+VGearWebApi api;
 VSensorGPS gps; 
 
 // Affiche la map

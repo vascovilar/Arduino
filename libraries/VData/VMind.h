@@ -9,7 +9,7 @@
 
 #include "Arduino.h"
 #include "VBuffer.h"
-#include "VSensorMeteo.h"
+#include "VSensorAir.h"
 #include "VSensorLight.h"
 
 #define MIND_SENSITIVITY 12
@@ -23,7 +23,8 @@ enum sensor_field_code {
   VOC_EQUIVALENT = 5, // in ppm
   UV_INDEX = 6,       // in UV index
   VISIBLE = 7,        // in lux
-  INFRARED = 8        // in lux
+  INFRARED = 8,       // in lux
+  EMF = 9
 };
 
 enum mind_comfort_code {
@@ -46,7 +47,7 @@ struct mind_graph_data {
   float    bottom;
   int      status;
   String   color;
-  String   background;
+  int      alert;
   String   comment;
 };
 
@@ -102,7 +103,7 @@ class VMind
     };
 
     // TODO: auto tolerance to remove sensor fields from VMind
-    float sensor_tolerance_value[9] = {
+    float sensor_tolerance_value[10] = {
       1.0,        // TEMPERATURE
       5.0,        // PRESSURE
       5.0,        // HUMIDITY
@@ -111,7 +112,8 @@ class VMind
       1.0,        // VOC_EQUIVALENT
       1.0,        // UV_INDEX
       10.0,       // VISIBLE
-      100.0       // INFRARED
+      100.0,      // INFRARED
+      400
     };
 
     // conversions

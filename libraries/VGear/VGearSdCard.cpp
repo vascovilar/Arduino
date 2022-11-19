@@ -8,12 +8,14 @@ void VGearSdCard::begin()
   
   if (!SD.begin(SD_CS, _spi)) {
     Serial.println("Communication failed");
+    _status = false;
     return;
   }
   
   uint8_t cardType = SD.cardType();
   if (cardType == CARD_NONE) {
     Serial.println("No SD card attached");
+    _status = false;
     return;
   }
   
@@ -21,6 +23,12 @@ void VGearSdCard::begin()
   int size = SD.cardSize() / (1024 * 1024);
   float used = (SD.usedBytes() / SD.totalBytes()) * 100.0; 
   Serial.println("Size: " + String(size) + " Mo (" + String(used) + "% used)");
+  _status = true; 
+}
+
+bool VGearSdCard::status()
+{ 
+  return _status;
 }
 
 Page VGearSdCard::list(const String &path)

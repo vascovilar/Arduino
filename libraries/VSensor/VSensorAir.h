@@ -2,9 +2,9 @@
  * Read data on BME680
  * Implementation:
  *
- *   #include <VSensorMeteo.h>
+ *   #include <VSensorAir.h>
  *
- *   VSensorMeteo meteo; 
+ *   VSensorAir meteo; 
  *
  *   void setup() {
  *     meteo.begin(0x76);
@@ -16,8 +16,8 @@
  *   }
  */
 
-#ifndef VSensorMeteo_h
-#define VSensorMeteo_h
+#ifndef VSensorAir_h
+#define VSensorAir_h
 
 #include "Arduino.h"
 #include "Wire.h"
@@ -73,7 +73,7 @@ enum air_status_code {
   V_TOXIC_AIR = 7
 };
 
-class VSensorMeteo
+class VSensorAir
 {
   public:
     

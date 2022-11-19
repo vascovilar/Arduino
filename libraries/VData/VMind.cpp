@@ -48,7 +48,7 @@ mind_graph_data VMind::_buildGraph(int field, int status, buffer_data_stat stat)
 mind_graph_data VMind::_addAnalysis(mind_graph_data info, buffer_data_stat slice)
 {
   info.comment += "x" + String(info.delta / info.tolerance, 1) + "(" + String(int(info.tolerance)) + ") "; 
-  info.background = "#grey";
+  info.alert = 0;
   
   if (slice.average < info.average) { info.comment += "down "; };
   if (slice.average > info.average) { info.comment += "up "; };
@@ -57,20 +57,12 @@ mind_graph_data VMind::_addAnalysis(mind_graph_data info, buffer_data_stat slice
 
   if (abs(slice.value - info.average) > info.tolerance / 2) { 
     info.comment += "pulse "; 
-    info.background = "#red";
-
-    /*
-    if (slice.average > info.average) {
-      // TODO VGearSound::beep
-      ledcWriteTone(0, 2000);
-      delay(10);
-      ledcWriteTone(0, 0);      
-    }
-    */
+    info.alert = 1;
   }
 
   if (abs(slice.value - info.average) > info.tolerance) {
     info.comment += "hot ";
+    info.alert = 2;
   }
 
   return info;

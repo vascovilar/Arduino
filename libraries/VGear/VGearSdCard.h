@@ -47,7 +47,8 @@ class VGearSdCard
   public:
 
     void begin();
-    
+    bool status();
+
     Page list(const String &path);
     File open(const String &path);
     void close(File file);
@@ -56,6 +57,8 @@ class VGearSdCard
     String date(const String &path);
 
   private:
+
+    bool _status = false;
 
 };
 

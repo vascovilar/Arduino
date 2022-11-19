@@ -12,6 +12,13 @@ void VGearSound::beep()
   ledcWriteTone(0, 0);
 }
 
+void VGearSound::note(int frequency)
+{
+  ledcWriteTone(0, frequency);
+  delay(10);
+  ledcWriteTone(0, 0);
+}
+
 void VGearSound::open()
 {
   ledcWriteTone(0, 440);

@@ -1,6 +1,6 @@
-#include "VComScreen.h"
+#include "VGearScreen.h"
 
-VComScreen screen;
+VGearScreen screen;
 
 int len = 10;
 String menu[] = {
@@ -33,23 +33,24 @@ void setup(void)
 {
   Serial.begin(115200);
   screen.begin(menu, len);
+  pinMode(39, INPUT);
+  pinMode(34, INPUT);
+  pinMode(35, INPUT);
 }
 
 void loop()
 {
-  int up = touchRead(14);
-  int go = touchRead(12);
-  int down = touchRead(13);
-  
-  Serial.println(String(up) + " " + String(go) + " " + String(down));
+  bool up = !digitalRead(39);
+  int go = !digitalRead(34);
+  int down = !digitalRead(35);
 
-  if (up < 25 && up > 20) {
+  if (up) {
     screen.next(-1);
   }
-  if (go < 25 && go > 20) {
+  if (go) {
     screen.click(exec);
   }
-  if (down < 25 && down > 20) {
+  if (down) {
     screen.next(1);
   }
 

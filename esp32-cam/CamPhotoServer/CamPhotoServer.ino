@@ -1,10 +1,10 @@
-#include "VComWifi.h"
-#include "VComWebApi.h"
+#include "VGearWifi.h"
+#include "VGearWebApi.h"
 #include "VGearSdCard.h"
 #include "VSensorCam.h"
 
-VComWifi net;
-VComWebApi api;
+VGearWifi net;
+VGearWebApi api;
 VGearSdCard card;
 VSensorCam cam;
 

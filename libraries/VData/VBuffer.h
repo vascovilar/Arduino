@@ -1,5 +1,5 @@
 /*
- * Smart FIFO data buffer
+ * Smart FIFO _data buffer
  * Implementation:
  *   
  *   #include <VScreenMini.h>
@@ -14,7 +14,7 @@
  *   void loop() {
  *     graph.push(random(10,100));
  *     view.clear();
- *     view.graphBox(0, 16, 15, graph.data);
+ *     view.graphBox(0, 16, 15, graph._data);
  *     view.display();
  *     delay(1000);
  *   }
@@ -26,7 +26,7 @@
 #include "Arduino.h"
 
 #define BUFFER_ARRAY_LENGTH  120
-#define BUFFER_SAMPLE_LENGTH 100
+#define BUFFER_SAMPLE_LENGTH 120
 #define BUFFER_SAMPLE_DELAY  60000
 
 struct buffer_data_stat {
@@ -41,10 +41,9 @@ class VBuffer
 {
   public:
 
-    float data[BUFFER_ARRAY_LENGTH];
-
     bool push(float value)
     {
+      _last = value;
       if (_index < BUFFER_SAMPLE_LENGTH) { // get firsts, forget others
         _sample[_index++] = value;  
       }
@@ -59,18 +58,26 @@ class VBuffer
       return false;
     }
 
+    float* dump()
+    {
+      float * tmp = _data;
+      tmp[0] = _last;
+
+      return tmp;
+    }
+
     void reset()
     {
-      memset(data, 0, sizeof(data));
+      memset(_data, 0, sizeof(_data));
     }
 
     void slice(int from)
     {
-      int length = (sizeof(data) / sizeof(data[0])) - 1;
+      int length = (sizeof(_data) / sizeof(_data[0])) - 1;
       
       for(int i = from; i < length; i++) 
       {
-        data[i] = 0;
+        _data[i] = 0;
       }
     }
 
@@ -106,20 +113,22 @@ class VBuffer
   private:
 
     int _index = 0;
+    float _last;
+    float _data[BUFFER_ARRAY_LENGTH];
     float _sample[BUFFER_SAMPLE_LENGTH];
     uint32_t _timer = millis();
     
     void _pushFifo(float value)
     {
-      int length = (sizeof(data) / sizeof(data[0])) - 1;
+      int length = (sizeof(_data) / sizeof(_data[0])) - 1;
       
       for(int i = length; i >= 0 ; i--) 
       {
         // push value in buffer by sliding others from end to start index
         if(i == 0) {
-          data[0] = value;
+          _data[0] = value;
         } else {
-          data[i] = data[i-1];  
+          _data[i] = _data[i-1];  
         }
       }
     }

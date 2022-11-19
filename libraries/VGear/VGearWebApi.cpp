@@ -1,8 +1,8 @@
-#include "VComWebApi.h"
+#include "VGearWebApi.h"
 #include "uri/UriBraces.h"
 
 
-void VComWebApi::begin()
+void VGearWebApi::begin()
 {
   _server.onNotFound([](){ 
     String out = "\
@@ -19,7 +19,7 @@ void VComWebApi::begin()
   _server.begin();
 }
 
-bool VComWebApi::update(int delay)
+bool VGearWebApi::update(int delay)
 {
   if (millis() - _timer > delay) {
     _timer = millis(); // reset timer
@@ -32,14 +32,14 @@ bool VComWebApi::update(int delay)
   return false;
 }
 
-void VComWebApi::onPage(const String &uri, std::function<String()> callHtml)
+void VGearWebApi::onPage(const String &uri, std::function<String()> callHtml)
 {
   _server.on(Uri(uri), [&, callHtml]() { 
     _server.send(200, "text/html", getHtmlWrapper(callHtml())); 
   }); 
 }
 
-void VComWebApi::onPage(const String &uri, std::function<String(int)> callHtml)
+void VGearWebApi::onPage(const String &uri, std::function<String(int)> callHtml)
 {
   _server.on(UriBraces(uri), [&, callHtml]() {
     int id = _server.pathArg(0).toInt(); 
@@ -47,14 +47,14 @@ void VComWebApi::onPage(const String &uri, std::function<String(int)> callHtml)
   }); 
 }
 
-void VComWebApi::onXhr(const String &uri, std::function<String()> callHtml)
+void VGearWebApi::onXhr(const String &uri, std::function<String()> callHtml)
 {
   _server.on(UriBraces(uri), [&, callHtml]() {
     _server.send(200, "text/html", callHtml()); 
   }); 
 }
 
-void VComWebApi::onXhr(const String &uri, std::function<String(int)> callHtml)
+void VGearWebApi::onXhr(const String &uri, std::function<String(int)> callHtml)
 {
   _server.on(UriBraces(uri), [&, callHtml]() {
     int id = _server.pathArg(0).toInt(); 
@@ -62,7 +62,7 @@ void VComWebApi::onXhr(const String &uri, std::function<String(int)> callHtml)
   }); 
 }
 
-void VComWebApi::onJpg(const String &uri, std::function<File()> callFile)
+void VGearWebApi::onJpg(const String &uri, std::function<File()> callFile)
 {
   _server.on(UriBraces(uri), [&, callFile]() {
     File file = callFile();
@@ -73,7 +73,7 @@ void VComWebApi::onJpg(const String &uri, std::function<File()> callFile)
   }); 
 }
 
-void VComWebApi::onJpg(const String &uri, std::function<File(int)> callFile)
+void VGearWebApi::onJpg(const String &uri, std::function<File(int)> callFile)
 {
   _server.on(UriBraces(uri), [&, callFile]() {
     int id = _server.pathArg(0).toInt(); 
@@ -85,7 +85,7 @@ void VComWebApi::onJpg(const String &uri, std::function<File(int)> callFile)
   }); 
 }
 
-void VComWebApi::onCommand(const String &uri, std::function<void()> callCommand)
+void VGearWebApi::onCommand(const String &uri, std::function<void()> callCommand)
 {
   _server.on(Uri(uri), [&, callCommand]() { 
     callCommand();
@@ -93,7 +93,7 @@ void VComWebApi::onCommand(const String &uri, std::function<void()> callCommand)
   }); 
 }
 
-void VComWebApi::onCommand(const String &uri, std::function<void(int)> callCommand)
+void VGearWebApi::onCommand(const String &uri, std::function<void(int)> callCommand)
 {
   _server.on(UriBraces(uri), [&, callCommand]() { 
     int id = _server.pathArg(0).toInt(); 
@@ -102,7 +102,7 @@ void VComWebApi::onCommand(const String &uri, std::function<void(int)> callComma
   });
 }
 
-void VComWebApi::onSvg(const String &uri, std::function<String()> callHtml)
+void VGearWebApi::onSvg(const String &uri, std::function<String()> callHtml)
 {
   _server.on(Uri(uri), [&, callHtml]() { 
     _server.send(200, "image/svg+xml", callHtml()); 

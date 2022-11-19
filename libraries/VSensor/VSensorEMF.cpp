@@ -1,19 +1,21 @@
 #include "VSensorEMF.h"
 
-void VSensorEMF::begin(int antennaPin)
+void VSensorEMF::begin(int antenna)
 {
-  _antennaPin = antennaPin;
-   
-  pinMode(_antennaPin, INPUT);
+  if (antenna == 36) {
+    adc1_config_width(ADC_WIDTH_BIT_12);
+    adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_0);
+  } 
 }
 
 bool VSensorEMF::update(int delay)
 {
-  // get data every 100 ms
+  _max += _read();
+
   if (millis() - _timer > delay) {
     _timer = millis(); // reset the timer
-
-    _data.gauss = _read();
+    _data.gauss = _max / delay;
+    _max = 0;
 
     return true;
   }
@@ -23,7 +25,16 @@ bool VSensorEMF::update(int delay)
 
 float VSensorEMF::_read()
 {
-  float val = analogRead(_antennaPin);
+  return adc1_get_raw(ADC1_CHANNEL_0);
+}
 
-  return val;
+float VSensorEMF::_denoize()
+{
+  float total;
+
+  for (int i = 0; i<1000; i++) {
+    total += _read(); 
+  }
+
+  return total/1000;
 }

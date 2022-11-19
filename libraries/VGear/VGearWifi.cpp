@@ -1,6 +1,6 @@
-#include "VComWifi.h"
+#include "VGearWifi.h"
 
-void VComWifi::begin()
+void VGearWifi::begin()
 { 
   while (WiFi.status() != WL_CONNECTED) {
     scan();
@@ -15,7 +15,7 @@ void VComWifi::begin()
   Serial.println("");
 }
 
-bool VComWifi::scan()
+bool VGearWifi::scan()
 {
   Serial.println("");
   Serial.print("Scan wifi networks ...");
@@ -52,7 +52,7 @@ bool VComWifi::scan()
   return false;   
 }
 
-bool VComWifi::connect(const char* ssid, const char* password)
+bool VGearWifi::connect(const char* ssid, const char* password)
 {
   int i = 0;
   
@@ -72,7 +72,7 @@ bool VComWifi::connect(const char* ssid, const char* password)
   return true;  
 }
 
-bool VComWifi::disconnect()
+bool VGearWifi::disconnect()
 {
   WiFi.disconnect();
   Serial.println("Disconnecting from network");  
@@ -80,12 +80,12 @@ bool VComWifi::disconnect()
   return true;
 }
 
-String VComWifi::getIP()
+String VGearWifi::getIP()
 {
-  return String(WiFi.localIP());
+  return WiFi.localIP().toString();
 }
 
-String VComWifi::getTime()
+String VGearWifi::getTime()
 {
   struct tm timeinfo;
   timeinfo.tm_year = 0;
@@ -109,7 +109,7 @@ String VComWifi::getTime()
   return timeStamp;
 }
 
-String VComWifi::getUpTime()
+String VGearWifi::getUpTime()
 {
   int time = millis();
   int sec = time / 1000;
@@ -122,7 +122,7 @@ String VComWifi::getUpTime()
   return uptime;
 }
 
-unsigned long VComWifi::getTimeStamp()
+unsigned long VGearWifi::getTimeStamp()
 {
   time_t now;
   struct tm timeinfo;

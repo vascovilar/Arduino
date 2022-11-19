@@ -2,9 +2,9 @@
  * WebServer abstraction
  * Implementation:
  *
- *   #include <VComWebApi.h>
+ *   #include <VGearWebApi.h>
  *
- *   VComWebApi api;
+ *   VGearWebApi api;
  *
  *   void setup() {
  *     api.onPage("/", [](){ return html.getHome(); });
@@ -15,8 +15,8 @@
  *   }
  */
 
-#ifndef VComWebApi_h
-#define VComWebApi_h
+#ifndef VGearWebApi_h
+#define VGearWebApi_h
 
 #include "Arduino.h"
 #include "WebServer.h"
@@ -24,7 +24,7 @@
 
 static WebServer _server(80);
 
-class VComWebApi
+class VGearWebApi
 {
   public:   
     

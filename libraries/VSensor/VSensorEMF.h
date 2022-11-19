@@ -4,12 +4,10 @@
  *
  *   #include <VSensorEMF.h>
  *
- *   const int ANTENNAPIN = 5;
- *
  *   VSensorEMF emf; 
  *
  *   void setup() {
- *     battery.begin(ANTENNAPIN);
+ *     emf.begin(36);
  *   }
  *   void loop() {
  *     if (emf.update(100)) {
@@ -22,6 +20,7 @@
 #define VSensorEMF_h
 
 #include "Arduino.h"
+#include "driver/adc.h"
 
 struct emf_field_data {
   float    gauss;    // in gauss
@@ -30,18 +29,19 @@ struct emf_field_data {
 class VSensorEMF
 {
   public:
-    void begin(int antennaPin);
+    void begin(int antenna);
     bool update(int delay);
 
     emf_field_data dump() { return _data; }
     float getGauss() { return _data.gauss; }
 
   private:
-    int _antennaPin;
     emf_field_data _data;
     uint32_t _timer = millis();
+    float _max = 0;
     
     float _read();
+    float _denoize();
 };
 
 #endif

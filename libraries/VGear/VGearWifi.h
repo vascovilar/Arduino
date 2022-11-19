@@ -2,9 +2,9 @@
  * Connect to local network via WiFi and get real time
  * Implementation:
  *
- *   #include <VComWifi.h>
+ *   #include <VGearWifi.h>
  *
- *   VComWifi net; 
+ *   VGearWifi net; 
  *
  *   void setup() {
  *     net.begin();
@@ -14,14 +14,14 @@
  *   }
  */
 
-#ifndef VComWifi_h
-#define VComWifi_h
+#ifndef VGearWifi_h
+#define VGearWifi_h
 
 #include "Arduino.h"
 #include "WiFi.h"
 #include "time.h"
 
-class VComWifi
+class VGearWifi
 {
   public:
      

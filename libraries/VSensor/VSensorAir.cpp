@@ -1,11 +1,11 @@
-#include "VSensorMeteo.h"
+#include "VSensorAir.h"
 
-int VSensorMeteo::status()
+int VSensorAir::status()
 {
   return _status;
 }
 
-void VSensorMeteo::begin(int addr)
+void VSensorAir::begin(int addr)
 {
   if (addr == 0x76 | addr == 0x77) {
     _iaq.begin(addr, Wire);
@@ -28,7 +28,7 @@ void VSensorMeteo::begin(int addr)
   }
 }
 
-bool VSensorMeteo::update(int delay)
+bool VSensorAir::update(int delay)
 {
   // always running
   if (! _iaq.run()) {
@@ -54,7 +54,7 @@ bool VSensorMeteo::update(int delay)
   return false;
 }
 
-temperature_status_code VSensorMeteo::getTemperatureStatus()
+temperature_status_code VSensorAir::getTemperatureStatus()
 {
   temperature_status_code code;
 
@@ -67,7 +67,7 @@ temperature_status_code VSensorMeteo::getTemperatureStatus()
   return code;
 }
 
-pressure_status_code VSensorMeteo::getPressureStatus()
+pressure_status_code VSensorAir::getPressureStatus()
 {
   pressure_status_code code;
 
@@ -85,7 +85,7 @@ pressure_status_code VSensorMeteo::getPressureStatus()
   return code;
 }
 
-humidity_status_code VSensorMeteo::getHumidityStatus()
+humidity_status_code VSensorAir::getHumidityStatus()
 {
   humidity_status_code code;
 
@@ -98,7 +98,7 @@ humidity_status_code VSensorMeteo::getHumidityStatus()
   return code;
 }
 
-air_status_code VSensorMeteo::getAirStatus()
+air_status_code VSensorAir::getAirStatus()
 {
   air_status_code code;
 
@@ -114,7 +114,7 @@ air_status_code VSensorMeteo::getAirStatus()
   return code;
 }
 
-void VSensorMeteo::_checkDeviceStatus()
+void VSensorAir::_checkDeviceStatus()
 {
   if (_iaq.status != BSEC_OK) {
     if (_iaq.status < BSEC_OK) {
@@ -135,12 +135,12 @@ void VSensorMeteo::_checkDeviceStatus()
   }
 }
 
-float VSensorMeteo::_convertToHPa(float pressure)
+float VSensorAir::_convertToHPa(float pressure)
 {
   return pressure / 100.0;
 }
 
-float VSensorMeteo::_convertToKOhm(float resistance)
+float VSensorAir::_convertToKOhm(float resistance)
 {
   return resistance / 1000.0;
 }

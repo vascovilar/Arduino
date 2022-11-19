@@ -1,6 +1,6 @@
 /**
  * 
- * common conventions
+ * common language
  * 
  */
  
@@ -9,7 +9,7 @@
 
 #include "Arduino.h"
 
-#include "VSensorMeteo.h"
+#include "VSensorAir.h"
 #include "VSensorLight.h"
 
 
@@ -47,7 +47,7 @@ class VLang
 
   private:
 
-    String sensor_field_name[9] = {
+    String sensor_field_name[10] = {
       "Température",
       "Pression",
       "Humidité",
@@ -56,10 +56,11 @@ class VLang
       "Equivalent VOC",
       "Index UV",
       "Lumière visible",
-      "Infrarouges"
+      "Infrarouges",
+      "Radio"
     }; 
 
-    String sensor_field_unit[9] = {
+    String sensor_field_unit[10] = {
       "°C",
       "hPa",
       "%",
@@ -68,7 +69,8 @@ class VLang
       "ppm",
       "index",
       "lux",
-      "lux"
+      "lux",
+      ""
     };
 
     String air_status_label[8] = {

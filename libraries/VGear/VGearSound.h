@@ -25,6 +25,7 @@ class VGearSound
 
     void begin(int pin);
     void beep();
+    void note(int frequency);
     void open();
     void close();
 

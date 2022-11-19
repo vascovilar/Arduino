@@ -24,12 +24,15 @@ class VSensorCam
 {
   public:
 
-    void  begin();
-    
+    void begin();
+    bool status();
+
     camera_fb_t* open(bool flash);
     void close(camera_fb_t* fb);
 
   private:
+
+    bool _status = false;
 
 };
 
