@@ -1,5 +1,6 @@
 #include "VMind.h"
 #include "VBuffer.h"
+#include "VLang.h"
 #include "VHtml.h"
 #include "VSensorAir.h"
 #include "VSensorLight.h"
@@ -11,6 +12,7 @@
 
 VBuffer        graph[10];
 VMind          mind;
+VLang          lang;
 VHtml          html;
 VSensorAir     air;
 VSensorLight   light;
@@ -75,18 +77,32 @@ void update(int field)
   } 
 }
 
+String handleAlert()
+{
+  String out = "";
+
+  for (int field = 0; field < 10; field++) {
+    mind_graph_data info = mind.info(field);
+    if (info.alert != 0) {
+      out += lang.get(field) + ": " + String(info.value) + lang.unit(field) + " " + info.comment + "<br>";
+    }
+  }
+
+  return out;  
+}
+
 void setup()
 {
   Serial.begin(115200);
   
-  emf.begin(36);
-  sound.begin(4);
   Wire.begin(21, 22);
-
   air.begin(0x76);
   light.begin(0x60);
   gps.begin(0x10);
-
+  
+  emf.begin(36);
+  sound.begin(4);
+  
   // network
   net.begin();
   sound.open();
@@ -100,8 +116,9 @@ void setup()
     api.onCommand("/graph/" + String(field) + "/slice/{}", [field](int arg){ graph[field].slice(arg); });
   } 
   api.onXhr("/map", []() { return html.handleOsmPoint(gps.getLatitude(), gps.getLongitude(), gps.getDirectionAngle()); });
-  api.onXhr("/meteo", []() { return handleMeteoInfo(); });
-  api.onXhr("/gps", []() { return handleGpsInfo(); });
+  api.onXhr("/gps", []() { return html.handleGpsInfo(gps.getSatellites(), gps.getFixQuality(), gps.getAltitude(), gps.getSpeed()); });
+  api.onSvg("/graph/emf.svg", [](){ float* buffer = emf.snap(); return html.handleSvgGraph("EMF oscilloscope", buffer, graph[0].stat(buffer, 0, 100)); });
+  api.onXhr("/alert", []() { return handleAlert(); });
   api.begin();
 }
 
@@ -126,40 +143,11 @@ void loop()
     update(VOC_EQUIVALENT);
   }
 
-  if (!Wire.busy() && emf.update(6000)) {
-    update(EMF);
-    Serial.println(emf.getGauss());    
+  if (!Wire.busy()) {
+    if (emf.update(6000)) {
+      update(EMF);
+    }
   }
+  
  
-}
-
-// Affiche les infos GPS
-String handleGpsInfo() 
-{
-  return "\
-<h3>GPS:</h3>\
-Sat:" + String(gps.getSatellites()) + "  " + gps.getFixQuality() + "<br>\
-" + gps.getDateTime() + "<br>\
-" + String(gps.getLatitude(), 7) + " " + String(gps.getLatCardinal()) + "<br>\
-" + String(gps.getLongitude(), 7) + " " + String(gps.getLongCardinal()) + "<br>\
-Altitude:  " + String(gps.getAltitude(), 2) + " m<br>\
-Compass:   " + String(gps.getCompassAngle(), 2) + " deg " + String(gps.getComCardinal()) + "<br>\
-Speed:     " + String(gps.getSpeed(), 2) + " km/h<br>\
-Direction: " + String(gps.getDirectionAngle(), 2) + " deg<br>";
-}
-
-// Affiche les info meteo
-String handleMeteoInfo() 
-{
-  return "\
-<h3>Meteo:</h3>\
-Temperature: " + String(air.getTemperature()) + " °C<br>\
-Pressure:    " + String(air.getPressure()) + " hPa<br>\
-Humidity:    " + String(air.getHumidity()) + " %<br>\
-Air quality: " + String(air.getAirQuality()) + "<br>\
-CO2 equiv.:  " + String(air.getCo2Equivalent()) + " ppm<br>\
-VOC equiv.:  " + String(air.getBreathVocEquivalent()) + " ppm<br>\
-UV Index:    " + String(light.getUVIndex()) + "<br>\
-Visible:     " + String(light.getVisible()) + " lux<br>\
-Infrared:    " + String(light.getInfraRed()) + " lux<br>";
 }

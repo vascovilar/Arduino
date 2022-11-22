@@ -89,7 +89,7 @@ class VMind
 
     mind_graph_data _comfort[11];
     mind_graph_data _buildGraph(int field, int status, buffer_data_stat stat);
-    mind_graph_data _addAnalysis(mind_graph_data data, buffer_data_stat stat);
+    mind_graph_data _addAnalysis(mind_graph_data data, buffer_data_stat slice, buffer_data_stat other);
     String _color(mind_comfort_code code) { return mind_comfort_color[int(code)]; }
     float _tolerance(int code) { return sensor_tolerance_value[int(code)]; }
 
@@ -113,7 +113,7 @@ class VMind
       1.0,        // UV_INDEX
       10.0,       // VISIBLE
       100.0,      // INFRARED
-      400
+      4           // EMF
     };
 
     // conversions

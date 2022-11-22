@@ -57,7 +57,7 @@ class VLang
       "Index UV",
       "Lumière visible",
       "Infrarouges",
-      "Radio"
+      "EMF cumul"
     }; 
 
     String sensor_field_unit[10] = {
@@ -70,7 +70,7 @@ class VLang
       "index",
       "lux",
       "lux",
-      ""
+      "index"
     };
 
     String air_status_label[8] = {

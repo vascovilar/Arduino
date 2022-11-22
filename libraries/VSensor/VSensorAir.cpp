@@ -30,6 +30,7 @@ void VSensorAir::begin(int addr)
 
 bool VSensorAir::update(int delay)
 {
+  // TODO vasco: move in milli loop
   // always running
   if (! _iaq.run()) {
     // If no data is available

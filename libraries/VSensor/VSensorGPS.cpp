@@ -23,6 +23,7 @@ void VSensorGPS::begin(int addr)
 
 bool VSensorGPS::update(int delay)
 {
+  // TODO vasco: move in millis loop
   // update in loop
   char c = _gps.read();
   if (_gps.newNMEAreceived()) {

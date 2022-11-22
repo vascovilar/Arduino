@@ -23,7 +23,7 @@
 #include "driver/adc.h"
 
 struct emf_field_data {
-  float    gauss;    // in gauss
+  float    gauss;    // index
 };
 
 class VSensorEMF
@@ -31,17 +31,18 @@ class VSensorEMF
   public:
     void begin(int antenna);
     bool update(int delay);
-
+    float* snap();
+    
     emf_field_data dump() { return _data; }
     float getGauss() { return _data.gauss; }
-
+    
   private:
     emf_field_data _data;
     uint32_t _timer = millis();
     float _max = 0;
-    
+    float _buffer[100];
+
     float _read();
-    float _denoize();
 };
 
 #endif

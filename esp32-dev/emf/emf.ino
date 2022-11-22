@@ -7,12 +7,12 @@ VGearSound sound;
 void setup() {
   Serial.begin(115200);
   emf.begin(36); 
-  
-  //pinMode(33, INPUT_PULLUP);
+/*
   pinMode(39, INPUT);
   pinMode(34, INPUT);
   pinMode(35, INPUT);
   pinMode(15, OUTPUT);
+*/
   sound.begin(4);
   sound.open();
   delay(1000);
@@ -28,9 +28,17 @@ void loop()
 
   Serial.println(String(valH)+" "+String(valM)+" "+String(valD));
 */
-  
-  if (emf.update(100)) {
+
+  if (emf.update(1000)) {
     //sound.note(freq);
-    Serial.println(String(emf.getGauss()));
+    //Serial.println(String(emf.getGauss()));
+    
+    
+    float* buffer = emf.snap();
+    for (int i = 0; i<120; i++) {
+      Serial.println(buffer[i]); 
+    }  
+    
+    //sound.beep();
   }
 }

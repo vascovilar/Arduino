@@ -5,7 +5,10 @@ void VMind::analyse(int field, int status, float* values)
   VBuffer buffer;
 
   mind_graph_data info = _buildGraph(field, status, buffer.stat(values, 0, BUFFER_ARRAY_LENGTH));
-  info = _addAnalysis(info, buffer.stat(values, 0, int(BUFFER_ARRAY_LENGTH / MIND_SENSITIVITY)));
+
+  buffer_data_stat slice = buffer.stat(values, 0, int(BUFFER_ARRAY_LENGTH / MIND_SENSITIVITY));
+  buffer_data_stat other = buffer.stat(values, int(BUFFER_ARRAY_LENGTH / MIND_SENSITIVITY), BUFFER_ARRAY_LENGTH);
+  info = _addAnalysis(info, slice, other); 
 
   _comfort[field] = info;
 }
@@ -45,23 +48,21 @@ mind_graph_data VMind::_buildGraph(int field, int status, buffer_data_stat stat)
   return info;
 }
 
-mind_graph_data VMind::_addAnalysis(mind_graph_data info, buffer_data_stat slice)
+mind_graph_data VMind::_addAnalysis(mind_graph_data info, buffer_data_stat slice, buffer_data_stat other)
 {
   info.comment += "x" + String(info.delta / info.tolerance, 1) + "(" + String(int(info.tolerance)) + ") "; 
   info.alert = 0;
   
-  if (slice.average < info.average) { info.comment += "down "; };
-  if (slice.average > info.average) { info.comment += "up "; };
-  if (slice.delta < info.delta) { info.comment += "stab "; };
-  if (slice.delta > info.delta) { info.comment += "ampl "; };
+  if (slice.average < other.average) { info.comment += "down "; };
+  if (slice.average > other.average) { info.comment += "up "; };
+  if (slice.delta < other.delta) { info.comment += "stab "; };
+  if (slice.delta > other.delta) { info.comment += "ampl "; };
 
   if (abs(slice.value - info.average) > info.tolerance / 2) { 
-    info.comment += "pulse "; 
     info.alert = 1;
   }
 
   if (abs(slice.value - info.average) > info.tolerance) {
-    info.comment += "hot ";
     info.alert = 2;
   }
 

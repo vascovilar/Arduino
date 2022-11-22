@@ -14,7 +14,7 @@ bool VSensorEMF::update(int delay)
 
   if (millis() - _timer > delay) {
     _timer = millis(); // reset the timer
-    _data.gauss = _max / delay;
+    _data.gauss = _max / delay / 100;
     _max = 0;
 
     return true;
@@ -23,18 +23,25 @@ bool VSensorEMF::update(int delay)
   return false;
 }
 
+float* VSensorEMF::snap()
+{
+  uint32_t time = micros();
+  int i = 0;
+  int max = 0;
+
+  while (i<100) {
+    max += _read();
+    if (micros() - time > 500) {
+      time = micros();
+      _buffer[i++] = max + 0.001; 
+      max = 0;
+    }
+  }
+
+  return _buffer;
+}
+
 float VSensorEMF::_read()
 {
   return adc1_get_raw(ADC1_CHANNEL_0);
-}
-
-float VSensorEMF::_denoize()
-{
-  float total;
-
-  for (int i = 0; i<1000; i++) {
-    total += _read(); 
-  }
-
-  return total/1000;
 }
