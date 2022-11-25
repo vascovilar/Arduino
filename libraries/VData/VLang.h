@@ -9,6 +9,7 @@
 
 #include "Arduino.h"
 
+#include "VSensors.h"
 #include "VSensorAir.h"
 #include "VSensorLight.h"
 
@@ -27,7 +28,8 @@ class VLang
     String get(uv_status_code code)           { return uv_status_label[int(code)]; }
     
     // tool
-    String find(int field, int code) {
+    String find(int field, int code) 
+    {
       switch (field) 
       {
         case AIR_QUALITY:

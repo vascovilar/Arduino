@@ -2,6 +2,7 @@
 #include "VBuffer.h"
 #include "VLang.h"
 #include "VHtml.h"
+#include "VSensors.h"
 #include "VSensorAir.h"
 #include "VSensorLight.h"
 #include "VSensorGPS.h"
@@ -29,43 +30,43 @@ void update(int field)
   {
     case TEMPERATURE:
       graph[TEMPERATURE].push(air.getTemperature());
-      mind.analyse(TEMPERATURE, air.getTemperatureStatus(), graph[TEMPERATURE].dump());
+      mind.analyse(TEMPERATURE, air.getTemperatureStatus(), air.getTemperatureTolerance(), graph[TEMPERATURE].dump());
       break;
     case PRESSURE:
       graph[PRESSURE].push(air.getPressure());
-      mind.analyse(PRESSURE, air.getPressureStatus(), graph[PRESSURE].dump());
+      mind.analyse(PRESSURE, air.getPressureStatus(), air.getPressureTolerance(), graph[PRESSURE].dump());
       break;
     case HUMIDITY:
       graph[HUMIDITY].push(air.getHumidity());
-      mind.analyse(HUMIDITY, air.getHumidityStatus(), graph[HUMIDITY].dump());
+      mind.analyse(HUMIDITY, air.getHumidityStatus(), air.getHumidityTolerance(), graph[HUMIDITY].dump());
       break;
     case AIR_QUALITY:
       graph[AIR_QUALITY].push(air.getAirQuality());
-      mind.analyse(AIR_QUALITY, air.getAirStatus(), graph[AIR_QUALITY].dump());
+      mind.analyse(AIR_QUALITY, air.getAirQualityStatus(), air.getAirQualityTolerance(), graph[AIR_QUALITY].dump());
       break;
     case CO2_EQUIVALENT:
       graph[CO2_EQUIVALENT].push(air.getCo2Equivalent());
-      mind.analyse(CO2_EQUIVALENT, 0, graph[CO2_EQUIVALENT].dump());
+      mind.analyse(CO2_EQUIVALENT, 0, air.getCo2EquivalentTolerance(), graph[CO2_EQUIVALENT].dump());
       break;
     case VOC_EQUIVALENT:
-      graph[VOC_EQUIVALENT].push(air.getBreathVocEquivalent());
-      mind.analyse(VOC_EQUIVALENT, 0, graph[VOC_EQUIVALENT].dump());
+      graph[VOC_EQUIVALENT].push(air.getVocEquivalent());
+      mind.analyse(VOC_EQUIVALENT, 0, air.getVocEquivalentTolerance(), graph[VOC_EQUIVALENT].dump());
       break;
     case UV_INDEX:
       graph[UV_INDEX].push(light.getUVIndex());
-      mind.analyse(UV_INDEX, light.getUvIndexStatus(), graph[UV_INDEX].dump());
+      mind.analyse(UV_INDEX, light.getUVIndexStatus(), light.getUVIndexTolerance(), graph[UV_INDEX].dump());
       break;
     case VISIBLE:
       graph[VISIBLE].push(light.getVisible());
-      mind.analyse(VISIBLE, 0, graph[VISIBLE].dump());
+      mind.analyse(VISIBLE, 0, light.getVisibleTolerance(), graph[VISIBLE].dump());
       break;
     case INFRARED:
       graph[INFRARED].push(light.getInfraRed());
-      mind.analyse(INFRARED, 0, graph[INFRARED].dump());
+      mind.analyse(INFRARED, 0, light.getInfraRedTolerance(), graph[INFRARED].dump());
       break;
     case EMF:
       graph[EMF].push(emf.getGauss());
-      mind.analyse(EMF, 0, graph[EMF].dump());
+      mind.analyse(EMF, 0, emf.getGaussTolerance(), graph[EMF].dump());
       break;
   } 
 
@@ -112,12 +113,11 @@ void setup()
   for (int field = 0; field < 10; field++) {
     graph[field] = VBuffer();
     api.onSvg("/graph/" + String(field) + ".svg", [field](){ return html.handleSvgGraph(field, graph[field].dump(), mind.info(field)); });
-    api.onCommand("/graph/" + String(field) + "/reset", [field](){ graph[field].reset(); });
-    api.onCommand("/graph/" + String(field) + "/slice/{}", [field](int arg){ graph[field].slice(arg); });
+    api.onCommand("/graph/" + String(field) + "/reset/{}", [field](int arg){ graph[field].reset(arg); });
   } 
   api.onXhr("/map", []() { return html.handleOsmPoint(gps.getLatitude(), gps.getLongitude(), gps.getDirectionAngle()); });
   api.onXhr("/gps", []() { return html.handleGpsInfo(gps.getSatellites(), gps.getFixQuality(), gps.getAltitude(), gps.getSpeed()); });
-  api.onSvg("/graph/emf.svg", [](){ float* buffer = emf.snap(); return html.handleSvgGraph("EMF oscilloscope", buffer, graph[0].stat(buffer, 0, 100)); });
+  api.onSvg("/graph/emf.svg", [](){ float* buffer = emf.snap(); return html.handleSvgGraph("EMF", buffer, VBuffer::stat(buffer, 0, 100)); });
   api.onXhr("/alert", []() { return handleAlert(); });
   api.begin();
 }

@@ -9,23 +9,11 @@
 
 #include "Arduino.h"
 #include "VBuffer.h"
+#include "VSensors.h"
 #include "VSensorAir.h"
 #include "VSensorLight.h"
 
 #define MIND_SENSITIVITY 12
-
-enum sensor_field_code {
-  TEMPERATURE = 0,    // in °C
-  PRESSURE = 1,       // in hPa 
-  HUMIDITY = 2,       // in %
-  AIR_QUALITY = 3,    // index
-  CO2_EQUIVALENT = 4, // in ppm
-  VOC_EQUIVALENT = 5, // in ppm
-  UV_INDEX = 6,       // in UV index
-  VISIBLE = 7,        // in lux
-  INFRARED = 8,       // in lux
-  EMF = 9
-};
 
 enum mind_comfort_code {
   GRIS = 0,   // inactif
@@ -42,7 +30,6 @@ struct mind_graph_data {
   float    minimum;
   float    average;
   float    delta;
-  float    tolerance;
   float    top;
   float    bottom;
   int      status;
@@ -55,8 +42,44 @@ class VMind
 {
   public:
 
-    void analyse(int field, int status, float* values);
-    mind_graph_data info(int field);
+    void analyse(int field, int status, float tolerance, float* values)
+    {
+      mind_graph_data info;
+      
+      buffer_data_stat stat = VBuffer::stat(values, 0, BUFFER_ARRAY_LENGTH, tolerance);
+      info.value = stat.value;
+      info.maximum = stat.maximum;
+      info.minimum = stat.minimum;
+      info.average = stat.average;      
+      info.delta = stat.delta;
+      info.top = stat.top;
+      info.bottom = stat.bottom;
+      info.status = status;    
+      info.color = _color(find(field, status));
+
+      buffer_data_stat slice = VBuffer::stat(values, 0, int(BUFFER_ARRAY_LENGTH / MIND_SENSITIVITY));
+      buffer_data_stat other = VBuffer::stat(values, int(BUFFER_ARRAY_LENGTH / MIND_SENSITIVITY), BUFFER_ARRAY_LENGTH);
+      info.comment  = String(stat.trend * 100) + "%/" + stat.tolerance + " "; 
+      if (slice.average < other.average) { info.comment += "down "; };
+      if (slice.average > other.average) { info.comment += "up "; };
+      if (slice.delta < other.delta) { info.comment += "steady "; };
+      if (slice.delta > other.delta) { info.comment += "excited "; };
+
+      info.alert = 0;
+      if (abs(stat.trend) > 0.5) { 
+        info.alert = 1;
+      }
+      if (abs(stat.trend) > 1) {
+        info.alert = 2;
+      }
+
+      _comfort[field] = info;
+    }
+  
+    mind_graph_data info(int field)
+    {
+      return _comfort[field];
+    }
     
     // conversions by polymorphism
     mind_comfort_code get(temperature_status_code code) { return mind_temperature_comfort[int(code)]; }
@@ -66,9 +89,9 @@ class VMind
     mind_comfort_code get(uv_status_code code)          { return mind_uv_comfort[int(code)]; }
     
     // tool
-    mind_comfort_code find(int code, int value) 
+    mind_comfort_code find(int field, int value) 
     {
-      switch (code) 
+      switch (field) 
       {
         case TEMPERATURE:
           return get((temperature_status_code) value);
@@ -88,10 +111,7 @@ class VMind
   private:
 
     mind_graph_data _comfort[11];
-    mind_graph_data _buildGraph(int field, int status, buffer_data_stat stat);
-    mind_graph_data _addAnalysis(mind_graph_data data, buffer_data_stat slice, buffer_data_stat other);
     String _color(mind_comfort_code code) { return mind_comfort_color[int(code)]; }
-    float _tolerance(int code) { return sensor_tolerance_value[int(code)]; }
 
     String mind_comfort_color[6] {
       "#444444",  // GRIS
@@ -100,20 +120,6 @@ class VMind
       "#f85900",  // ORANGE
       "#d8001d",  // ROUGE
       "#6B49C8"   // VIOLET
-    };
-
-    // TODO: auto tolerance to remove sensor fields from VMind
-    float sensor_tolerance_value[10] = {
-      1.0,        // TEMPERATURE
-      5.0,        // PRESSURE
-      5.0,        // HUMIDITY
-      50.0,       // AIR_QUALITY
-      200.0,      // CO2_EQUIVALENT
-      1.0,        // VOC_EQUIVALENT
-      1.0,        // UV_INDEX
-      10.0,       // VISIBLE
-      100.0,      // INFRARED
-      4           // EMF
     };
 
     // conversions

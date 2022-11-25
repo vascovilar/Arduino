@@ -19,8 +19,8 @@ class VHtml
     String handleMeteoHome(int delay) 
     {
   return "\
-<h1><span class='material-icons'>thunderstorm</span> ESP32-METEO</h1>\
 <div id='alert' style='float:right'></div>\
+<h1><span class='material-icons'>thunderstorm</span> ESP32-METEO</h1>\
 <div id='div_0' class='simple bordered'></div>\
 <div id='div_1' class='simple bordered'></div>\
 <div id='div_2' class='simple bordered'></div>\
@@ -86,7 +86,7 @@ class VHtml
         }
         if (i % 10 == 0) {
           grid += "<line x1='" + String(x1) + "' y1='60' x2='" + String(x1) + "' y2='165' stroke-width='0.5' />";
-          text += "<a href='/graph/" + String(field) + "/slice/" + String(i) + "'><text x='" + String(x1 - 3) + "' y='173' font-size='8px' fill='#999999'>" + String(i) + "</text></a>";
+          text += "<a href='/graph/" + String(field) + "/reset/" + String(i) + "'><text x='" + String(x1 - 3) + "' y='173' font-size='8px' fill='#999999'>" + String(i) + "</text></a>";
         }
       }
       float limit[3] = {info.maximum, info.minimum, info.average};
@@ -204,7 +204,7 @@ class VHtml
     </linearGradient>\
   </defs>\
   <rect width='440' height='190' rx='20' ry='20' />\
-  <text x='20' y='25' font-size='14px' fill='white'>" + title + "</text>\
+  <text x='20' y='25' font-size='14px' fill='white'>" + title + " oscilloscope</text>\
   " + meter + "\
   <text x='" + String(810 - (String(info.maximum).length()) * 24) + "' y='44' font-size='48px' font-weight='bold' fill='url(#shaded)' letter-spacing='-3' transform='scale(0.5, 1)'>" + String(info.maximum) + "</text>\
   <text x='20' y='63' font-size='10px' fill='#999999'>" + String(info.maximum) + "</text>\

@@ -88,12 +88,20 @@ class VSensorAir
     float getGasResistance() { return _data.gasResistance; }
     float getAirQuality() { return _data.airQuality; }
     float getCo2Equivalent() { return _data.co2Equivalent; }
-    float getBreathVocEquivalent() { return _data.breathVocEquivalent; }
-    
+    float getVocEquivalent() { return _data.breathVocEquivalent; }
+
+    float getTemperatureTolerance() { return 1.0; }
+    float getPressureTolerance() { return 5.0; }
+    float getHumidityTolerance() { return 5.0; }
+    float getGasResistanceTolerance() { return 10000.0; }
+    float getAirQualityTolerance() { return 50.0; }
+    float getCo2EquivalentTolerance() { return 200.0; }
+    float getVocEquivalentTolerance() { return 1.0; }
+
     temperature_status_code getTemperatureStatus();
     pressure_status_code getPressureStatus();
     humidity_status_code getHumidityStatus();
-    air_status_code getAirStatus();
+    air_status_code getAirQualityStatus();
   
   private:
     

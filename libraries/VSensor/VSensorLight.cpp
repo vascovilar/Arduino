@@ -18,7 +18,7 @@ bool VSensorLight::update(int delay)
   if (millis() - _timer > delay) {
     _timer = millis(); // reset the timer
 
-    _data.uvIndex = _convertToUvIndex(_uv.readUV());
+    _data.uvIndex = _convertToUVIndex(_uv.readUV());
     _data.visible = _uv.readVisible();
     _data.infraRed = _uv.readIR();
 
@@ -28,7 +28,7 @@ bool VSensorLight::update(int delay)
   return false;
 }
 
-uv_status_code VSensorLight::getUvIndexStatus()
+uv_status_code VSensorLight::getUVIndexStatus()
 {
   uv_status_code code;
 
@@ -41,7 +41,7 @@ uv_status_code VSensorLight::getUvIndexStatus()
   return code;
 }
 
-float VSensorLight::_convertToUvIndex(float uv)
+float VSensorLight::_convertToUVIndex(float uv)
 {
   return uv / 100.0;
 }

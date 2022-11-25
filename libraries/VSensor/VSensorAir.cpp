@@ -99,7 +99,7 @@ humidity_status_code VSensorAir::getHumidityStatus()
   return code;
 }
 
-air_status_code VSensorAir::getAirStatus()
+air_status_code VSensorAir::getAirQualityStatus()
 {
   air_status_code code;
 

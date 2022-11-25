@@ -35,6 +35,10 @@ struct buffer_data_stat {
   float    maximum; 
   float    average;
   float    delta;
+  float    top;
+  float    bottom;
+  float    tolerance;
+  float    trend;
 };
 
 class VBuffer
@@ -43,6 +47,10 @@ class VBuffer
 
     bool push(float value)
     {
+      if (value == 0) {
+        value = 0.001;
+      }
+      
       _last = value;
       if (_index < BUFFER_SAMPLE_LENGTH) { // get firsts, forget others
         _sample[_index++] = value;  
@@ -66,12 +74,7 @@ class VBuffer
       return tmp;
     }
 
-    void reset()
-    {
-      memset(_data, 0, sizeof(_data));
-    }
-
-    void slice(int from)
+    void reset(int from)
     {
       int length = (sizeof(_data) / sizeof(_data[0])) - 1;
       
@@ -81,7 +84,7 @@ class VBuffer
       }
     }
 
-    buffer_data_stat stat(float values[BUFFER_ARRAY_LENGTH], int from, int to) 
+    static buffer_data_stat stat(float values[BUFFER_ARRAY_LENGTH], int from, int to, float tolerance = 0) 
     {
       buffer_data_stat stat;
       int count = 0;
@@ -107,6 +110,23 @@ class VBuffer
       stat.average = total / count;
       stat.delta = stat.maximum - stat.minimum;
 
+      stat.top = stat.average + tolerance / 2;
+      stat.bottom = stat.average - tolerance / 2;  
+      if (stat.bottom < 0) {
+        stat.bottom = 0;
+      }
+      if (stat.top < stat.maximum) {
+        stat.top = stat.maximum;
+      } 
+      if (stat.bottom > stat.minimum) {
+        stat.bottom = stat.minimum;
+      }
+
+      if (tolerance != 0) {
+        stat.tolerance = tolerance;
+        stat.trend = (stat.value - stat.average) / tolerance;
+      }
+      
       return stat;   
     }
 

@@ -24,8 +24,8 @@
 
 struct light_field_data {
   float    uvIndex;     // in UV index
-  int      visible;     // in lux
-  int      infraRed;    // in lux
+  float    visible;     // in lux
+  float    infraRed;    // in lux
 };
 
 enum uv_status_code {
@@ -46,10 +46,14 @@ class VSensorLight
     light_field_data dump() { return _data; }
 
     float getUVIndex() { return _data.uvIndex; }
-    int   getVisible() { return _data.visible; }
-    int   getInfraRed() { return _data.infraRed; }
+    float getVisible() { return _data.visible; }
+    float getInfraRed() { return _data.infraRed; }
 
-    uv_status_code getUvIndexStatus();    
+    float getUVIndexTolerance() { return 1.0; }
+    float getVisibleTolerance() { return 100.0; }
+    float getInfraRedTolerance() { return 100.0; }
+
+    uv_status_code getUVIndexStatus();    
 
   private:
 
@@ -58,7 +62,7 @@ class VSensorLight
     uint32_t _timer = millis();
     int _status = 2;
     
-    float _convertToUvIndex(float uv);
+    float _convertToUVIndex(float uv);
 };
 
 #endif

@@ -34,7 +34,10 @@ class VSensorEMF
     float* snap();
     
     emf_field_data dump() { return _data; }
+    
     float getGauss() { return _data.gauss; }
+
+    float getGaussTolerance() { return 10.0; }
     
   private:
     emf_field_data _data;
