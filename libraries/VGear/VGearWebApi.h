@@ -71,7 +71,7 @@ static String getHtmlWrapper(const String &content)
       a:link,a:visited,a:hover,a:focus,a:active{color:#366899;text-decoration:none;}\
       a:hover{color:#4aa3fc;}\
       div{float:left;}\
-      .bordered{border:1px solid #444444;border-radius:20px;margin:5px;}\
+      .bordered{border:1px solid #444444;border-radius:20px;margin:5px;overflow:hidden;}\
       .padded{padding:20px; padding-top:15px;}\
       .simple{width:440px; height:190px;}\
       .double{width:440px; height:390px;}\

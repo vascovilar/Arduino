@@ -17,11 +17,7 @@
 #ifndef _SI1145_H_
 #define _SI1145_H_
 
-#if (ARDUINO >= 100)
 #include "Arduino.h"
-#else
-#include "WProgram.h"
-#endif
 #include <Adafruit_I2CDevice.h>
 
 /* COMMANDS */

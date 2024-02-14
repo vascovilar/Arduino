@@ -1,13 +1,9 @@
-/**
- * 
- * 
- * 
- */
-
 #ifndef VSensors_h
 #define VSensors_h
 
 #include "Arduino.h"
+
+#define SENSOR_COUNT  11
 
 enum sensor_field_code {
   TEMPERATURE = 0,    // in °C
@@ -19,7 +15,8 @@ enum sensor_field_code {
   UV_INDEX = 6,       // in UV index
   VISIBLE = 7,        // in lux
   INFRARED = 8,       // in lux
-  EMF = 9             // index
+  EMF = 9,            // index
+  MEMORY = 10         // in % used  
 };
 
 #endif

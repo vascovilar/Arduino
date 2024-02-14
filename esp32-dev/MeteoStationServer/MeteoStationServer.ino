@@ -7,11 +7,12 @@
 #include "VSensorLight.h"
 #include "VSensorGPS.h"
 #include "VSensorEMF.h"
+#include "VSensorMemory.h"
 #include "VGearWifi.h"
 #include "VGearWebApi.h"
 #include "VGearSound.h"
 
-VBuffer        graph[10];
+VBuffer        graph[SENSOR_COUNT];
 VMind          mind;
 VLang          lang;
 VHtml          html;
@@ -19,10 +20,10 @@ VSensorAir     air;
 VSensorLight   light;
 VSensorGPS     gps; 
 VSensorEMF     emf;
+VSensorMemory  mem;
 VGearWifi      net;
 VGearWebApi    api;
 VGearSound     sound;
-
 
 void update(int field)
 {
@@ -67,6 +68,10 @@ void update(int field)
     case EMF:
       graph[EMF].push(emf.getGauss());
       mind.analyse(EMF, 0, emf.getGaussTolerance(), graph[EMF].dump());
+      break;    
+    case MEMORY:
+      graph[MEMORY].push(mem.getMemoryUsage());
+      mind.analyse(MEMORY, 0, mem.getMemoryUsageTolerance(), graph[MEMORY].dump());
       break;
   } 
 
@@ -82,10 +87,10 @@ String handleAlert()
 {
   String out = "";
 
-  for (int field = 0; field < 10; field++) {
+  for (int field = 0; field < SENSOR_COUNT; field++) {
     mind_graph_data info = mind.info(field);
     if (info.alert != 0) {
-      out += lang.get(field) + ": " + String(info.value) + lang.unit(field) + " " + info.comment + "<br>";
+      out += html.handleNotification(lang.get(field) + ": " + String(info.value) + lang.unit(field) + " " + info.comment);
     }
   }
 
@@ -102,6 +107,7 @@ void setup()
   gps.begin(0x10);
   
   emf.begin(36);
+  mem.begin();
   sound.begin(4);
   
   // network
@@ -109,16 +115,16 @@ void setup()
   sound.open();
   
   // web server
-  api.onPage("/", [](){ return html.handleMeteoHome(3000); });
-  for (int field = 0; field < 10; field++) {
+  for (int field = 0; field < SENSOR_COUNT; field++) {
     graph[field] = VBuffer();
     api.onSvg("/graph/" + String(field) + ".svg", [field](){ return html.handleSvgGraph(field, graph[field].dump(), mind.info(field)); });
     api.onCommand("/graph/" + String(field) + "/reset/{}", [field](int arg){ graph[field].reset(arg); });
-  } 
-  api.onXhr("/map", []() { return html.handleOsmPoint(gps.getLatitude(), gps.getLongitude(), gps.getDirectionAngle()); });
-  api.onXhr("/gps", []() { return html.handleGpsInfo(gps.getSatellites(), gps.getFixQuality(), gps.getAltitude(), gps.getSpeed()); });
+  }
   api.onSvg("/graph/emf.svg", [](){ float* buffer = emf.snap(); return html.handleSvgGraph("EMF", buffer, VBuffer::stat(buffer, 0, 100)); });
+  api.onXhr("/script/map.js", []() { return html.handleOsmPoint(gps.getLatitude(), gps.getLongitude(), gps.getDirectionAngle()); });
+  api.onXhr("/gps", []() { return html.handleGpsInfo(gps.getSatellites(), gps.getFixQuality(), gps.getAltitude(), gps.getSpeed()); });
   api.onXhr("/alert", []() { return handleAlert(); });
+  api.onPage("/", [](){ return html.handleMeteoHome(3000); });
   api.begin();
 }
 
@@ -127,7 +133,11 @@ void loop()
   api.update(10);
   
   //gps.update(1000);
- 
+
+  if (mem.update(1000)) {
+    update(MEMORY);
+  }
+
   if (light.update(1000)) {
     update(UV_INDEX);
     update(VISIBLE);

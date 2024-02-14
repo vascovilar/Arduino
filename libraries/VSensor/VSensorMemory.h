@@ -31,9 +31,11 @@ class VSensorMemory
 
     void begin();
     bool update(int delay);
-
     hardware_field_data dump() { return _data; }
+    
     float getMemoryUsage() { return _data.memoryUsage; }
+
+    float getMemoryUsageTolerance() { return 10.0; }
 
   private:
 

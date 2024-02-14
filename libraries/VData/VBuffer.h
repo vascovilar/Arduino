@@ -1,25 +1,3 @@
-/*
- * Smart FIFO _data buffer
- * Implementation:
- *   
- *   #include <VScreenMini.h>
- *   #include <VBuffer.h>
- *
- *   VScreenMini view;
- *   VBuffer graph;
- *
- *   void setup() {
- *     view.begin(0x3C);
- *   }
- *   void loop() {
- *     graph.push(random(10,100));
- *     view.clear();
- *     view.graphBox(0, 16, 15, graph._data);
- *     view.display();
- *     delay(1000);
- *   }
- */
-
 #ifndef VBuffer_h
 #define VBuffer_h
 
@@ -30,15 +8,15 @@
 #define BUFFER_SAMPLE_DELAY  60000
 
 struct buffer_data_stat {
-  float    value;
-  float    minimum;
-  float    maximum; 
-  float    average;
-  float    delta;
-  float    top;
-  float    bottom;
-  float    tolerance;
-  float    trend;
+  float    value;     // current value
+  float    minimum;   // minimum in buffer
+  float    maximum;   // maximum in buffer
+  float    average;   // non null average data
+  float    delta;     // amplitude from min to max
+  float    top;       // recommanded top graph value
+  float    bottom;    // recommanded bottom graph value
+  float    tolerance; // tolerance value for this data set
+  float    trend;     // 0~1 unsigned value to represent trend
 };
 
 class VBuffer

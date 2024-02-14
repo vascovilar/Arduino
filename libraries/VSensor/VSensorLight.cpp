@@ -19,8 +19,8 @@ bool VSensorLight::update(int delay)
     _timer = millis(); // reset the timer
 
     _data.uvIndex = _convertToUVIndex(_uv.readUV());
-    _data.visible = _uv.readVisible();
-    _data.infraRed = _uv.readIR();
+    _data.visible = _uv.readVisible() - 260.0;
+    _data.infraRed = _uv.readIR() - 252.0;
 
     return true;
   }

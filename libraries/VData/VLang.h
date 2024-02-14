@@ -1,9 +1,3 @@
-/**
- * 
- * common language
- * 
- */
- 
 #ifndef VLang_h
 #define VLang_h
 
@@ -49,7 +43,7 @@ class VLang
 
   private:
 
-    String sensor_field_name[10] = {
+    String sensor_field_name[SENSOR_COUNT] = {
       "Température",
       "Pression",
       "Humidité",
@@ -59,20 +53,22 @@ class VLang
       "Index UV",
       "Lumière visible",
       "Infrarouges",
-      "EMF cumul"
+      "EMF cumul",
+      "Memory"
     }; 
 
-    String sensor_field_unit[10] = {
+    String sensor_field_unit[SENSOR_COUNT] = {
       "°C",
       "hPa",
       "%",
-      "index",
+      "i",
       "ppm",
       "ppm",
-      "index",
+      "i",
       "lux",
       "lux",
-      "index"
+      "i",
+      "%"
     };
 
     String air_status_label[8] = {

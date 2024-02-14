@@ -1,9 +1,3 @@
-/**
- * 
- * 
- * 
- */
-
 #ifndef VMind_h
 #define VMind_h
 
@@ -59,7 +53,7 @@ class VMind
 
       buffer_data_stat slice = VBuffer::stat(values, 0, int(BUFFER_ARRAY_LENGTH / MIND_SENSITIVITY));
       buffer_data_stat other = VBuffer::stat(values, int(BUFFER_ARRAY_LENGTH / MIND_SENSITIVITY), BUFFER_ARRAY_LENGTH);
-      info.comment  = String(stat.trend * 100) + "%/" + stat.tolerance + " "; 
+      info.comment  = String(stat.trend * 100) + "% /" + stat.tolerance + " ~" + stat.delta + " "; 
       if (slice.average < other.average) { info.comment += "down "; };
       if (slice.average > other.average) { info.comment += "up "; };
       if (slice.delta < other.delta) { info.comment += "steady "; };
