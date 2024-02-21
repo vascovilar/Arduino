@@ -98,11 +98,18 @@ int Servo::attach(int pin, int min, int max)
         }
         else
         {
+#ifdef __XTENSA_esp32s3__
+if(
+#endif
         	Serial.println("This pin can not be a servo: "+String(pin)+
-#if defined(ARDUINO_ESP32S2_DEV)
-				"\r\nServo availible on: 1-21,26,33-42"
+#if defined(CONFIG_IDF_TARGET_ESP32S2)
+				"\r\nServo available on: 1-21,26,33-42"
+#elif defined(CONFIG_IDF_TARGET_ESP32S3)
+			        "\r\nPWM available on: 1-21,35-45,47-48"
+#elif defined(CONFIG_IDF_TARGET_ESP32C3)
+				"\r\nPWM available on: 1-10,18-21"
 #else
-				"\r\nServo availible on: 2,4,5,12-19,21-23,25-27,32-33"
+				"\r\nServo available on: 2,4,5,12-19,21-23,25-27,32-33"
 #endif
 			);
             return 0;
@@ -121,7 +128,7 @@ int Servo::attach(int pin, int min, int max)
         // if you want anything other than default timer width, you must call setTimerWidth() before attach
         pwm.attachPin(this->pinNumber,REFRESH_CPS, this->timer_width );   // GPIO pin assigned to channel
         //Serial.println("Attaching servo : "+String(pin)+" on PWM "+String(pwm.getChannel()));
-        return 1;
+        return pwm.getChannel();
 }
 
 void Servo::detach()
@@ -167,6 +174,12 @@ void Servo::writeMicroseconds(int value)
     }
 }
 
+void Servo::release()
+{
+    if (this->attached())   // ensure channel is valid
+        pwm.write(0);
+}
+
 int Servo::read() // return the value as degrees
 {
     return (map(readMicroseconds()+1, this->min, this->max, 0, 180));
@@ -194,11 +207,12 @@ bool Servo::attached()
 
 void Servo::setTimerWidth(int value)
 {
-    // only allow values between 16 and 20
-    if (value < 16)
-        value = 16;
-    else if (value > 20)
-        value = 20;
+    // only allow values between 10 and 14 for ESP32-C3
+    // only allow values between 16 and 20 for other ESP32
+    if (value < MINIMUM_TIMER_WIDTH )
+        value = MINIMUM_TIMER_WIDTH;
+    else if (value > MAXIMUM_TIMER_WIDTH)
+        value = MAXIMUM_TIMER_WIDTH;
         
     // Fix the current ticks value after timer width change
     // The user can reset the tick value with a write() or writeUs()

@@ -306,7 +306,7 @@
 #if defined (TFT_PARALLEL_8_BIT)
 
   // Mask for the 8 data bits to set pin directions (not used)
-  #define dir_mask 0
+  #define GPIO_DIR_MASK 0
 
   #define PARALLEL_INIT_TFT_DATA_BUS // None
 
@@ -1027,15 +1027,18 @@
 
 #else
 
+/* Remove patch to fix #2933
   #if defined(ST7789_DRIVER) || defined(ST7789_2_DRIVER)
     // Temporary workaround for issue #510 part 2
     #define tft_Write_8(C)   spi.transfer(C)
   #else
+*/
     #define tft_Write_8(C) \
     { spiBuffer[0] = C; \
     HAL_SPI_Transmit(&spiHal, spiBuffer, 1, 10); delayMicroseconds(1);}
+/* Remove patch to fix #2933
   #endif
-
+*/
   #define tft_Write_16(C) \
   { spiBuffer[0] = (C)>>8; spiBuffer[1] = C; \
   HAL_SPI_Transmit(&spiHal, spiBuffer, 2, 10); }

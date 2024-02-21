@@ -10,10 +10,10 @@ void VSensorEMF::begin(int pin)
 
 bool VSensorEMF::update(int delay)
 {
-  if (millis() - _timer > delay) {
+  if (_timer == 0 || millis() - _timer > delay) {
     _timer = millis();
 
-    snap(1000);
+    sync(1000);
     
     return true;
   }
@@ -21,7 +21,7 @@ bool VSensorEMF::update(int delay)
   return false;
 }
 
-void VSensorEMF::snap(int delay)
+void VSensorEMF::sync(int delay)
 {
   unsigned int timer = micros();
   unsigned int time = millis();

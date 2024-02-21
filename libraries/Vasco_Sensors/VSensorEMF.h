@@ -32,16 +32,16 @@
 #define VSensorEMF_h
 
 #include "Arduino.h"
-#include "VCommon.h"
+#include "VEnum.h"
 #include "driver/adc.h"
 
 class VSensorEMF
 {  
   public:
-    
+  
     void begin(int pin); // pin must be 36
     bool update(int delay); // delay in milliseconds
-    void snap(int delay); // delay in microseconds for one of the 100 measure
+    void sync(int delay); // delay in microseconds for one of the 100 measure
     
     field_data  getMaxValue() { return _data.maxValue; } // % of sensor value
     field_data  getFrequency() { return _data.frequency; } // in Hz
@@ -49,17 +49,18 @@ class VSensorEMF
     int         getMeasureTime() { return _data.measureTime; } // in milliseconds
     
   private:
-
-    unsigned int _timer;
-    float _read(); // read sensor, gives a value from 0 to 4096, % returned
+  
+    unsigned int _timer = 0;
     
-    struct emf_fields {
-      field_data  maxValue = {0, "Intensité EMF", "%"};
-      field_data  frequency = {0, "Fréquence EMF", "Hz"};
+    float _read(); // read sensor, gives a value from 0 to 4096, % returned
+  
+    struct fields {
+      field_data  maxValue = {"Intensité EMF", "%", 5.0};
+      field_data  frequency = {"Fréquence EMF", "Hz", 10.0};
       float       buffer[100] = {};
       int         measureTime = 0;
     };
-    emf_fields _data;
+    fields _data;
 
     field_data _setMaxValue(field_data field, float value)
     {
