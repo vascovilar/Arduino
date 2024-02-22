@@ -24,12 +24,20 @@ bool VDeviceWebServer::update(int delay)
   if (millis() - _timer > delay) {
     _timer = millis(); // reset timer
     
-    _server.handleClient();
+    sync();
 
     return true;
   }
 
   return false;
+}
+
+void VDeviceWebServer::sync()
+{
+  unsigned int time = millis();
+ 
+  _server.handleClient();
+  _processTime = millis() - time;
 }
 
 void VDeviceWebServer::onHtml(const String &uri, std::function<String()> callHtml)

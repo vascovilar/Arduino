@@ -30,6 +30,7 @@ class VDeviceWebServer
     
     void begin();
     bool update(int delay);
+    void sync();
 
     void onHtml(const String &uri, std::function<String()> callHtml);
     void onHtml(const String &uri, std::function<String(int)> callHtml);
@@ -39,10 +40,12 @@ class VDeviceWebServer
     void onJpg(const String &uri, std::function<File(int)> callFile);
     void onCommand(const String &uri, std::function<void()> callCommand);
     void onCommand(const String &uri, std::function<void(int)> callCommand);
+    int  getProcessTime() { return _processTime; }
     
   private:
     
-    unsigned int _timer = millis();
+    unsigned int _timer;
+    unsigned int _processTime;
 
 };
 

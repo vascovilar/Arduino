@@ -2,74 +2,69 @@
 
 void VDeviceWifi::begin()
 { 
-  while (WiFi.status() != WL_CONNECTED) {
-    scan();
+  while (! scan()) {
+    delay(10000);
   }
+
   Serial.println("Go: http://" + getIP());
   
   Serial.print("Requesting time server ...");
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   Serial.println("OK");
-  Serial.println("Now: " + getTime());
-  
-  Serial.println("");
+
+  Serial.println("Now: " + getTime() + "\n");
 }
 
 bool VDeviceWifi::scan()
 {
-  Serial.println("");
   Serial.print("Scan wifi networks ...");
-  int n = WiFi.scanNetworks();
+  int count = WiFi.scanNetworks();
   Serial.println("OK");
   
-  Serial.print(n);
-  Serial.println(" networks found");
+  Serial.println(String(count) + " networks found");
 
-  for (int i = 0; i < n; ++i) { 
-    // Print SSID and RSSI for each network found
-    Serial.print(" | ");
-    Serial.print(WiFi.SSID(i));
-    Serial.print(" (");
-    Serial.print(WiFi.RSSI(i));
-    Serial.println("db)");
-    // Connect to known wifis
-    if (WiFi.SSID(i) == "iPhone_vasco") {
-      if (connect("iPhone_vasco", "8743b52063cd")) {
-        
-        return true;
-      }
-    }
-    if (WiFi.SSID(i) == "freebox_vasco") {
-      if (connect("freebox_vasco", "dbaZAxwC++tvYB8EpX1CxxkytD2FoH5d")) {
-        
-        return true;
+  for (int i = 0; i < count; ++i) { 
+    Serial.println(" | " + String(WiFi.SSID(i)) + " (" + String(WiFi.RSSI(i)) + "db)");
+
+    for (int j = 0; j < 2; ++j) { 
+      if (String(_credentials[j].user) == WiFi.SSID(i)) {
+        _ssid = j;
+        if (connect()) {
+          
+          return true;
+        } else {
+          _ssid = -1;  
+        }
       }
     }
     delay(10);
   }
-  delay(10000);
 
   return false;   
 }
 
-bool VDeviceWifi::connect(const char* ssid, const char* password)
+bool VDeviceWifi::connect()
 {
-  int i = 0;
-  
-  Serial.printf("Connecting to %s ", ssid);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED && i++ < 20) { // wait for 10 seconds max
-    delay(500);
-    Serial.print(".");
-  }
-  if (i > 20) {
-    Serial.println("\nBad credentials or network unreachable");
+  if (_ssid >= 0) {
+    Serial.print("Connecting to " + String(_credentials[_ssid].user));
+    WiFi.begin(_credentials[_ssid].user, _credentials[_ssid].password);
     
-    return false;
-  }
-  Serial.println("OK");
+    // wait for 10 seconds max
+    for (int i = 0; i < 20; ++i) { 
+      delay(500);
+      Serial.print(".");
 
-  return true;  
+      if (WiFi.status() == WL_CONNECTED) {
+        Serial.println("OK");
+
+        return true;
+      }
+    }
+  }
+
+  Serial.println("Wrong credentials or network unreachable");
+  
+  return false;
 }
 
 bool VDeviceWifi::disconnect()
@@ -90,7 +85,7 @@ String VDeviceWifi::getTime()
   struct tm timeinfo;
   timeinfo.tm_year = 0;
   
-  if(!getLocalTime(&timeinfo, 1000)){
+  if(!getLocalTime(&timeinfo, 5000)){
     Serial.println("Failed to get time from server, return uptime");
     
     return "0000-01-01 " + getUpTime();
@@ -127,7 +122,7 @@ unsigned long VDeviceWifi::getTimeStamp()
   time_t now;
   struct tm timeinfo;
   
-  if (!getLocalTime(&timeinfo)) {
+  if (!getLocalTime(&timeinfo, 5000)) {
     Serial.println("Failed to get epoch time");
     
     return 0;

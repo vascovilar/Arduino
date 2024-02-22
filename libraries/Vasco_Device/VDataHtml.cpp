@@ -1,13 +1,13 @@
 #include "VDataHtml.h"
 
 // Affiche la home
-String VDataHtml::handleMeteoHome(int delay) 
+String VDataHtml::handleHomePage(int delay) 
 {
-  return _getHtmlWrapper(_getHtmlMeteoHomePage(delay));
+  return _getHtmlWrapper(_getHtmlGlobalEnvironmentPage(delay));
 }
 
 // affiche un graphe svg de suivi
-String VDataHtml::handleSvgGraph(VDataBuffer buffer, field_data data)
+String VDataHtml::handleHistorySvgGraph(VDataBuffer buffer, field_data data)
 {  
   String background, text, grid, lines;
   float top = buffer.getMaximum() + data.tolerance;
@@ -18,8 +18,8 @@ String VDataHtml::handleSvgGraph(VDataBuffer buffer, field_data data)
   float* history = buffer.getHistory();
   
   int length = buffer.getLength();
-  if (length > 120) {
-    length = 120;
+  if (length > 240) {
+    length = 240;
   }
 
   if (length > 0) {
@@ -30,7 +30,7 @@ String VDataHtml::handleSvgGraph(VDataBuffer buffer, field_data data)
     //grid += _getHtmlSvgLine(50, 160, 40, 160);
     text += _getHtmlSvgCircle(25, 20, _getHtmlColor(data.status));
     text += _getHtmlSvgText(40, 25, 14, "white", data.label);
-    text += _getHtmlSvgText(40, 43, 12, "grey", data.text + " +/-" + String(buffer.getDelta()));
+    text += _getHtmlSvgText(40, 43, 12, "grey", data.text + " +/-" + String(buffer.getDelta()) + " (" + String(data.tolerance) + ")");
     text += _getHtmlSvgBig(50, data.value);
     text += _getHtmlSvgText(390, 23, 14, "#555555", data.unit);
     //text += _getHtmlSvgText(20, 63, 10, "white", String(top));
@@ -46,8 +46,8 @@ String VDataHtml::handleSvgGraph(VDataBuffer buffer, field_data data)
 
     for (int i = 0; i < length; i++) 
     {
-      int x1 = 410 - i * 3;
-      int x2 = 410 - (i + 1) * 3;
+      int x1 = 410 - i * 1.5;
+      int x2 = 410 - (i + 1) * 1.5;
 
       if (i != 0) {
         int y1 = _isometric(history[i - 1], top, bottom, 100, 60);
@@ -57,7 +57,7 @@ String VDataHtml::handleSvgGraph(VDataBuffer buffer, field_data data)
         int y3 = _isometric(data.value, top, bottom, 100, 60);
         text += _getHtmlSvgArrow(x1, y3, "grey");
       }
-      if (i % 10 == 0) {
+      if (i % 20 == 0) {
         grid += _getHtmlSvgLine(x1, 60, x1, 165, 0.5);
         text += _getHtmlSvgText(x1 - 3, 173, 8, "grey", String(i));
       }

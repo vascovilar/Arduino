@@ -27,18 +27,31 @@ class VDeviceWifi
      
    void begin();
    bool scan();
-   bool connect(const char* ssid, const char* password);
+   bool connect();
    bool disconnect();
    String getIP();
    String getTime();
    String getUpTime();
    unsigned long getTimeStamp();
 
-  private:
+   // TODO add call http
 
+  private:
+    
     const char* ntpServer = "pool.ntp.org";
-    const long  gmtOffset_sec = 3600;
-    const int   daylightOffset_sec = 3600;
+    const long gmtOffset_sec = 3600;
+    const int daylightOffset_sec = 3600;
+
+    struct credential {
+      const char* user;
+      const char* password;
+    };
+
+    int _ssid = -1;
+    credential _credentials[2] = {
+      {"iPhone_vasco", "8743b52063cd"},
+      {"freebox_vasco", "dbaZAxwC++tvYB8EpX1CxxkytD2FoH5d"},
+    };
 };
 
 #endif

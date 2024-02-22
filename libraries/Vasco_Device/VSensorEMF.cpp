@@ -10,7 +10,7 @@ void VSensorEMF::begin(int pin)
 
 bool VSensorEMF::update(int delay)
 {
-  if (_timer == 0 || millis() - _timer > delay) {
+  if (millis() - _timer > delay) {
     _timer = millis();
 
     sync(1000);
@@ -44,9 +44,10 @@ void VSensorEMF::sync(int delay)
     }
   }
 
-  _data.measureTime = millis() - time;
-  _data.maxValue = _setMaxValue(_data.maxValue, max);
-  _data.frequency = _setFrequency(_data.frequency, beat != 0 ? (float) 1000 / ((float) _data.measureTime / (float) beat): 0);
+  _setMaxValue(max);
+  _setFrequency(beat != 0 ? (float) 1000 / ((float) (millis() - time) / (float) beat): 0);
+
+  _processTime = millis() - time;
 }
 
 float VSensorEMF::_read()

@@ -4,7 +4,7 @@ bool VDataBuffer::push(float value)
 { 
   _pushBuffer(value);
 
-  if (_timer == 0 || millis() - _timer > 60000) {
+  if (millis() - _timer > 60000) { // 180000 = 3 min, 240 mesures = 12h 
     _timer = millis(); // reset the timer
     
     _pushHistory(_getBufferAverageValue());

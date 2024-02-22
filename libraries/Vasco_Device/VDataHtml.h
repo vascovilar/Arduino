@@ -2,15 +2,15 @@
 #define VDataHtml_h
 
 #include "Arduino.h"
-#include "VEnum.h"
+#include "VConfig.h"
 #include "VDataBuffer.h"
 
 class VDataHtml
 {
   public:
 
-    String handleMeteoHome(int delay);
-    String handleSvgGraph(VDataBuffer buffer, field_data data);
+    String handleHomePage(int delay);
+    String handleHistorySvgGraph(VDataBuffer buffer, field_data data);
     //String handleSvgGraph(String title, float* data, buffer_data_stat info):
     String handleOsmPoint(float latitude, float longitude, float angle);
     String handleGpsInfo(int satellites, String quality, float altitude, float speed);
@@ -96,7 +96,7 @@ class VDataHtml
 </html>";
     }
 
-    String _getHtmlMeteoHomePage(int delay)
+    String _getHtmlGlobalEnvironmentPage(int delay)
     {
       return "\
 <h1><span class='material-icons'>thunderstorm</span> ESP32-METEO</h1>\

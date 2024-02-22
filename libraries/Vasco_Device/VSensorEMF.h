@@ -32,7 +32,7 @@
 #define VSensorEMF_h
 
 #include "Arduino.h"
-#include "VEnum.h"
+#include "VConfig.h"
 #include "driver/adc.h"
 
 class VSensorEMF
@@ -43,14 +43,15 @@ class VSensorEMF
     bool update(int delay); // delay in milliseconds
     void sync(int delay); // delay in microseconds for one of the 100 measure
     
-    field_data  getMaxValue() { return _data.maxValue; } // % of sensor value
-    field_data  getFrequency() { return _data.frequency; } // in Hz
-    float*      getBuffer() { return _data.buffer; } // 100 lines of raw data in % of sensor value
-    int         getMeasureTime() { return _data.measureTime; } // in milliseconds
+    field_data  getMaxValue() { return _data.maxValue; }
+    field_data  getFrequency() { return _data.frequency; }
+    float*      getBuffer() { return _data.buffer; }
+    int         getProcessTime() { return _processTime; } // in milliseconds
     
   private:
   
-    unsigned int _timer = 0;
+    unsigned int _timer;
+    unsigned int _processTime;
     
     float _read(); // read sensor, gives a value from 0 to 4096, % returned
   
@@ -58,31 +59,26 @@ class VSensorEMF
       field_data  maxValue = {"Intensité EMF", "%", 5.0};
       field_data  frequency = {"Fréquence EMF", "Hz", 10.0};
       float       buffer[100] = {};
-      int         measureTime = 0;
     };
     fields _data;
 
-    field_data _setMaxValue(field_data field, float value)
+    void _setMaxValue(float value)
     {
-      field.value = value;
+      _data.maxValue.value = value;
 
-      if (value <= 0) { field.status = GRIS; field.text = "aucun champ"; } 
-      else if (value <= 10) { field.status = VERT; field.text = "champ faible"; } 
-      else if (value <= 40) { field.status = JAUNE; field.text = "champ moyen"; } 
-      else if (value <= 80) { field.status = ORANGE; field.text = "champ fort"; } 
-      else { field.status = ROUGE; field.text = "champ maximum"; }
-
-      return field;
+      if (value <= 0) { _data.maxValue.status = GRIS; _data.maxValue.text = "aucun champ"; } 
+      else if (value <= 10) { _data.maxValue.status = VERT; _data.maxValue.text = "champ faible"; } 
+      else if (value <= 40) { _data.maxValue.status = JAUNE; _data.maxValue.text = "champ moyen"; } 
+      else if (value <= 80) { _data.maxValue.status = ORANGE; _data.maxValue.text = "champ fort"; } 
+      else { _data.maxValue.status = ROUGE; _data.maxValue.text = "champ maximum"; }
     }
 
-    field_data _setFrequency(field_data field, float value)
+    void _setFrequency(float value)
     {
-      field.value = value;
+      _data.frequency.value = value;
 
-      if (value <= 0) { field.status = GRIS; field.text = "non detectée"; } 
-      else { field.status = VERT; field.text = ""; }
-      
-      return field;
+      if (value <= 0) { _data.frequency.status = GRIS; _data.frequency.text = "non detectée"; } 
+      else { _data.frequency.status = VERT; _data.frequency.text = ""; }
     }
 };
 

@@ -1,5 +1,5 @@
-#ifndef VEnum_h
-#define VEnum_h
+#ifndef VConfig_h
+#define VConfig_h
 
 #define VSENSORS_COUNT  9
 
@@ -30,7 +30,7 @@ enum sensors_code {
   EMF_FIELD = 5,
   UV_INDEX = 6,
   VISIBLE = 7,
-  MEMORY = 8
+  ESP_LOAD = 8
 };
 
 #endif
