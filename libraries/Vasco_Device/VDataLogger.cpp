@@ -19,12 +19,12 @@ void VDataLogger::print(String text)
   Serial.print(text);
 }
 
-String VDataLogger::dump()
+String VDataLogger::dump(int delay)
 {
   String text;
 
   for (int i; i < 20; i++) {
-    if (millis() - _history[i].time < 1000) {
+    if (millis() - _history[i].time < delay) {
       text += _history[i].text;
     }
   }

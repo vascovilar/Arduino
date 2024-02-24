@@ -11,6 +11,7 @@ class VDataHtml
 
     String handleHomePage(int delay);
     String handleHistorySvgGraph(VDataBuffer buffer, field_data data);
+    String handleDataTable(field_data* sensors, int length);
     //String handleSvgGraph(String title, float* data, buffer_data_stat info):
     String handleOsmPoint(float latitude, float longitude, float angle);
     String handleGpsInfo(int satellites, String quality, float altitude, float speed);
@@ -48,6 +49,8 @@ class VDataHtml
       h2{font-size:18px;margin-bottom: 0px;}\
       h2,h3{color:#DDDDDD;font-weight:bold;}\
       h3{font-family:'Courier';font-size:14px;font-weight:normal;margin:2px;}\
+      th{padding-right:10px;background-color:#333333;}\
+      td{padding-right:10px;}\
       p{margin-top:0px;}\
       a:link,a:visited,a:hover,a:focus,a:active{color:#366899;text-decoration:none;}\
       a:hover{color:#4aa3fc;}\
@@ -102,7 +105,7 @@ class VDataHtml
 <h1>\
   <span class='material-icons'>thunderstorm</span> ESP32-METEO \
 </h1>\
-<div id='div_logger' style='width:100%; padding-left:5px; padding-bottom:10px;'></div>\
+<div id='div_logger' style='width:100%; padding-left:10px; padding-bottom:10px;'></div>\
 </div>\
 <div id='main'></div>\
 <div id='div_0' class='simple bordered'></div>\
@@ -114,6 +117,9 @@ class VDataHtml
 <div id='div_6' class='simple bordered'></div>\
 <div id='div_7' class='simple bordered'></div>\
 <div id='div_8' class='simple bordered'></div>\
+<div style='width:100%; padding-left:10px;'>\
+  <a href='/sensors'>view all sensors raw data</a>\
+</div>\
 <script>\
   function refresh() {\
     var seq = ['0', '1', '2', '3', '4', '5', '6', '7', '8'];\

@@ -45,8 +45,8 @@ class VSensorBME680
   private:
 
     Bsec _iaq;
-    unsigned int _timer;
-    bool _enabled = true;
+    unsigned int _timer = 0;
+    bool _enabled = false;
     
     void _checkIaqSensorStatus();
     float _convertToMilliBar(float pressure);
@@ -108,6 +108,7 @@ class VSensorBME680
     void _setGasResistance(float value)
     {
       _data.gasResistance.value = value;
+      _data.gasResistance.status = VERT;
     }
 
     void _setAirQuality(float value)
@@ -127,11 +128,13 @@ class VSensorBME680
     void _setCo2Equivalent(float value)
     {
       _data.co2Equivalent.value = value;
+      _data.co2Equivalent.status = VERT;
     }
 
     void _setVocEquivalent(float value)
     {
       _data.vocEquivalent.value = value;
+      _data.vocEquivalent.status = VERT;
     }
 
     void _setGasPercentage(float value)

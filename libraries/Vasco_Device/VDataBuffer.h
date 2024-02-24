@@ -21,9 +21,9 @@ class VDataBuffer
     
   private:
 
-    unsigned int  _countHistory;
-    unsigned int  _countBuffer;
-    unsigned int _timer;
+    unsigned int  _countHistory = 0;
+    unsigned int  _countBuffer = 0;
+    unsigned int _timer = 0;
     
     struct fields {
       float    value;

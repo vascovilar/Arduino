@@ -30,7 +30,7 @@ class VDataLogger
     void println(String text);
     void print(String text);
 
-    String dump();
+    String dump(int delay);
 
   private:
 

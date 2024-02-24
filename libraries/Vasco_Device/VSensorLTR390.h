@@ -40,8 +40,8 @@ class VSensorLTR390
   private:
   
     Adafruit_LTR390 _ltr;
-    unsigned int _timer;
-    bool _enabled = true;
+    unsigned int _timer = 0;
+    bool _enabled = false;
 
     float _readUVS(); // read sensor value in UVI
     float _readALS(); // reans sensor value in Lux

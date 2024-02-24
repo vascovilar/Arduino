@@ -43,7 +43,7 @@ class VToolWebServer
     
   private:
     
-    unsigned int _timer;
+    unsigned int _timer = 0;
 };
 
 #endif

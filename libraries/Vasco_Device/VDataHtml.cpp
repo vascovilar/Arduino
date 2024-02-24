@@ -82,6 +82,18 @@ String VDataHtml::handleHistorySvgGraph(VDataBuffer buffer, field_data data)
   );
 }
 
+String VDataHtml::handleDataTable(field_data* sensors, int length)
+{
+  String output = "<tr><th>Statut</th><th>Titre</th><th>Valeur</th><th>Commentaire</th>";
+
+  for (int i = 0; i < length; i++) {
+    output += "<tr><td><b style='color:" + _getHtmlColor(sensors[i].status) + "'>█</b></td><td>" + sensors[i].label +"</td><td>" + sensors[i].value + sensors[i].unit + "</td><td>" + sensors[i].text + "</td></tr>";
+  }
+
+  return _getHtmlWrapper("<table>" + output + "</table>");
+}
+
+
 /*// affiche un graphe svg oscilloscope
 String VDataHtml::handleSvgGraph(String title, float* data, buffer_data_stat info)
 {  

@@ -51,10 +51,10 @@ class VSensorEMF
     
   private:
   
-    unsigned int _timer;
-    bool _enabled = true;
+    unsigned int _timer = 0;
+    bool _enabled = false;
     
-    float _read(); // read sensor, gives a value from 0 to 4096, % returned
+    float _readSensor(); // read sensor, gives a value from 0 to 4096, % returned
   
     struct fields {
       field_data   maxValue = {"Intensité EMF", "%", 5.0};

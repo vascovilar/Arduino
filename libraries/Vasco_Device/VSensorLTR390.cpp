@@ -4,12 +4,12 @@ void VSensorLTR390::begin(int addr)
 {
   if (addr == 0x53) {
     _ltr = Adafruit_LTR390();
-
     _ltr.begin();
     _ltr.setGain(LTR390_GAIN_3);
     _ltr.setResolution(LTR390_RESOLUTION_18BIT);
     _ltr.setThresholds(100, 1000);
     //_ltr.configInterrupt(true, LTR390_MODE_UVS);
+    _enabled = true;
   }
 }
 

@@ -4,7 +4,7 @@ bool VDataBuffer::push(float value)
 { 
   _pushBuffer(value);
 
-  if (millis() - _timer > 60000) { // 180000 = 3 min, 240 mesures = 12h 
+  if (millis() - _timer > 180000) { // 180000 = 3 min, 240 mesures = 12h 
     _timer = millis(); // reset the timer
     
     _pushHistory(_getBufferAverageValue());
@@ -45,7 +45,7 @@ void VDataBuffer::_pushHistory(float value)
   }
 
   // calc
-  _data.average = total / (float) _countHistory;
+  _data.average = (float) total / (float) _countHistory;
   _data.delta = _data.maximum - _data.minimum;
 }
 
@@ -87,10 +87,19 @@ void VDataBuffer::_pushBuffer(float value)
 float VDataBuffer::_getBufferAverageValue()
 {
   float total = 0;
+  int   count = 0;
   
-  for (int i = 0; i < _countBuffer; i++) { 
-    total += _data.buffer[i];
+  for (int i = 0; i < 100; i++) { 
+    if (i < _countBuffer) {
+      total += _data.buffer[i];
+      count++;
+    } else {
+      // clean other values
+      _data.buffer[i] = 0;
+    }
   }
 
-  return (float) total / (float) _countBuffer;
+  _countBuffer = 0;
+
+  return (float) total / (float) count;
 }

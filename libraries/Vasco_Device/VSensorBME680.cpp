@@ -21,6 +21,7 @@ void VSensorBME680::begin(int addr)
       BSEC_OUTPUT_GAS_PERCENTAGE
     };
     _iaq.updateSubscription(sensorList, 13, BSEC_SAMPLE_RATE_LP);
+    _enabled = true;
   }
 }
 

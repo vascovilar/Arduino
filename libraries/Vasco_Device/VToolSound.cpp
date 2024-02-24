@@ -2,6 +2,7 @@
 
 void VToolSound::begin(int pin)
 {
+  //ledcSetup(0, 0, 14);
   ledcAttachPin(pin, 0);
 }
 

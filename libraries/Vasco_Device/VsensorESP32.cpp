@@ -2,7 +2,7 @@
 
 void VSensorESP32::begin()
 {
-
+  _enabled = true;
 }
 
 bool VSensorESP32::update(int delay)
@@ -15,7 +15,8 @@ bool VSensorESP32::update(int delay)
     sync();
 
     _setLoad(((float) (delta - delay) / (float) delay) * 100);
-    
+    _setMemory(_readMemoryUsage());
+
     return true;
   }
   
@@ -40,4 +41,9 @@ void VSensorESP32::sleep(bool isSleeping)
   if (!_enabled) {
     _data.load.status = GRIS;
   }
+}
+
+float VSensorESP32::_readMemoryUsage()
+{
+  return (1 - (ESP.getFreeHeap() / 532480.0)) * 100;
 }
