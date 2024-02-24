@@ -13,7 +13,7 @@ bool VSensorEMF::update(int delay)
   if (millis() - _timer > delay) {
     _timer = millis();
 
-    sync(1000);
+    sync();
     
     return true;
   }
@@ -21,33 +21,45 @@ bool VSensorEMF::update(int delay)
   return false;
 }
 
-void VSensorEMF::sync(int delay)
+void VSensorEMF::sync()
 {
-  unsigned int timer = micros();
   unsigned int time = millis();
-  int          i = 0;
-  int          beat = 0;
-  float        max = 0;
-    
-  while (i < 100) {
-    if (micros() - timer > delay) {
-      timer = micros();
+  
+  if (_enabled) {
+    unsigned int timer = micros();
+    int          i = 0;
+    int          beat = 0;
+    float        max = 0;
       
-      _data.buffer[i] = _read();
-      if (_data.buffer[i] > max) {
-        max = _data.buffer[i];
-      } 
-      if (_data.buffer[i] == 0 && _data.buffer[i-1] > 0) {
-        beat++;
+    while (i < 100) {
+      if (micros() - timer > 1000) {
+        timer = micros();
+        
+        _data.buffer[i] = _read();
+        if (_data.buffer[i] > max) {
+          max = _data.buffer[i];
+        } 
+        if (_data.buffer[i] == 0 && _data.buffer[i-1] > 0) {
+          beat++;
+        }
+        i++;
       }
-      i++;
     }
+    _setMaxValue(max);
+    _setFrequency(beat != 0 ? (float) 1000 / ((float) (millis() - time) / (float) beat): 0);
   }
+  
+  _data.processTime = millis() - time;
+}
 
-  _setMaxValue(max);
-  _setFrequency(beat != 0 ? (float) 1000 / ((float) (millis() - time) / (float) beat): 0);
+void VSensorEMF::sleep(bool isSleeping)
+{
+  _enabled = !isSleeping;
 
-  _processTime = millis() - time;
+  if (!_enabled) {
+    _data.maxValue.status = GRIS;
+    _data.frequency.status = GRIS;
+  }
 }
 
 float VSensorEMF::_read()

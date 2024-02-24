@@ -2,12 +2,12 @@
  * WebServer abstraction
  * Implementation:
  *
- *   #include <VDeviceWebServer.h>
+ *   #include <VToolWebServer.h>
  *
- *   VDeviceWebServer web;
+ *   VToolWebServer web;
  *
  *   void setup() {
- *     web.onPage("/", [](){ return html.getHome(); });
+ *     web.onPage("/", [arg](){ return html.getHome(arg); });
  *     web.begin();
  *   }
  *   void loop() {
@@ -15,8 +15,8 @@
  *   }
  */
 
-#ifndef VDeviceWebServer_h
-#define VDeviceWebServer_h
+#ifndef VToolWebServer_h
+#define VToolWebServer_h
 
 #include "Arduino.h"
 #include "WebServer.h"
@@ -24,7 +24,7 @@
 
 static WebServer _server(80);
 
-class VDeviceWebServer
+class VToolWebServer
 {
   public:   
     
@@ -40,13 +40,10 @@ class VDeviceWebServer
     void onJpg(const String &uri, std::function<File(int)> callFile);
     void onCommand(const String &uri, std::function<void()> callCommand);
     void onCommand(const String &uri, std::function<void(int)> callCommand);
-    int  getProcessTime() { return _processTime; }
     
   private:
     
     unsigned int _timer;
-    unsigned int _processTime;
-
 };
 
 #endif

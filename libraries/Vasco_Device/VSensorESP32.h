@@ -28,18 +28,21 @@ class VSensorESP32
   public:
   
     void begin();
-    bool update(int delay); // delay in milliseconds
-    void addLoad(int time); // time in milliseconds
+    bool update(int delay);
+    void sync();
+    void sleep(bool isSleeping);
     
     field_data  getLoad() { return _data.load; }
-    
+    int         getProcessTime() { return _data.processTime; } // in milliseconds
+        
   private:
   
     unsigned int _timer;
-    unsigned int _processTime;
+    bool _enabled = true;
   
     struct fields {
-      field_data  load = {"Charge ESP", "%", 20.0};
+      field_data   load = {"Charge ESP", "%", 20.0};
+      unsigned int processTime;
     };
     fields _data;
 
@@ -47,10 +50,10 @@ class VSensorESP32
     { 
       _data.load.value = value;
 
-      if (value <= 0) { _data.load.status = GRIS; _data.load.text = "éteint"; } 
-      else if (value <= 10) { _data.load.status = VERT; _data.load.text = "en veille"; } 
+      if (value <= 0) { _data.load.status = VERT; _data.load.text = "éteint"; } 
       else if (value <= 90) { _data.load.status = VERT; _data.load.text = "ok"; } 
-      else { _data.load.status = ROUGE; _data.load.text = "chargé"; }
+      else if (value <= 100) { _data.load.status = JAUNE; _data.load.text = "chargé"; } 
+      else { _data.load.status = ROUGE; _data.load.text = "attention"; }
     }
 };
 

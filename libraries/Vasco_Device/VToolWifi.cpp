@@ -1,6 +1,6 @@
-#include "VDeviceWifi.h"
+#include "VToolWifi.h"
 
-void VDeviceWifi::begin()
+void VToolWifi::begin()
 { 
   while (! scan()) {
     delay(10000);
@@ -15,7 +15,7 @@ void VDeviceWifi::begin()
   Serial.println("Now: " + getTime() + "\n");
 }
 
-bool VDeviceWifi::scan()
+bool VToolWifi::scan()
 {
   Serial.print("Scan wifi networks ...");
   int count = WiFi.scanNetworks();
@@ -43,7 +43,7 @@ bool VDeviceWifi::scan()
   return false;   
 }
 
-bool VDeviceWifi::connect()
+bool VToolWifi::connect()
 {
   if (_ssid >= 0) {
     Serial.print("Connecting to " + String(_credentials[_ssid].user));
@@ -67,7 +67,7 @@ bool VDeviceWifi::connect()
   return false;
 }
 
-bool VDeviceWifi::disconnect()
+bool VToolWifi::disconnect()
 {
   WiFi.disconnect();
   Serial.println("Disconnecting from network");  
@@ -75,12 +75,12 @@ bool VDeviceWifi::disconnect()
   return true;
 }
 
-String VDeviceWifi::getIP()
+String VToolWifi::getIP()
 {
   return WiFi.localIP().toString();
 }
 
-String VDeviceWifi::getTime()
+String VToolWifi::getTime()
 {
   struct tm timeinfo;
   timeinfo.tm_year = 0;
@@ -104,7 +104,7 @@ String VDeviceWifi::getTime()
   return timeStamp;
 }
 
-String VDeviceWifi::getUpTime()
+String VToolWifi::getUpTime()
 {
   int time = millis();
   int sec = time / 1000;
@@ -117,7 +117,7 @@ String VDeviceWifi::getUpTime()
   return uptime;
 }
 
-unsigned long VDeviceWifi::getTimeStamp()
+unsigned long VToolWifi::getTimeStamp()
 {
   time_t now;
   struct tm timeinfo;

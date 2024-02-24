@@ -24,7 +24,9 @@ void VDataBuffer::_pushHistory(float value)
     _countHistory = 240;
   }
 
-  for(int i = _countHistory - 1; i >= 0 ; i--) 
+  _data.minimum = 9999999;
+  _data.maximum = 0;
+  for (int i = _countHistory - 1; i >= 0 ; i--) 
   {
     // fifo = push value in buffer by sliding others from end to start index
     if (i == 0) {
@@ -59,7 +61,7 @@ void VDataBuffer::_pushBuffer(float value)
     _countBuffer = 100;
   }
 
-  for(int i = _countBuffer - 1; i >= 0 ; i--) 
+  for (int i = _countBuffer - 1; i >= 0 ; i--) 
   {
     // fifo = push value in buffer by sliding others from end to start index
     if (i == 0) {
@@ -68,22 +70,17 @@ void VDataBuffer::_pushBuffer(float value)
       _data.buffer[i] = _data.buffer[i-1];
     }
 
-    // last 10 total
-    if (i < 10) {
-      total += _data.buffer[i];
-    }
+    total += _data.buffer[i];
   }
 
   // calc 
-  average = total / (float) 10;
-  if (average > value) { 
+  average = (float) total / (float) _countBuffer;
+  _data.trend = 0;
+  if (average > _data.average) { 
+    _data.trend = 1; 
+  }
+  if (average < _data.average) { 
     _data.trend = -1; 
-  }
-  if (average < value) { 
-    _data.trend = +1; 
-  }
-  if (average == value) { 
-    _data.trend = 0; 
   }
 }
 
@@ -95,5 +92,5 @@ float VDataBuffer::_getBufferAverageValue()
     total += _data.buffer[i];
   }
 
-  return total / (float) _countBuffer;
+  return (float) total / (float) _countBuffer;
 }

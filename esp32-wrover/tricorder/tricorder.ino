@@ -1,8 +1,10 @@
 #include "VConfig.h"
 #include "VDataBuffer.h"
 #include "VDataHtml.h"
-#include "VDeviceWifi.h"
-#include "VDeviceWebServer.h"
+#include "VDataLogger.h"
+#include "VToolWifi.h"
+#include "VToolWebServer.h"
+#include "VToolSound.h"
 #include "VSensorBME680.h"
 #include "VSensorEMF.h"
 #include "VSensorLTR390.h"
@@ -10,14 +12,16 @@
 
 VDataBuffer       buffer[VSENSORS_COUNT];
 VDataHtml         html;
-VDeviceWifi       net;
-VDeviceWebServer  web;
+VDataLogger       logger;
+VToolWifi         wifi;
+VToolWebServer    web;
+VToolSound        sound;
 VSensorBME680     air;
 VSensorEMF        emf;
 VSensorLTR390     light;
 VSensorESP32      esp;
 
-field_data getValue(int code)
+field_data getValue(sensors_code code)
 {
   field_data data = {};
 
@@ -54,44 +58,48 @@ field_data getValue(int code)
   return data;
 }
 
-void setBuffer(int code)
+
+void setBuffer(sensors_code code)
 {
   buffer[code].push(getValue(code).value);
 }
 
+void setLogger()
+{
+  for (int i = 0; i < VSENSORS_COUNT; i++) {
+    field_data value = getValue((sensors_code) i);
+    if (value.status >= JAUNE) {
+      logger.println(" | " + value.label + ": " + value.text);
+    }
+  }
+}
+
 void setup() 
 {
-  Serial.begin(115200);
-  delay(1000);
-  
+  logger.begin();
+
   air.begin(0x77);
   emf.begin(36); 
   light.begin(0x53);
   esp.begin();
-  net.begin();
-
+  sound.begin(2);
+    
+  wifi.begin();
 
   for (int field = 0; field < VSENSORS_COUNT; field++) {
     buffer[field] = VDataBuffer();
-    web.onHtml("/graph/" + String(field) + ".svg", [field](){ return html.handleHistorySvgGraph(buffer[field], getData(field)); });
+    web.onHtml("/graph/" + String(field) + ".svg", [field](){ return html.handleHistorySvgGraph(buffer[field], getValue((sensors_code) field)); });
   }
+  web.onHtml("/logger", [](){ return wifi.getTime() + "  " + logger.dump(); });
   web.onHtml("/", [](){ return html.handleHomePage(3000); });
   web.begin();
+  
+  sound.getOpen();
 }
 
 void loop() 
 {
-  /*
-  if (emf.update(1000)) {
-    float* buffer = emf.getBuffer();
-    for (int i = 0; i<100; i++) {
-      Serial.println(buffer[i]);
-    } 
-  }
-  */
-  
   if (web.update(10)) {
-    esp.addLoad(web.getProcessTime());
   }
 
   if (air.update(3000)) {
@@ -100,22 +108,26 @@ void loop()
     setBuffer(HUMIDITY);
     setBuffer(AIR_QUALITY);
     setBuffer(GAS_PERCENTAGE);
-    esp.addLoad(air.getProcessTime());
   }
 
   if (emf.update(1000)) {
     setBuffer(EMF_FIELD);
-    esp.addLoad(emf.getProcessTime());
   }
 
   if (light.update(1000)) {
     setBuffer(UV_INDEX);
     setBuffer(VISIBLE);
-    esp.addLoad(light.getProcessTime());
   }
 
   if (esp.update(1000)) {
     setBuffer(ESP_LOAD);
-  }
-}
+    setLogger();
+    
 
+    //sound.getNotice();
+    //light.sync();
+    //Serial.println("  " + wifi.getTime() + "  " + String(light.getVisible().value) + "  " + String(light.getProcessTime()) + "ms");
+  }
+
+  
+}

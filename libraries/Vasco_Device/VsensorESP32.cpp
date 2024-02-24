@@ -12,8 +12,9 @@ bool VSensorESP32::update(int delay)
   if (delta > delay) {
     _timer = millis();
 
-    _setLoad(((float) _processTime / (float) delta) * 100);
-    _processTime = 0;
+    sync();
+
+    _setLoad(((float) (delta - delay) / (float) delay) * 100);
     
     return true;
   }
@@ -21,7 +22,22 @@ bool VSensorESP32::update(int delay)
   return false;
 }
 
-void VSensorESP32::addLoad(int time)
+void VSensorESP32::sync()
 {
-  _processTime += time;
+  unsigned int time = millis();
+
+  if (_enabled) {
+    
+  }
+
+  _data.processTime = millis() - _timer;
+}
+
+void VSensorESP32::sleep(bool isSleeping)
+{
+  _enabled = !isSleeping;
+
+  if (!_enabled) {
+    _data.load.status = GRIS;
+  }
 }

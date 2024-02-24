@@ -7,7 +7,7 @@ void VSensorLTR390::begin(int addr)
 
     _ltr.begin();
     _ltr.setGain(LTR390_GAIN_3);
-    _ltr.setResolution(LTR390_RESOLUTION_16BIT);
+    _ltr.setResolution(LTR390_RESOLUTION_18BIT);
     _ltr.setThresholds(100, 1000);
     //_ltr.configInterrupt(true, LTR390_MODE_UVS);
   }
@@ -15,9 +15,7 @@ void VSensorLTR390::begin(int addr)
 
 bool VSensorLTR390::update(int delay)
 {
-  unsigned int delta = millis() - _timer;
-
-  if (delta > delay) {
+  if (millis() - _timer > delay) {
     _timer = millis();
 
     sync();
@@ -32,10 +30,37 @@ void VSensorLTR390::sync()
 {
   unsigned int time = millis();
   
-  _ltr.setMode(LTR390_MODE_UVS);
-  _setUvIndex(_ltr.readUVS());
-  _ltr.setMode(LTR390_MODE_ALS);
-  _setVisible(_ltr.readALS());
+  if (_enabled) {
+    _setUvIndex(_readUVS());
+    _setVisible(_readALS());
+  }
 
-  _processTime = millis() - time;
+  _data.processTime = millis() - time;
+}
+
+void VSensorLTR390::sleep(bool isSleeping)
+{
+  _ltr.enable(!isSleeping);
+  _enabled = _ltr.enabled();
+
+  if (!_enabled) {
+    _data.uvIndex.status = GRIS;
+    _data.visible.status = GRIS;
+  }
+}
+
+float VSensorLTR390::_readUVS()
+{
+  // for 18bit resolution and x3 gain : no doc found about formula
+  _ltr.setMode(LTR390_MODE_UVS);
+
+  return _ltr.readUVS();
+}
+
+float VSensorLTR390::_readALS()
+{
+  // for 18bit resolution and x3 gain
+  _ltr.setMode(LTR390_MODE_ALS);
+  
+  return (float) (0.6 * _ltr.readALS()) / (float) 3;
 }

@@ -31,20 +31,25 @@ class VSensorLTR390
     void begin(int addr); // i2c must be 0x53
     bool update(int delay); // delay in milliseconds
     void sync();
+    void sleep(bool isSleeping);
     
-    field_data  getUvIndex() { return _data.uvIndex; }
-    field_data  getVisible() { return _data.visible; }
-    int         getProcessTime() { return _processTime; } // in milliseconds
+    field_data   getUvIndex() { return _data.uvIndex; }
+    field_data   getVisible() { return _data.visible; }
+    unsigned int getProcessTime() { return _data.processTime; }
 
   private:
   
     Adafruit_LTR390 _ltr;
     unsigned int _timer;
-    unsigned int _processTime;
+    bool _enabled = true;
+
+    float _readUVS(); // read sensor value in UVI
+    float _readALS(); // reans sensor value in Lux
   
     struct fields {
-      field_data  uvIndex = {"Index UV", "", 1.0};
-      field_data  visible = {"Lumière visible", "lux", 10.0};
+      field_data   uvIndex = {"Index UV", "", 1.0};
+      field_data   visible = {"Lumière visible", "lux", 10.0};
+      unsigned int processTime;      
     };
     fields _data;
 
@@ -62,7 +67,17 @@ class VSensorLTR390
     void _setVisible(float value)
     { 
       _data.visible.value = value;
-      _data.visible.status = VERT;
+      
+      if (value <= 0) { _data.visible.status = ORANGE; _data.visible.text = "obscurité"; } 
+      else if (value <= 1) { _data.visible.status = JAUNE; _data.visible.text = "minimum humain"; } 
+      else if (value <= 20) { _data.visible.status = JAUNE; _data.visible.text = "pénombre"; } 
+      else if (value <= 100) { _data.visible.status = VERT; _data.visible.text = "tamisée"; } 
+      else if (value <= 500) { _data.visible.status = VERT; _data.visible.text = "confortable"; } 
+      else if (value <= 1000) { _data.visible.status = VERT; _data.visible.text = "bureau"; } 
+      else if (value <= 10000) { _data.visible.status = VERT; _data.visible.text = "ciel couvert"; } 
+      else if (value <= 50000) { _data.visible.status = VERT; _data.visible.text = "ciel nuageux"; } 
+      else if (value <= 100000) { _data.visible.status = JAUNE; _data.visible.text = "ciel d'été"; } 
+      else { _data.visible.status = ORANGE; _data.visible.text = "trop lumineux"; }
     }
 };
 

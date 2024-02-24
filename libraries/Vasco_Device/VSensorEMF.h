@@ -41,24 +41,26 @@ class VSensorEMF
   
     void begin(int pin); // pin must be 36
     bool update(int delay); // delay in milliseconds
-    void sync(int delay); // delay in microseconds for one of the 100 measure
-    
-    field_data  getMaxValue() { return _data.maxValue; }
-    field_data  getFrequency() { return _data.frequency; }
-    float*      getBuffer() { return _data.buffer; }
-    int         getProcessTime() { return _processTime; } // in milliseconds
+    void sync(); // delay in microseconds for one of the 100 measure TODO
+    void sleep(bool isSleeping);
+
+    field_data   getMaxValue() { return _data.maxValue; }
+    field_data   getFrequency() { return _data.frequency; }
+    float*       getBuffer() { return _data.buffer; }
+    unsigned int getProcessTime() { return _data.processTime; } // in milliseconds
     
   private:
   
     unsigned int _timer;
-    unsigned int _processTime;
+    bool _enabled = true;
     
     float _read(); // read sensor, gives a value from 0 to 4096, % returned
   
     struct fields {
-      field_data  maxValue = {"Intensité EMF", "%", 5.0};
-      field_data  frequency = {"Fréquence EMF", "Hz", 10.0};
-      float       buffer[100] = {};
+      field_data   maxValue = {"Intensité EMF", "%", 5.0};
+      field_data   frequency = {"Fréquence EMF", "Hz", 10.0};
+      float        buffer[100];
+      unsigned int processTime;
     };
     fields _data;
 
@@ -66,8 +68,8 @@ class VSensorEMF
     {
       _data.maxValue.value = value;
 
-      if (value <= 0) { _data.maxValue.status = GRIS; _data.maxValue.text = "aucun champ"; } 
-      else if (value <= 10) { _data.maxValue.status = VERT; _data.maxValue.text = "champ faible"; } 
+      if (value <= 0) { _data.maxValue.status = VERT; _data.maxValue.text = "aucun champ"; } 
+      else if (value <= 20) { _data.maxValue.status = VERT; _data.maxValue.text = "champ faible"; } 
       else if (value <= 40) { _data.maxValue.status = JAUNE; _data.maxValue.text = "champ moyen"; } 
       else if (value <= 80) { _data.maxValue.status = ORANGE; _data.maxValue.text = "champ fort"; } 
       else { _data.maxValue.status = ROUGE; _data.maxValue.text = "champ maximum"; }
@@ -77,7 +79,7 @@ class VSensorEMF
     {
       _data.frequency.value = value;
 
-      if (value <= 0) { _data.frequency.status = GRIS; _data.frequency.text = "non detectée"; } 
+      if (value <= 0) { _data.frequency.status = VERT; _data.frequency.text = "non detectée"; } 
       else { _data.frequency.status = VERT; _data.frequency.text = ""; }
     }
 };

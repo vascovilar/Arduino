@@ -41,45 +41,57 @@ void VSensorBME680::sync()
 { 
   unsigned int time = millis();
 
-  if (! _iaq.run()) {
-    _checkIaqSensorStatus();
+  if (_enabled) {
+    if (! _iaq.run()) {
+      _checkIaqSensorStatus();
+    }
+
+    _setTemperature(_iaq.temperature);
+    _setPressure(_convertToMilliBar(_iaq.pressure));
+    _setHumidity(_iaq.humidity);
+    _setGasResistance(_convertToKiloOhm(_iaq.gasResistance));
+    _setAirQuality(_iaq.staticIaq);
+    _setCo2Equivalent(_iaq.co2Equivalent);
+    _setVocEquivalent(_iaq.breathVocEquivalent);
+    _setGasPercentage(_iaq.gasPercentage);
   }
 
-  _setTemperature(_iaq.temperature);
-  _setPressure(_convertToMilliBar(_iaq.pressure));
-  _setHumidity(_iaq.humidity);
-  _setGasResistance(_convertToKiloOhm(_iaq.gasResistance));
-  _setAirQuality(_iaq.staticIaq);
-  _setCo2Equivalent(_iaq.co2Equivalent);
-  _setVocEquivalent(_iaq.breathVocEquivalent);
-  _setGasPercentage(_iaq.gasPercentage);
+  _data.processTime = millis() - time;
+}
 
-  _processTime = millis() - time;
+void VSensorBME680::sleep(bool isSleeping)
+{
+  _enabled = !isSleeping;
+
+  if (!_enabled) {
+    _data.temperature.status = GRIS;
+    _data.pressure.status = GRIS;
+    _data.humidity.status = GRIS;
+    _data.gasResistance.status = GRIS;
+    _data.airQuality.status = GRIS;
+    _data.co2Equivalent.status = GRIS;
+    _data.vocEquivalent.status = GRIS;
+    _data.gasPercentage.status = GRIS;
+  }
 }
 
 void VSensorBME680::_checkIaqSensorStatus()
 {
-  String output;
-
   if (_iaq.bsecStatus != BSEC_OK) {
     if (_iaq.bsecStatus < BSEC_OK) {
-      output = "BSEC error code : " + String(_iaq.bsecStatus);
-      Serial.println(output);
+      Serial.println("BSEC error code : " + String(_iaq.bsecStatus));
       for (;;); /* Halt in case of failure */
     } else {
-      output = "BSEC warning code : " + String(_iaq.bsecStatus);
-      Serial.println(output);
+      Serial.println("BSEC warning code : " + String(_iaq.bsecStatus));
     }
   }
 
   if (_iaq.bme68xStatus != BME68X_OK) {
     if (_iaq.bme68xStatus < BME68X_OK) {
-      output = "BME68X error code : " + String(_iaq.bme68xStatus);
-      Serial.println(output);
+      Serial.println("BME68X error code : " + String(_iaq.bme68xStatus));
       for (;;); /* Halt in case of failure */
     } else {
-      output = "BME68X warning code : " + String(_iaq.bme68xStatus);
-      Serial.println(output);
+      Serial.println("BME68X warning code : " + String(_iaq.bme68xStatus));
     }
   }
 }

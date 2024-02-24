@@ -26,14 +26,14 @@ class VDataBuffer
     unsigned int _timer;
     
     struct fields {
-      float    value = 0;
-      float    buffer[100] = {};
-      float    history[240] = {};
-      float    minimum = 9999999;
-      float    maximum = 0;
-      float    average = 0;
-      float    delta = 0;
-      short    trend = 0;
+      float    value;
+      float    buffer[100];
+      float    history[240];
+      float    minimum;
+      float    maximum;
+      float    average;
+      float    delta;
+      short    trend;
     };
     fields _data;
     

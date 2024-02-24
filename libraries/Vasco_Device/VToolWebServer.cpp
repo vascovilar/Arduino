@@ -1,8 +1,8 @@
-#include "VDeviceWebServer.h"
+#include "VToolWebServer.h"
 #include "uri/UriBraces.h"
 
 
-void VDeviceWebServer::begin()
+void VToolWebServer::begin()
 {
   _server.onNotFound([](){ 
     String out = "\
@@ -19,7 +19,7 @@ void VDeviceWebServer::begin()
   _server.begin();
 }
 
-bool VDeviceWebServer::update(int delay)
+bool VToolWebServer::update(int delay)
 {
   if (millis() - _timer > delay) {
     _timer = millis(); // reset timer
@@ -32,22 +32,19 @@ bool VDeviceWebServer::update(int delay)
   return false;
 }
 
-void VDeviceWebServer::sync()
+void VToolWebServer::sync()
 {
-  unsigned int time = millis();
- 
   _server.handleClient();
-  _processTime = millis() - time;
 }
 
-void VDeviceWebServer::onHtml(const String &uri, std::function<String()> callHtml)
+void VToolWebServer::onHtml(const String &uri, std::function<String()> callHtml)
 {
   _server.on(Uri(uri), [&, callHtml]() { 
     _server.send(200, "text/html", callHtml()); 
   }); 
 }
 
-void VDeviceWebServer::onHtml(const String &uri, std::function<String(int)> callHtml)
+void VToolWebServer::onHtml(const String &uri, std::function<String(int)> callHtml)
 {
   _server.on(UriBraces(uri), [&, callHtml]() {
     int id = _server.pathArg(0).toInt(); 
@@ -55,14 +52,14 @@ void VDeviceWebServer::onHtml(const String &uri, std::function<String(int)> call
   }); 
 }
 
-void VDeviceWebServer::onSvg(const String &uri, std::function<String()> callSvg)
+void VToolWebServer::onSvg(const String &uri, std::function<String()> callSvg)
 {
   _server.on(Uri(uri), [&, callSvg]() { 
     _server.send(200, "image/svg+xml", callSvg()); 
   }); 
 }
 
-void VDeviceWebServer::onSvg(const String &uri, std::function<String(int)> callSvg)
+void VToolWebServer::onSvg(const String &uri, std::function<String(int)> callSvg)
 {
   _server.on(UriBraces(uri), [&, callSvg]() { 
     int id = _server.pathArg(0).toInt(); 
@@ -70,7 +67,7 @@ void VDeviceWebServer::onSvg(const String &uri, std::function<String(int)> callS
   }); 
 }
 
-void VDeviceWebServer::onJpg(const String &uri, std::function<File()> callFile)
+void VToolWebServer::onJpg(const String &uri, std::function<File()> callFile)
 {
   _server.on(Uri(uri), [&, callFile]() {
     File file = callFile();
@@ -81,7 +78,7 @@ void VDeviceWebServer::onJpg(const String &uri, std::function<File()> callFile)
   }); 
 }
 
-void VDeviceWebServer::onJpg(const String &uri, std::function<File(int)> callFile)
+void VToolWebServer::onJpg(const String &uri, std::function<File(int)> callFile)
 {
   _server.on(UriBraces(uri), [&, callFile]() {
     int id = _server.pathArg(0).toInt(); 
@@ -93,7 +90,7 @@ void VDeviceWebServer::onJpg(const String &uri, std::function<File(int)> callFil
   }); 
 }
 
-void VDeviceWebServer::onCommand(const String &uri, std::function<void()> callCommand)
+void VToolWebServer::onCommand(const String &uri, std::function<void()> callCommand)
 {
   _server.on(Uri(uri), [&, callCommand]() { 
     callCommand();
@@ -101,7 +98,7 @@ void VDeviceWebServer::onCommand(const String &uri, std::function<void()> callCo
   }); 
 }
 
-void VDeviceWebServer::onCommand(const String &uri, std::function<void(int)> callCommand)
+void VToolWebServer::onCommand(const String &uri, std::function<void(int)> callCommand)
 {
   _server.on(UriBraces(uri), [&, callCommand]() { 
     int id = _server.pathArg(0).toInt(); 

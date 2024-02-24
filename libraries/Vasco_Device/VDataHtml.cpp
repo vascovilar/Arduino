@@ -8,10 +8,10 @@ String VDataHtml::handleHomePage(int delay)
 
 // affiche un graphe svg de suivi
 String VDataHtml::handleHistorySvgGraph(VDataBuffer buffer, field_data data)
-{  
+{
   String background, text, grid, lines;
-  float top = buffer.getMaximum() + data.tolerance;
-  float bottom = buffer.getMinimum() - data.tolerance;
+  float top = buffer.getMaximum() + data.tolerance / 2;
+  float bottom = buffer.getMinimum() - data.tolerance / 2;
   float average = buffer.getAverage();
   float maximum = buffer.getMaximum();
   float minimum = buffer.getMinimum();
@@ -22,19 +22,20 @@ String VDataHtml::handleHistorySvgGraph(VDataBuffer buffer, field_data data)
     length = 240;
   }
 
+  background = "grey";
+  text += _getHtmlSvgCircle(25, 20, _getHtmlColor(data.status));
+  text += _getHtmlSvgText(40, 25, 14, "white", data.label);
+  text += _getHtmlSvgText(40, 43, 12, "grey", data.text + " +/-" + String(buffer.getDelta()) + " (" + String(data.tolerance) + ")");
+  text += _getHtmlSvgBig(50, data.value);
+  text += _getHtmlSvgText(390, 23, 14, "#555555", data.unit);
+  
   if (length > 0) {
-    background = "grey";
-    
-    grid += _getHtmlSvgLine(50, 160, 410, 160, 0.5);
+    //grid += _getHtmlSvgLine(50, 160, 410, 160, 0.5);
     //grid += _getHtmlSvgLine(50, 60, 40, 60);
     //grid += _getHtmlSvgLine(50, 160, 40, 160);
-    text += _getHtmlSvgCircle(25, 20, _getHtmlColor(data.status));
-    text += _getHtmlSvgText(40, 25, 14, "white", data.label);
-    text += _getHtmlSvgText(40, 43, 12, "grey", data.text + " +/-" + String(buffer.getDelta()) + " (" + String(data.tolerance) + ")");
-    text += _getHtmlSvgBig(50, data.value);
-    text += _getHtmlSvgText(390, 23, 14, "#555555", data.unit);
     //text += _getHtmlSvgText(20, 63, 10, "white", String(top));
     //text += _getHtmlSvgText(20, 163, 10, "white", String(bottom));
+    
     String trend;
     if (buffer.getTrend() == -1) {
       trend += "▼";
@@ -54,7 +55,9 @@ String VDataHtml::handleHistorySvgGraph(VDataBuffer buffer, field_data data)
         int y2 = _isometric(history[i], top, bottom, 100, 60);
         lines += _getHtmlSvgLine(x1, y1, x2, y2);
       } else {
+        int y2 = _isometric(history[i], top, bottom, 100, 60);
         int y3 = _isometric(data.value, top, bottom, 100, 60);
+        lines += _getHtmlSvgLine(x1, y2, x2, y2);
         text += _getHtmlSvgArrow(x1, y3, "grey");
       }
       if (i % 20 == 0) {
@@ -69,8 +72,6 @@ String VDataHtml::handleHistorySvgGraph(VDataBuffer buffer, field_data data)
       grid += _getHtmlSvgLine(50, pos, 410, pos);
       text += _getHtmlSvgText(20, pos + 3, 10, "grey", String(limit[i]));
     }
-  } else {
-    background = "black";
   }
   
   return _getHtmlSvgCartouche(

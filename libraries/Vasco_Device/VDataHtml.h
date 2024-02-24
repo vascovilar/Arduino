@@ -43,7 +43,7 @@ class VDataHtml
     <link href='https://fonts.googleapis.com/icon?family=Material+Icons' rel='stylesheet'>\
     <style>\
       body{padding:10px;background:#000000;font-family:Arial,Helvetica,Sans-Serif;font-size:12px;color:#999999;}\
-      h1{font-family:'Bebas Neue';font-size:42px;margin:0px;color:#555555;}\
+      h1{font-family:'Bebas Neue';font-size:42px;margin:0px;padding-right:20px;color:#555555;}\
       h1 .material-icons{font-size:40px;}\
       h2{font-size:18px;margin-bottom: 0px;}\
       h2,h3{color:#DDDDDD;font-weight:bold;}\
@@ -99,8 +99,11 @@ class VDataHtml
     String _getHtmlGlobalEnvironmentPage(int delay)
     {
       return "\
-<h1><span class='material-icons'>thunderstorm</span> ESP32-METEO</h1>\
-<div id='alert' style='float:left; width:100%'></div>\
+<h1>\
+  <span class='material-icons'>thunderstorm</span> ESP32-METEO \
+</h1>\
+<div id='div_logger' style='width:100%; padding-left:5px; padding-bottom:10px;'></div>\
+</div>\
 <div id='main'></div>\
 <div id='div_0' class='simple bordered'></div>\
 <div id='div_1' class='simple bordered'></div>\
@@ -117,6 +120,7 @@ class VDataHtml
     for (var i in seq) {\
       call('/graph/' + seq[i] + '.svg', 'div_' + seq[i]);\
     }\
+    call('/logger', 'div_logger');\
   }\
   window.setInterval(refresh, " + String(delay) + ");\
 </script>";

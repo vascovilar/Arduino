@@ -2,9 +2,9 @@
  * Connect to local network via WiFi and get real time
  * Implementation:
  *
- *   #include <VDeviceWifi.h>
+ *   #include <VToolWifi.h>
  *
- *   VDeviceWifi net; 
+ *   VToolWifi net; 
  *
  *   void setup() {
  *     net.begin();
@@ -14,14 +14,14 @@
  *   }
  */
 
-#ifndef VDeviceWifi_h
-#define VDeviceWifi_h
+#ifndef VToolWifi_h
+#define VToolWifi_h
 
 #include "Arduino.h"
 #include "WiFi.h"
 #include "time.h"
 
-class VDeviceWifi
+class VToolWifi
 {
   public:
      

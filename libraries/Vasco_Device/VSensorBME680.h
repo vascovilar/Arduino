@@ -30,36 +30,38 @@ class VSensorBME680
     void begin(int addr); // i2c must be 0x76 or 0x77
     bool update(int delay); // 3000 ms minimum
     void sync(); // read device registery data
+    void sleep(bool isSleeping);
 
-    field_data  getTemperature() { return _data.temperature; }
-    field_data  getPressure() { return _data.pressure; }
-    field_data  getHumidity() { return _data.humidity; }
-    field_data  getGasResistance() { return _data.gasResistance; }
-    field_data  getAirQuality() { return _data.airQuality; }
-    field_data  getCo2Equivalent() { return _data.co2Equivalent; }
-    field_data  getVocEquivalent() { return _data.vocEquivalent; }
-    field_data  getGasPercentage() { return _data.gasPercentage; }
-    int         getProcessTime() { return _processTime; } // in milliseconds
+    field_data   getTemperature() { return _data.temperature; }
+    field_data   getPressure() { return _data.pressure; }
+    field_data   getHumidity() { return _data.humidity; }
+    field_data   getGasResistance() { return _data.gasResistance; }
+    field_data   getAirQuality() { return _data.airQuality; }
+    field_data   getCo2Equivalent() { return _data.co2Equivalent; }
+    field_data   getVocEquivalent() { return _data.vocEquivalent; }
+    field_data   getGasPercentage() { return _data.gasPercentage; }
+    unsigned int getProcessTime() { return _data.processTime; }
     
   private:
 
     Bsec _iaq;
     unsigned int _timer;
-    unsigned int _processTime;
+    bool _enabled = true;
     
     void _checkIaqSensorStatus();
     float _convertToMilliBar(float pressure);
     float _convertToKiloOhm(float resistance);
 
     struct fields {
-      field_data  temperature = {"Température", "°C", 0.5};
-      field_data  pressure = {"Pression", "mBar", 1.0}; 
-      field_data  humidity = {"Humidité", "%", 1.0};
-      field_data  gasResistance = {"Resistivité de l'air", "kOhm", 10000.0};
-      field_data  airQuality = {"Qualité de l'air", "", 10.0};
-      field_data  co2Equivalent = {"Equivalent CO2", "ppm", 50.0};
-      field_data  vocEquivalent = {"Equivalent VOC", "ppm", 0.5};
-      field_data  gasPercentage = {"Particules / Solvants", "%", 5.0};
+      field_data   temperature = {"Température", "°C", 0.5};
+      field_data   pressure = {"Pression", "mBar", 1.0}; 
+      field_data   humidity = {"Humidité", "%", 1.0};
+      field_data   gasResistance = {"Resistivité de l'air", "kOhm", 10000.0};
+      field_data   airQuality = {"Qualité de l'air", "", 10.0};
+      field_data   co2Equivalent = {"Equivalent CO2", "ppm", 50.0};
+      field_data   vocEquivalent = {"Equivalent VOC", "ppm", 0.5};
+      field_data   gasPercentage = {"Particules / Solvants", "%", 5.0};
+      unsigned int processTime;
     };
     fields _data;
 
@@ -87,8 +89,8 @@ class VSensorBME680
       else if (value <= 1000) { _data.pressure.status = JAUNE; _data.pressure.text = "pluie ou vent"; } 
       else if (value <= 1020) { _data.pressure.status = VERT; _data.pressure.text = "variable"; } 
       else if (value <= 1035) { _data.pressure.status = VERT; _data.pressure.text = "beau temps"; } 
-      else if (value <= 1050) { _data.pressure.status = ORANGE; _data.pressure.text = "très sec"; } 
-      else { _data.pressure.status = ROUGE; _data.pressure.text = "maximum"; }
+      else if (value <= 1050) { _data.pressure.status = JAUNE; _data.pressure.text = "très sec"; } 
+      else { _data.pressure.status = ORANGE; _data.pressure.text = "maximum"; }
     }
 
     void _setHumidity(float value)
