@@ -21,7 +21,7 @@
 #define VSensorLTR390_h
 
 #include "Arduino.h"
-#include "VConfig.h"
+#include "VSensors.h"
 #include "Adafruit_LTR390.h"
 
 class VSensorLTR390
@@ -52,7 +52,7 @@ class VSensorLTR390
       unsigned int processTime;      
     };
     fields _data;
-
+    
     void _setUvIndex(float value)
     { 
       _data.uvIndex.value = value;
@@ -70,7 +70,7 @@ class VSensorLTR390
       
       if (value <= 0) { _data.visible.status = ORANGE; _data.visible.text = "obscurité"; } 
       else if (value <= 1) { _data.visible.status = JAUNE; _data.visible.text = "minimum humain"; } 
-      else if (value <= 20) { _data.visible.status = JAUNE; _data.visible.text = "pénombre"; } 
+      else if (value <= 20) { _data.visible.status = JAUNE; _data.visible.text = "faible"; } 
       else if (value <= 100) { _data.visible.status = VERT; _data.visible.text = "tamisée"; } 
       else if (value <= 500) { _data.visible.status = VERT; _data.visible.text = "confortable"; } 
       else if (value <= 1000) { _data.visible.status = VERT; _data.visible.text = "bureau"; } 

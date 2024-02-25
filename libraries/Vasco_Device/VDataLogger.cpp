@@ -7,6 +7,17 @@ void VDataLogger::begin()
   delay(1000);
 }
 
+bool VDataLogger::update(int delay)
+{
+  if (millis() - _timer > delay) {
+    _timer = millis(); // reset the timer
+
+    return true;
+  }
+
+  return false;
+}
+
 void VDataLogger::println(String text)
 {
   _addHistory(text + "\n");

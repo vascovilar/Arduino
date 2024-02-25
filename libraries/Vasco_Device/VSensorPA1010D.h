@@ -20,7 +20,7 @@
 #define VSensorPA1010D_h
 
 #include "Arduino.h"
-#include "VConfig.h"
+#include "VSensors.h"
 #include "Adafruit_GPS.h"
 
 class VSensorPA1010D

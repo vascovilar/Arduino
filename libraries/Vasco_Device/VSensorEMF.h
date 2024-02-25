@@ -32,7 +32,7 @@
 #define VSensorEMF_h
 
 #include "Arduino.h"
-#include "VConfig.h"
+#include "VSensors.h"
 #include "driver/adc.h"
 
 class VSensorEMF

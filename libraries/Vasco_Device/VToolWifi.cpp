@@ -26,14 +26,14 @@ bool VToolWifi::scan()
   for (int i = 0; i < count; ++i) { 
     Serial.println(" | " + String(WiFi.SSID(i)) + " (" + String(WiFi.RSSI(i)) + "db)");
 
-    for (int j = 0; j < 2; ++j) { 
+    for (int j = 0; j < _credentials_length; ++j) { 
       if (String(_credentials[j].user) == WiFi.SSID(i)) {
-        _ssid = j;
+        _credentials_index = j;
         if (connect()) {
           
           return true;
         } else {
-          _ssid = -1;  
+          _credentials_index = -1;  
         }
       }
     }
@@ -45,9 +45,9 @@ bool VToolWifi::scan()
 
 bool VToolWifi::connect()
 {
-  if (_ssid >= 0) {
-    Serial.print("Connecting to " + String(_credentials[_ssid].user));
-    WiFi.begin(_credentials[_ssid].user, _credentials[_ssid].password);
+  if (_credentials_index >= 0) {
+    Serial.print("Connecting to " + String(_credentials[_credentials_index].user));
+    WiFi.begin(_credentials[_credentials_index].user, _credentials[_credentials_index].password);
     
     // wait for 10 seconds max
     for (int i = 0; i < 20; ++i) { 

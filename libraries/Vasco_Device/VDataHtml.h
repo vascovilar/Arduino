@@ -2,7 +2,7 @@
 #define VDataHtml_h
 
 #include "Arduino.h"
-#include "VConfig.h"
+#include "VSensors.h"
 #include "VDataBuffer.h"
 
 class VDataHtml

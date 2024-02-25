@@ -1,4 +1,4 @@
-#include "VConfig.h"
+#include "VSensors.h"
 #include "VDataBuffer.h"
 #include "VDataHtml.h"
 #include "VDataLogger.h"
@@ -24,6 +24,7 @@ VSensorEMF        emf;
 VSensorLTR390     light;
 VSensorESP32      esp;
 VSensorPA1010D    gps;
+unsigned int      i;
 
 field_data getSensor(sensors_code code)
 {
@@ -62,6 +63,11 @@ field_data getSensor(sensors_code code)
   return data;
 }
 
+void setBuffer(sensors_code code)
+{
+  buffer[code].push(getSensor(code).value);
+}
+
 String getAllSensorsTable()
 {
   field_data sensors[22];
@@ -91,36 +97,6 @@ String getAllSensorsTable()
   return html.handleDataTable(sensors, 22);
 }
 
-String getHistorySvgGraph(int field)
-{
-  return html.handleHistorySvgGraph(buffer[field], getSensor((sensors_code) field));
-}
-
-String getLoggerText()
-{
-  return wifi.getTime() + "  " + logger.dump(TRICORDER_REFRESH_RATE);
-}
-
-String getHomePage()
-{
-  return html.handleHomePage(3000);
-}
-
-void setBuffer(sensors_code code)
-{
-  buffer[code].push(getSensor(code).value);
-}
-
-void setLogger()
-{
-  for (int i = 0; i < VSENSORS_COUNT; i++) {
-    field_data value = getSensor((sensors_code) i);
-    if (value.status >= JAUNE) {
-      logger.println(" | " + value.label + ": " + value.text);
-    }
-  }
-}
-
 void setup() 
 {
   logger.begin();
@@ -136,11 +112,11 @@ void setup()
 
   for (int field = 0; field < VSENSORS_COUNT; field++) {
     buffer[field] = VDataBuffer();
-    web.onHtml("/graph/" + String(field) + ".svg", [field](){ return getHistorySvgGraph(field); });
+    web.onHtml("/graph/" + String(field) + ".svg", [field](){ return html.handleHistorySvgGraph(buffer[field], getSensor((sensors_code) field)); });
   }
-  web.onHtml("/logger", [](){ return getLoggerText(); });
+  web.onHtml("/logger", [](){ return wifi.getTime() + "  " + logger.dump(TRICORDER_REFRESH_RATE); });
   web.onHtml("/sensors", [](){ return getAllSensorsTable(); });
-  web.onHtml("/", [](){ return getHomePage(); });
+  web.onHtml("/", [](){ return html.handleHomePage(3000); });
   web.begin();
   
   sound.getOpen();
@@ -171,10 +147,20 @@ void loop()
 
   if (esp.update(TRICORDER_REFRESH_RATE)) {
     setBuffer(ESP_LOAD);
-    setLogger();
   }
 
-  if(gps.update(TRICORDER_REFRESH_RATE)) {
+  if (gps.update(TRICORDER_REFRESH_RATE)) {
 
   }
+
+  if (logger.update(TRICORDER_REFRESH_RATE)) {
+    for (i = 0; i < VSENSORS_COUNT; i++) {
+      field_data value = getSensor((sensors_code) i);
+      if (value.status >= JAUNE) {
+        logger.println(" | " + value.label + ": " + value.text);
+      }
+    }
+  }
+
+
 }

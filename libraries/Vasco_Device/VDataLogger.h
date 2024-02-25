@@ -26,13 +26,16 @@ class VDataLogger
   public:
 
     void begin();
-
+    bool update(int delay);
+    
     void println(String text);
     void print(String text);
 
     String dump(int delay);
 
   private:
+
+    unsigned int _timer = 0;
 
     void _addHistory(String text);
     

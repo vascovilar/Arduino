@@ -20,7 +20,7 @@
 #define VSensorBME680_h
 
 #include "Arduino.h"
-#include "VConfig.h"
+#include "VSensors.h"
 #include "bsec.h"
 
 class VSensorBME680

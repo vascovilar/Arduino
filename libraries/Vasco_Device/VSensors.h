@@ -1,5 +1,7 @@
-#ifndef VConfig_h
-#define VConfig_h
+#ifndef VSensors_h
+#define VSensors_h
+
+#include "Arduino.h"
 
 #define VSENSORS_COUNT  9
 enum sensors_code {

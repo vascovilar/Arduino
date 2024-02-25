@@ -21,7 +21,7 @@
 #define VSensorESP32_h
 
 #include "Arduino.h"
-#include "VConfig.h"
+#include "VSensors.h"
 
 class VSensorESP32
 {  

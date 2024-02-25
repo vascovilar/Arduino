@@ -47,7 +47,8 @@ class VToolWifi
       const char* password;
     };
 
-    int _ssid = -1;
+    int _credentials_index = -1;
+    const int _credentials_length = 2;
     credential _credentials[2] = {
       {"iPhone_vasco", "8743b52063cd"},
       {"freebox_vasco", "dbaZAxwC++tvYB8EpX1CxxkytD2FoH5d"},
