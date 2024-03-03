@@ -57,7 +57,7 @@ void VSensorBME680::sync()
     _setGasPercentage(_iaq.gasPercentage);
   }
 
-  _data.processTime = millis() - time;
+  _processTime = millis() - time;
 }
 
 void VSensorBME680::sleep(bool isSleeping)

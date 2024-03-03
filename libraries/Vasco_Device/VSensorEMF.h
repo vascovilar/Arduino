@@ -41,26 +41,27 @@ class VSensorEMF
   
     void begin(int pin); // pin must be 36
     bool update(int delay); // delay in milliseconds
-    void sync(); // delay in microseconds for one of the 100 measure TODO
+    void snap(); // delay in microseconds for one of the 100 measure
+    float read(); // read sensor, gives a value from 0 to 4096, % returned
     void sleep(bool isSleeping);
 
     field_data   getMaxValue() { return _data.maxValue; }
     field_data   getFrequency() { return _data.frequency; }
     float*       getBuffer() { return _data.buffer; }
-    unsigned int getProcessTime() { return _data.processTime; } // in milliseconds
+    unsigned int getProcessTime() { return _processTime; } // in milliseconds
+    bool         isEnabled() { return _enabled; }
+
     
   private:
   
     unsigned int _timer = 0;
+    unsigned int _processTime = 0;
     bool _enabled = false;
-    
-    float _readSensor(); // read sensor, gives a value from 0 to 4096, % returned
-  
+      
     struct fields {
-      field_data   maxValue = {"Intensité EMF", "%", 5.0};
+      field_data   maxValue = {"Intensité EMF", "%", 1.0};
       field_data   frequency = {"Fréquence EMF", "Hz", 10.0};
       float        buffer[100];
-      unsigned int processTime;
     };
     fields _data;
 

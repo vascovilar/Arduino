@@ -13,7 +13,7 @@ enum sensors_code {
   EMF_FIELD = 5,
   UV_INDEX = 6,
   VISIBLE = 7,
-  ESP_LOAD = 8
+  AUDIO_LEVEL = 8
 };
 
 #define VCOMFORT_COUNT  6

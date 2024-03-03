@@ -60,7 +60,7 @@ void VSensorPA1010D::sync()
     _data.longCardinal = _gps.lon;
   }
 
-  _data.processTime = millis() - time;
+  _processTime = millis() - time;
 }
 
 void VSensorPA1010D::sleep(bool isSleeping)

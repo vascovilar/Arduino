@@ -2,9 +2,9 @@
  * Piezo disk driver 
  * Implementation:
  *
- *   #include <VToolSound.h>
+ *   #include <VDeviceSound.h>
  *
- *   VToolSound sound;
+ *   VDeviceSound sound;
  *
  *   void setup() {
  *     sound.begin(2);
@@ -15,27 +15,25 @@
  *   }
  */
 
-#ifndef VToolSound_h
-#define VToolSound_h
+#ifndef VDeviceSound_h
+#define VDeviceSound_h
 
 #include "Arduino.h"
 
-class VToolSound
+class VDeviceSound
 {
   public:
 
     void begin(int pin); // must be pwm pin
     
-    void getBeep();
-    void getNotice();
-    void getWarning();
-    void getAlert();
-    void getOpen();
-    void getClose();
-    void getModem();
-    void getIsabel();
-
-
+    void beep();
+    void notice();
+    void warning();
+    void alert();
+    void open();
+    void close();
+    void modem();
+    void isabel();
 
   private:
 

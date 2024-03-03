@@ -4,15 +4,15 @@
  *
  *   #include <VSensorLTR390.h>
  *
- *   VSensorLTR390 light; 
+ *   VSensorLTR390 sun; 
  *
  *   void setup() {
- *     light.begin();
+ *     sun.begin();
  *   }
  * 
  *   void loop() {
- *     if (light.update(1000)) {
- *       Serial.println(light.getUvIndex().value);
+ *     if (sun.update(1000)) {
+ *       Serial.println(sun.getUvIndex().value);
  *     };
  *   }
  */
@@ -35,12 +35,15 @@ class VSensorLTR390
     
     field_data   getUvIndex() { return _data.uvIndex; }
     field_data   getVisible() { return _data.visible; }
-    unsigned int getProcessTime() { return _data.processTime; }
+    unsigned int getProcessTime() { return _processTime; }
+    bool         isEnabled() { return _enabled; }
+
 
   private:
   
     Adafruit_LTR390 _ltr;
     unsigned int _timer = 0;
+    unsigned int _processTime = 0;      
     bool _enabled = false;
 
     float _readUVS(); // read sensor value in UVI
@@ -49,7 +52,6 @@ class VSensorLTR390
     struct fields {
       field_data   uvIndex = {"Index UV", "", 1.0};
       field_data   visible = {"Lumière visible", "lux", 10.0};
-      unsigned int processTime;      
     };
     fields _data;
     

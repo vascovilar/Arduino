@@ -40,12 +40,14 @@ class VSensorBME680
     field_data   getCo2Equivalent() { return _data.co2Equivalent; }
     field_data   getVocEquivalent() { return _data.vocEquivalent; }
     field_data   getGasPercentage() { return _data.gasPercentage; }
-    unsigned int getProcessTime() { return _data.processTime; }
-    
+    unsigned int getProcessTime() { return _processTime; }
+    bool         isEnabled() { return _enabled; }
+
   private:
 
     Bsec _iaq;
     unsigned int _timer = 0;
+    unsigned int _processTime = 0;
     bool _enabled = false;
     
     void _checkIaqSensorStatus();
@@ -61,7 +63,6 @@ class VSensorBME680
       field_data   co2Equivalent = {"Equivalent CO2", "ppm", 50.0};
       field_data   vocEquivalent = {"Equivalent VOC", "ppm", 0.5};
       field_data   gasPercentage = {"Particules / Solvants", "%", 5.0};
-      unsigned int processTime;
     };
     fields _data;
 

@@ -1,53 +1,53 @@
-#include "VToolSound.h"
+#include "VDeviceSound.h"
 
-void VToolSound::begin(int pin)
+void VDeviceSound::begin(int pin)
 {
-  //ledcSetup(0, 0, 14);
+  ledcSetup(0, 2300, 14);
   ledcAttachPin(pin, 0);
 }
 
-void VToolSound::getBeep()
+void VDeviceSound::beep()
 {
-  _note(1, LA, NOIRE);
+  _note(1, 2300, NOIRE); // resonant frequency
 }
 
-void VToolSound::getNotice()
+void VDeviceSound::notice()
 {
   _note(6, LA, DOUBLE_CROCHE);
 }
 
-void VToolSound::getWarning()
+void VDeviceSound::warning()
 {
   _note(4, LA, CROCHE);
 }
 
-void VToolSound::getAlert()
+void VDeviceSound::alert()
 {
   _note(3, LA, TRIPLE_CROCHE);
   _silence(SOUPIR);
   _note(3, LA, TRIPLE_CROCHE);
 }
 
-void VToolSound::getOpen()
+void VDeviceSound::open()
 {
   _note(1, LA, BLANCHE);
   _note(3, LA, CROCHE);
 }
 
-void VToolSound::getClose()
+void VDeviceSound::close()
 {
   _note(3, LA, NOIRE);
   _note(1, LA, NOIRE);
 }
 
-void VToolSound::getModem()
+void VDeviceSound::modem()
 {
   for (int i; i< 40; i++) {
     _note((int) random(4), (int) random(1000000), DOUBLE_CROCHE);
   }
 }
 
-void VToolSound::getIsabel()
+void VDeviceSound::isabel()
 {
   int music[44] = {
     2, DO, CROCHE, DEMI_PAUSE,
@@ -67,17 +67,17 @@ void VToolSound::getIsabel()
   }
 }
 
-void VToolSound::_note(int octave, int frequency, int duration)
+void VDeviceSound::_note(int octave, int milliHertz, int milliSeconds)
 {
-  float frequencyInHerz = (float) (pow(2, octave) * frequency) / (float) 1000;
+  float frequencyInHerz = (float) (pow(2, octave) * milliHertz) / (float) 1000;
 
   ledcWriteTone(0, (int) frequencyInHerz);
-  delay(duration);
+  delay(milliSeconds);
   ledcWriteTone(0, 0);
 }
 
-void VToolSound::_silence(int milliSeconds)
+void VDeviceSound::_silence(int milliSeconds)
 {
-  _note(1, 0, milliSeconds);
+  sleep(milliSeconds);
 }
 

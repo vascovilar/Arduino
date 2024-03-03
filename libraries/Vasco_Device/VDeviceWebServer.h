@@ -2,21 +2,24 @@
  * WebServer abstraction
  * Implementation:
  *
- *   #include <VToolWebServer.h>
+ *   #include <VDeviceWebServer.h>
  *
- *   VToolWebServer web;
+ *   VDeviceWebServer server;
  *
  *   void setup() {
- *     web.onPage("/", [arg](){ return html.getHome(arg); });
- *     web.begin();
+ *     server.onPage("/", [arg](){ return getHome(arg); });
+ *     server.begin();
  *   }
  *   void loop() {
- *     web.update(10);
+ *     server.update(10);
+ *   }
+ *   String getHome(arg) {
+ *     return "Hello world ! " + String(arg);
  *   }
  */
 
-#ifndef VToolWebServer_h
-#define VToolWebServer_h
+#ifndef VDeviceWebServer_h
+#define VDeviceWebServer_h
 
 #include "Arduino.h"
 #include "WebServer.h"
@@ -24,7 +27,7 @@
 
 static WebServer _server(80);
 
-class VToolWebServer
+class VDeviceWebServer
 {
   public:   
     

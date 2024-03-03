@@ -14,8 +14,9 @@ bool VSensorESP32::update(int delay)
 
     sync();
 
-    _setLoad(((float) (delta - delay) / (float) delay) * 100);
-    _setMemory(_readMemoryUsage());
+    if (_enabled) {
+      _setLoad(((float) (delta - delay) / (float) delay) * 100);
+    }
 
     return true;
   }
@@ -28,10 +29,10 @@ void VSensorESP32::sync()
   unsigned int time = millis();
 
   if (_enabled) {
-    
+    _setMemory(_readMemoryUsage());
   }
 
-  _data.processTime = millis() - _timer;
+  _processTime = millis() - _timer;
 }
 
 void VSensorESP32::sleep(bool isSleeping)

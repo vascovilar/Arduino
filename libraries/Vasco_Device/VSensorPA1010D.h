@@ -44,12 +44,14 @@ class VSensorPA1010D
     String       getLatCardinal() { return _data.latCardinal; }
     String       getLongCardinal() { return _data.longCardinal; }
     String       getIsoDecimalLabel() { return String(_data.latitude.value, 7) + " " + _data.latCardinal + "," + String(_data.longitude.value, 7) + " " + _data.longCardinal; }
-    unsigned int getProcessTime() { return _data.processTime; }
+    unsigned int getProcessTime() { return _processTime; }
+    bool         isEnabled() { return _enabled; }
     
   private:
 
     Adafruit_GPS _gps;
     unsigned int _timer = 0;
+    unsigned int _processTime = 0;
     bool _enabled = false;
 
     String _convertToDateTime(int year, int month, int day, int hour, int minute, int second);
@@ -67,7 +69,6 @@ class VSensorPA1010D
       String       dateTime;      // in timestamp GMT
       String       latCardinal;   // enum N or S
       String       longCardinal;  // enum W or E
-      unsigned int processTime;
     };
     struct fields _data;
 

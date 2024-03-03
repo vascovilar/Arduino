@@ -14,7 +14,7 @@ bool VSensorEMF::update(int delay)
   if (millis() - _timer > delay) {
     _timer = millis();
 
-    sync();
+    snap();
     
     return true;
   }
@@ -22,21 +22,21 @@ bool VSensorEMF::update(int delay)
   return false;
 }
 
-void VSensorEMF::sync()
+void VSensorEMF::snap()
 {
   unsigned int time = millis();
   
   if (_enabled) {
     unsigned int timer = micros();
-    int          i = 0;
-    int          beat = 0;
-    float        max = 0;
+    int i = 0;
+    int beat = 0;
+    float max = 0;
       
     while (i < 100) {
       if (micros() - timer > 1000) {
         timer = micros();
         
-        _data.buffer[i] = _readSensor();
+        _data.buffer[i] = read();
         if (_data.buffer[i] > max) {
           max = _data.buffer[i];
         } 
@@ -50,7 +50,7 @@ void VSensorEMF::sync()
     _setFrequency(beat != 0 ? (float) 1000 / ((float) (millis() - time) / (float) beat): 0);
   }
   
-  _data.processTime = millis() - time;
+  _processTime = millis() - time;
 }
 
 void VSensorEMF::sleep(bool isSleeping)
@@ -63,7 +63,13 @@ void VSensorEMF::sleep(bool isSleeping)
   }
 }
 
-float VSensorEMF::_readSensor()
+float VSensorEMF::read()
 {
-  return ((float) adc1_get_raw(ADC1_CHANNEL_0) / (float) 4096) * 100;
+  int value = 0;
+
+  if (_enabled) {
+    value = adc1_get_raw(ADC1_CHANNEL_0);
+  }
+  
+  return ((float) value / (float) 4096) * 100;
 }

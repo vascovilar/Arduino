@@ -34,11 +34,13 @@ class VSensorESP32
     
     field_data   getLoad() { return _data.load; }
     field_data   getMemory() { return _data.memory; }
-    unsigned int getProcessTime() { return _data.processTime; }
+    unsigned int getProcessTime() { return _processTime; }
+    bool         isEnabled() { return _enabled; }
         
   private:
   
     unsigned int _timer = 0;
+    unsigned int _processTime = 0;
     bool _enabled = false;
 
     float _readMemoryUsage();
@@ -46,7 +48,6 @@ class VSensorESP32
     struct fields {
       field_data   load = {"Charge ESP", "%", 20.0};
       field_data   memory = {"Mémoire utilisée", "%", 20.0};
-      unsigned int processTime;
     };
     fields _data;
 

@@ -35,7 +35,7 @@ void VSensorLTR390::sync()
     _setVisible(_readALS());
   }
 
-  _data.processTime = millis() - time;
+  _processTime = millis() - time;
 }
 
 void VSensorLTR390::sleep(bool isSleeping)
