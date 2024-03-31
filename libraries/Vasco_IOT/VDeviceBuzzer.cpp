@@ -2,14 +2,12 @@
 
 bool VDeviceBuzzer::init()
 {
-  if (_initPWM(_pwmPin, _PWM_CHANNEL)) {
-
-    return true;
+  if (!_initPWM(_pwmPin, _PWM_CHANNEL)) {
+    Serial.println(F("Error initializing buzzer device"));
+    return false;
   }
-
-  Serial.println(F("Error initializing buzzer device"));
-
-  return false;
+  
+  return true;
 }
 
 bool VDeviceBuzzer::wake()

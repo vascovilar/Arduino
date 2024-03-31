@@ -117,12 +117,15 @@ class VDataHtml
 <div id='div_6' class='simple bordered'></div>\
 <div id='div_7' class='simple bordered'></div>\
 <div id='div_8' class='simple bordered'></div>\
+<div id='div_9' class='simple bordered'></div>\
+<div id='div_10' class='simple bordered'></div>\
+<div id='div_11' class='simple bordered'></div>\
 <div style='width:100%; padding-left:10px;'>\
   <a href='/sensors'>view all sensors raw data</a>\
 </div>\
 <script>\
   function refresh() {\
-    var seq = ['0', '1', '2', '3', '4', '5', '6', '7', '8'];\
+    var seq = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];\
     for (var i in seq) {\
       call('/graph/' + seq[i] + '.svg', 'div_' + seq[i]);\
     }\

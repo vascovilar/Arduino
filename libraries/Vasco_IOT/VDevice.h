@@ -5,7 +5,7 @@
 #include "EEPROM.h"
 
 #define VDEVICE_COUNT  11
-enum device_code {
+enum vdevice_code {
   ESP32_WROVER = 0,
   ADA_BME680 = 1,
   ADA_LTR390 = 2,
@@ -16,11 +16,11 @@ enum device_code {
   CUSTOM_EMF = 7,
   CUSTOM_GAMMA = 8,
   CUSTOM_BUZZER = 9,
-  CUSTOM_JOYSTICK = 10
+  CUSTOM_JOYSTICK = 10,
 };
 
 #define VEMORY_SIZE  16
-enum memory_index {
+enum vmemory_index {
   ROM_BYTE_1 = 0,
   ROM_BYTE_2 = 1,
   ROM_BYTE_3 = 2,
@@ -30,7 +30,7 @@ enum memory_index {
   ROM_BYTE_7 = 6,
   ROM_BYTE_8 = 7,
   ROM_FLOAT_1 = 8,
-  ROM_FLOAT_2 = 12
+  ROM_FLOAT_2 = 12,
 };
 
 struct memory_flags {
@@ -48,28 +48,25 @@ class VDevice
 {
   public:
 
-    device_code   code;
+    vdevice_code   deviceCode;
 
-    VDevice(device_code code) { code = code; }     
+    VDevice(vdevice_code code) { code = code; }     
     
     virtual bool  init() = 0; // init device
     virtual bool  wake() = 0; // make device wake up
     virtual bool  sleep() = 0; // make device sleep and consuming less possible
-  
 };
 
 class VSPIPins
 {
-  // Harware default. Speeder if not modified
+  // Harware default 4 wire SPI. Speeder if not modified
   static const byte _SPI_MOSI_PIN = 23; 
   static const byte _SPI_MISO_PIN = 19;  
   static const byte _SPI_CLK_PIN = 18;  
-  
-  // override with device value in child class
   static const byte _SPI_CS_PIN = 5;
 };
 
-class VPwmPin
+class VPwmPin 
 {
   // override with device value in child class
   static const byte _PWM_CHANNEL = 0;
@@ -99,6 +96,11 @@ class VPwmPin
       
       return false;
     }
+
+    void _ledPWM(byte magnitude)
+    {
+      analogWrite(_attachedPin, magnitude);
+    }
     
     void _tonePWM(int frequency) 
     {
@@ -123,14 +125,14 @@ class VROMAccess
     // generic multi type getter and setter
 
     template<typename T> 
-    void _readROM(memory_index index, T &value) 
+    void _readROM(vmemory_index index, T &value) 
     {
       // return by reference
       EEPROM.get((int)index, value);
     }
 
     template<typename T> 
-    void _writeROM(memory_index index, T &value)
+    void _writeROM(vmemory_index index, T &value)
     {
       T oldValue = 0;
       EEPROM.get((int)index, oldValue);
@@ -142,7 +144,7 @@ class VROMAccess
 
     // 8 structured booleans in one octet
 
-    memory_flags _getROMFlags(memory_index index)
+    memory_flags _getROMFlags(vmemory_index index)
     {
       byte value = EEPROM.read((int)index);
 
@@ -159,7 +161,7 @@ class VROMAccess
       return data; 
     }
 
-    bool _setROMFlags(memory_index index, memory_flags value) 
+    bool _setROMFlags(vmemory_index index, memory_flags value) 
     {
       byte data;
       bitWrite(data, 0, value.flag1 ? 1: 0);

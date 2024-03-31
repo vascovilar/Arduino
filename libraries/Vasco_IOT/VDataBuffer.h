@@ -11,7 +11,7 @@ class VDataBuffer
 
   public:
 
-    static const unsigned int _DELAY_TO_PUSH = 180000; // 180000 = 3 min means 240 mesures = 12h
+    static const unsigned int _DELAY_TO_PUSH = 30000; // 180000 = 3 min means 240 mesures = 12h
 
     bool push(float value);
 

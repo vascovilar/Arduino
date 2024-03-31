@@ -21,11 +21,10 @@
 #include "VDevice.h"
 #include "VSensor.h"
 #include "bsec.h"
+#include "Wire.h"
 
 class VSensorBME680 : public VDevice, public VSensor, public VI2CPins
 {
-  static const byte _I2C_ADDRESS = 0x77;
-
   public:
 
     VSensorBME680(byte pin) : VDevice(ADA_BME680), VSensor(pin) {};

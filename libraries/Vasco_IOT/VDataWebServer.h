@@ -31,8 +31,8 @@ class VDataWebServer
 {
   public:   
     
-    void init();
-    void run();
+    bool init();
+    bool run();
 
     void onHtml(const String &uri, std::function<String()> callHtml);
     void onHtml(const String &uri, std::function<String(int)> callHtml);

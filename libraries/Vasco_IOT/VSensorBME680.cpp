@@ -2,7 +2,12 @@
 
 bool VSensorBME680::init()
 {
-  _iaq.begin(_I2C_ADDRESS, Wire);
+  if (analogPin != 0x76 && analogPin != 0x77) {
+    Serial.println(F("Error BME680 device use I2C address 0x76 or 0x77"));
+    return false;
+  }
+
+  _iaq.begin(analogPin, Wire);
   
   bsec_virtual_sensor_t sensorList[13] = {
     BSEC_OUTPUT_IAQ,
@@ -24,7 +29,6 @@ bool VSensorBME680::init()
   if (!_iaq.run()) {
     _checkIaqSensorStatus();
     Serial.println(F("Error initializing i2c BME680 device"));
-
     return false;
   }
 
@@ -78,9 +82,9 @@ void VSensorBME680::_checkIaqSensorStatus()
 {
   if (_iaq.bsecStatus != BSEC_OK) {
     if (_iaq.bsecStatus < BSEC_OK) {
-      Serial.println("BSEC error code : " + String(_iaq.bsecStatus));
+      Serial.println("BSEC error code : "+ String(_iaq.bsecStatus));
     } else {
-      Serial.println("BSEC warning code : " + String(_iaq.bsecStatus));
+      Serial.println("BSEC warning code : "+ String(_iaq.bsecStatus));
     }
   }
 

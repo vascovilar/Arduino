@@ -23,7 +23,7 @@
 
 class VDeviceBuzzer : public VDevice, public VPwmPin
 {
-  static const byte _PWM_CHANNEL = 0;
+  static const byte _PWM_CHANNEL = 1;
 
   public:
 
@@ -50,7 +50,7 @@ class VDeviceBuzzer : public VDevice, public VPwmPin
     void  _note(byte octave, int milliHertz, int milliSeconds);
     void  _silence(int milliSeconds);
 
-    enum note_frequency {
+    enum vnote_frequency {
       DO = 261625,
       DOd = 277182,
       RE = 293664,
@@ -62,10 +62,10 @@ class VDeviceBuzzer : public VDevice, public VPwmPin
       SOLd = 415304,
       LA = 440000,
       LAd = 466163,
-      SI = 493883
+      SI = 493883,
     };
 
-    enum duration_time {
+    enum vduration_time {
       CARREE = 667,
       RONDE = 333,
       BLANCHE = 166,
@@ -73,17 +73,17 @@ class VDeviceBuzzer : public VDevice, public VPwmPin
       CROCHE = 41,
       DOUBLE_CROCHE = 20,
       TRIPLE_CROCHE = 10,
-      LIEE = 0
+      LIEE = 0,
     };
 
-    enum silence_time {
+    enum vsilence_time {
       BATON_DE_PAUSE = 667, 
       PAUSE = 333, 
       DEMI_PAUSE = 166,
       SOUPIR = 83,
       DEMI_SOUPIR = 41,
       QUART_DE_SOUPIR = 20,
-      HUITIEME_DE_SOUPIR = 10
+      HUITIEME_DE_SOUPIR = 10,
     };
 
 };

@@ -3,8 +3,8 @@
 
 #include "Arduino.h"
 
-#define VSENSOR_COUNT  9
-enum sensor_code {
+#define VSENSOR_COUNT  10
+enum vsensor_code {
   TEMPERATURE = 0,
   PRESSURE = 1,
   HUMIDITY = 2,
@@ -13,17 +13,18 @@ enum sensor_code {
   EMF_LEVEL = 5,
   UV_INDEX = 6,
   VISIBLE = 7,
-  EAR_LEVEL = 8
+  EAR_LEVEL = 8,
+  ALTITUDE = 9,
 };
 
-#define VCOMFORT_COUNT  6
-enum comfort_code {
+#define VSTATUS_COUNT  6
+enum vstatus_code {
   GRIS = 0,   // inactif
   VERT = 1,   // confort
   JAUNE = 2,  // perturbé
   ORANGE = 3, // gêne
   ROUGE = 4,  // mauvais
-  VIOLET = 5  // danger
+  VIOLET = 5,  // danger
 };
 
 struct field_data {
@@ -31,13 +32,13 @@ struct field_data {
   String        unit;
   float         tolerance;
   float         value;
-  comfort_code  status;
+  vstatus_code  status;
   String        text;
 };
 
 struct legend_data {
   float         limit;
-  comfort_code  status;
+  vstatus_code  status;
   String        text;
 };
 
@@ -49,7 +50,7 @@ class VSensor
     byte          analogPin;
     float         maxValue;
 
-    VSensor(byte pin) { analogPin = pin; } // pin=0 for i2c
+    VSensor(byte pin) { analogPin = pin; }  // I2C addr or analogic pin
     
     virtual bool  init() = 0; // init device
     virtual bool  wake() = 0; // make device wake up
@@ -81,12 +82,9 @@ class VSensor
 
 class VI2CPins
 {
-  // Harware default. Speeder if not modified
+  // Harware default 2 wire I2C. Speeder if not modified
   static const byte _I2C_SDA_PIN = 21; // Qwiic blue
   static const byte _I2C_SCL_PIN = 22; // Qwiic yellow
-
-  // override with device value in child class
-  static const byte _I2C_ADDRESS = 0x00;
 };
 
 

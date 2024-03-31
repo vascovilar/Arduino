@@ -1,85 +1,69 @@
 #include "Arduino.h"
+#include "VData.h"
 #include "VDataBuffer.h"
 #include "VDataHtml.h"
 #include "VDataWebServer.h"
 #include "VDevice.h"
 #include "VDeviceESP32.h"
 #include "VDeviceBuzzer.h"
+#include "VDeviceST7789SD.h"
 #include "VSensor.h"
 #include "VSensorEMF.h"
 #include "VSensorLTR390.h"
 #include "VSensorSEN0487.h"
 #include "VSensorBME680.h"
 #include "VSensorPA1010D.h"
-#include "VSequencer.h"
+#include "VRunSequencer.h"
 
-/*
-#include "VDeviceST7789.h"
-#include "Adafruit_GFX.h"    // Core graphics library
-#include "Adafruit_ST7789.h" // Hardware-specific library for ST7789
-#include "SPI.h"
-*/
+VDeviceESP32      esp(2);
+VDeviceBuzzer     buzzer(4);
+VDeviceST7789SD   tft(5, 25, 33, 32);
+VSensorEMF        emf(36);
+VSensorLTR390     sun(0x53);
+VSensorSEN0487    ear(34);
+VSensorBME680     air(0x77);
+VSensorPA1010D    gps(0x10);
 
-#define TFT_CS 5
-#define TFT_RST -1  // Or set to -1 and connect to Arduino RESET pin
-#define TFT_DC 4
-#define SD_CS 2
+VRunSequencer     deviceEMF(emf);
+VRunSequencer     deviceSun(sun);
+VRunSequencer     deviceEar(ear);
+VRunSequencer     deviceAir(air);
+VRunSequencer     deviceGPS(gps);
+VDataBuffer       graph[VSENSOR_COUNT];
+VDataHtml         html;
+VDataWebServer    server;
 
-VDataBuffer     graph[VSENSOR_COUNT];
-VDataHtml       html;
-VDataWebServer  server;
 
-VDeviceESP32    esp(2);
-VSensorEMF      emf(36);
-VSensorLTR390   sun(0);
-VSensorSEN0487  ear(34);
-VSensorBME680   air(0);
-VDeviceBuzzer   buzzer(4);
-
-VSequencer      deviceEMF(emf);
-VSequencer      deviceSun(sun);
-VSequencer      deviceEar(ear);
-VSequencer      deviceAir(air);
-
-//VDeviceST7789     tft;
-//Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
-
-  
 void setup()
 {
   Serial.begin(115200);
   delay(1000);
   Serial.println("***********************************************************************************");  
 
+  // -----------------------------------------------------
+  // devices
+  // -----------------------------------------------------
+
   esp.init();
   buzzer.init();
+  tft.init();
 
-  deviceEMF.begin(LOW_REFRESH);
+  deviceEMF.begin(LOW_REFRESH); // TODO vasco passer les messages d'erreur ici bool begin
   deviceSun.begin(LOW_REFRESH);
   deviceEar.begin(LOW_REFRESH);
   deviceAir.begin(LOW_REFRESH);
+  deviceGPS.begin(LOW_REFRESH);
   
-  Serial.println("Devices initialized");
-  
+  Serial.println("Devices: initialized");
+
   for (int field = 0; field < VSENSOR_COUNT; field++) {
     graph[field] = VDataBuffer();
   }
 
-  if (esp.connectWifi()) {
-    esp.blueLed(true);
-    Serial.println("Sync date from web: " + esp.getDateTime() + " from " + esp.getDeviceIP());
-  }
-
-  server.onHtml("/", [](){ return html.handleHomePage(3000); });
-  for (int field = 0; field < VSENSOR_COUNT; field++) {
-    server.onHtml("/graph/" + String(field) + ".svg", [field](){ return html.handleHistorySvgGraph(graph[field], getSensor((sensor_code) field)); });
-  }
-  //server.onHtml("/logger", [](){ return esp.getDateTime() + "  " + logger.dump(SHORT_REFRESH_RATE); });
-  //server.onHtml("/sensors", [](){ return getAllSensorsTable(); });
-  server.init();
+  // -----------------------------------------------------
+  // wifi 
+  // -----------------------------------------------------
   
-
-
   /*
   int lenght = esp.getWifiAccessPoints();
   Serial.println("bornes: " + String(lenght));
@@ -88,67 +72,58 @@ void setup()
     Serial.println(esp.getWifiAccessPointInfo(i));
   }
   */
-
-
-
-
-  /*
-  Serial.println("dateTime:" + esp.getDateTime());
-  Serial.println("networks:" + String(esp.getWifiAccessPoints()));
-  delay(2000); 
-
-  if (esp.connectWifi()) {
-    Serial.println("connected !");
-  } else {
-    Serial.println("fail to connect");
-  }
-  delay(2000);
-  if (esp.disconnectWifi()) {
-    Serial.println("disconnected");
-  }
-  Serial.println("dateTime:" + esp.getDateTime());
-  */
   
-  /*
-  VSensorEMF emf(8);
-  Sequencer deviceEMF(emf);
-  deviceEMF.begin();
-  deviceEMF.begin();
-  */ 
+  if (esp.connectWifi()) {
+    esp.blueLed(true);
+    Serial.println("Wifi: sync dateTime from web, " + esp.getDateTime());
+  }
 
-  /*
-  pinMode(2, OUTPUT); digitalWrite(2, HIGH);
-  */
+  /*if (esp.disconnectWifi()) {
+    esp.blueLed(false);
+  }*/
 
-  /*
-  pinMode(36, INPUT);
-  analogSetWidth(12);
-  analogSetPinAttenuation(36, ADC_0db);
-  */
+  // -----------------------------------------------------
+  // webserver
+  // -----------------------------------------------------
 
-  //sound.begin(15);
-  //ear.begin(39);
-  //emf.begin(HIGH_REFRESH);
-  //joy.begin(34, 39, 0);
-  //screen.begin(0);
+  server.onHtml("/", [](){ return html.handleHomePage(3000); });
+  for (int field = 0; field < VSENSOR_COUNT; field++) {
+    server.onHtml("/graph/" + String(field) + ".svg", [field](){ return html.handleHistorySvgGraph(graph[field], getSensor((vsensor_code) field)); });
+  }
+  //server.onHtml("/logger", [](){ return esp.getDateTime() + "  " + logger.dump(SHORT_REFRESH_RATE); });
+  //server.onHtml("/sensors", [](){ return getAllSensorsTable(); });
+  if (server.init()) {
+    Serial.println("Webserver: listening on port 80, go http://" + esp.getDeviceIP());
+  }
+  
+  // -----------------------------------------------------
+  // tft
+  // -----------------------------------------------------
+  
+  tft.light(127);
+  tft.title("Bonjour !", 0, 0, COLOR_WHITE);
+  tft.text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", 0, 20, COLOR_GREY);
 
-  /*
-  tft.init(135, 240);
-  tft.setRotation(3);
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setCursor(0, 0);
-  tft.setTextColor(ST77XX_WHITE);
-  tft.setTextSize(1);
-  tft.setTextWrap(true);
-  tft.print("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ");
-  */
+  // -----------------------------------------------------
+  // sd
+  // -----------------------------------------------------
+
+  tft.listFiles();
+
+  // -----------------------------------------------------
+  // buzzer
+  // -----------------------------------------------------
   
   buzzer.warning();
+  
+  
+  
+  
+  Serial.println();
 }
 
 void loop() 
-{ 
-  
+{
   server.run();
 
   if (deviceEMF.update()) {
@@ -171,37 +146,19 @@ void loop()
     setBuffer(AIR_QUALITY);
     setBuffer(GAS_PERCENTAGE);
   }
-  
 
-  //Serial.println(String(deviceEMF.read()) + "," + String(deviceSun.read()) + "," + String(deviceEar.read()));
-  //Serial.println("5," + String(deviceEMF.read()) + "," + String(deviceEar.read()) + ",-5");
-  //Serial.println("1," + String(deviceEar.read()) + ",-1");
-  //Serial.println(analogRead(36));
-  //Serial.println(((float) analogRead(36) / (float) 4096) * 100);
-  //sound.warning();
-  //Serial.println(ear.read());
-  //Serial.println(String(deviceSun.read()));
-  //Serial.println("*");
-  //delay(1000);
-  //if (joy.update(100)) Serial.println(String(joy.getX()) + "    " + String(joy.getY()) + "     " + String(joy.getClick()));
-  //screen.text(String(millis()), 0, 0); delay(1000); screen.clear();
-
-
-  //Serial.println(esp.getDateTime());
-  
-  /*
-  int count = esp.getWifiAccessPoints();
-  String list[100] = esp.getWifiAccessPointList();
-  for (int i = 0; i < count; i++) {
-    Serial.println(String(i) + " | " + list[i]);
+  if (deviceGPS.update()) {
+    setBuffer(ALTITUDE);
+    Serial.println(gps.getDateTime() + ", sat:" + String(gps.getSatellite().value) + " " + String(gps.getSatellite().text));
   }
-  
-  delay(10000);
-  */
 }
 
-// TODO vasco include in a sequencer array, warning: hérite de VSequencer pour pas pourrir la classe
-field_data getSensor(sensor_code code)
+
+
+
+
+// TODO vasco include in a sequencer array, warning: hérite de VRunSequencer pour pas pourrir la classe
+field_data getSensor(vsensor_code code)
 {
   field_data data = {};
 
@@ -233,12 +190,15 @@ field_data getSensor(sensor_code code)
     case EAR_LEVEL:
       data = ear.getMaxValue();
       break;
+    case ALTITUDE:
+      data = gps.getAltitude();
+      break;  
   }
 
   return data;
 }
 
-void setBuffer(sensor_code code)
+void setBuffer(vsensor_code code)
 {
   field_data sensor = getSensor(code);
   if (sensor.status > 0) {

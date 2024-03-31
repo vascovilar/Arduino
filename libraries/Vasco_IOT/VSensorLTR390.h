@@ -22,11 +22,10 @@
 #include "VDevice.h"
 #include "VSensor.h"
 #include "Adafruit_LTR390.h"
+#include "Wire.h"
 
 class VSensorLTR390 : public VDevice, public VSensor, public VI2CPins
-{  
-  static const byte _I2C_ADDRESS = 0x53;
-
+{
   public:
 
     VSensorLTR390(byte pin) : VDevice(ADA_LTR390), VSensor(pin) {};

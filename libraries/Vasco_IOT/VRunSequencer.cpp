@@ -1,7 +1,7 @@
-#include "VSequencer.h" 
+#include "VRunSequencer.h" 
 
 
-void VSequencer::begin(mode_code mode) 
+void VRunSequencer::begin(vmode_code mode) 
 {
   if (! _enabled) {
     _enabled = child.init();
@@ -21,7 +21,7 @@ void VSequencer::begin(mode_code mode)
   } 
 }
 
-bool VSequencer::update()
+bool VRunSequencer::update()
 {
   unsigned int delay;
 
@@ -63,7 +63,7 @@ bool VSequencer::update()
   return false;
 }
 
-float VSequencer::read()
+float VRunSequencer::read()
 {  
   return 0.0;
 }

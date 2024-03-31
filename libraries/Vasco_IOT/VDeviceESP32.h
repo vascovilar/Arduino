@@ -26,7 +26,7 @@ class VDeviceESP32 : public VDevice, public VROMAccess
 {
   const char* _NTP_SERVER = "pool.ntp.org";
   const long  _GMT_OFFSET = 3600;
-  const int   _DAYLIGHT_OFFSET = 0; // 3600 in France winter
+  const int   _DAYLIGHT_OFFSET = 3600;
 
   public:
      
@@ -50,7 +50,7 @@ class VDeviceESP32 : public VDevice, public VROMAccess
     float   getMemoryUsage();
     void    blueLed(bool status);
 
-    // TODO vasco EEPROM
+    // TODO vasco test EEPROM
     void getROMTest();
 
     // TODO vasco add call http

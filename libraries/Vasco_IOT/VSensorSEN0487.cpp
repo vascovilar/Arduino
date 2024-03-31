@@ -2,14 +2,12 @@
 
 bool VSensorSEN0487::init()
 {
-  if (_initADC(analogPin, false, _ADC_MAX_VALUE, _ADC_ZERO_VALUE, _ADC_SMOOTH_FACTOR)) {
-
-    return true;
+  if (!_initADC(analogPin, false, _ADC_MAX_VALUE, _ADC_ZERO_VALUE, _ADC_SMOOTH_FACTOR)) {
+    Serial.println(F("Error initializing analog SEN0487 device"));
+    return false;
   }
 
-  Serial.println(F("Error initializing analog SEN0487 device"));
-
-  return false;
+  return true;
 }
 
 bool VSensorSEN0487::wake()

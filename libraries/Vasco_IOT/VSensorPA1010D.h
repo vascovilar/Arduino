@@ -21,11 +21,10 @@
 #include "VDevice.h"
 #include "VSensor.h"
 #include "Adafruit_GPS.h"
+#include "Wire.h"
 
 class VSensorPA1010D : public VDevice, public VSensor, public VI2CPins
 {
-  static const byte _I2C_ADDRESS = 0x10;
-
   public:
 
     VSensorPA1010D(byte pin) : VDevice(ADA_PA1010D), VSensor(pin) {};
@@ -64,8 +63,8 @@ class VSensorPA1010D : public VDevice, public VSensor, public VI2CPins
       field_data   directionAngle = {"Cap", "°", 20.0}; // North = 0
       field_data   compassAngle = {"Compas", "°", 20.0}; // North = 0
       String       dateTime;      // in timestamp GMT
-      String       latCardinal;   // enum N or S
-      String       longCardinal;  // enum W or E
+      String       latCardinal;   // N or S
+      String       longCardinal;  // W or E
     };
     struct fields _data;
 

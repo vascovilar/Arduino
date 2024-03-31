@@ -5,7 +5,7 @@ bool VDeviceESP32::init()
   pinMode(_ledPin, OUTPUT);
 
   if (!_initROM()) {
-    Serial.println("Error initializing EEPROM");
+    Serial.println(F("Error initializing EEPROM"));
     return false;
   }
 
@@ -93,7 +93,7 @@ String VDeviceESP32::getDateTime()
   timeinfo.tm_year = 0;
   
   if(!getLocalTime(&timeinfo, 5000)){
-    Serial.println("Failed to get time from ntp server, return uptime");
+    Serial.println(F("Failed to get time from ntp server, return uptime"));
     
     return "0000-01-01 " + getUpTime();
   }
@@ -122,7 +122,7 @@ unsigned long VDeviceESP32::getTimeStamp()
   struct tm timeinfo;
   
   if (!getLocalTime(&timeinfo, 5000)) {
-    Serial.println("Failed to get epoch time from ntp server, return uptime");
+    Serial.println(F("Failed to get epoch time from ntp server, return uptime"));
     
     return (int) (millis() / 1000);
   }
@@ -144,7 +144,7 @@ void VDeviceESP32::blueLed(bool status)
 
 void VDeviceESP32::getROMTest()
 {
-  // TODO vasco : to use !
+  // TODO vasco : EEPROM to use !
   
   byte variable1 = 204;
   _writeROM(ROM_BYTE_1, variable1);

@@ -2,14 +2,12 @@
 
 bool VSensorEMF::init()
 {
-  if (_initADC(analogPin, true, _ADC_MAX_VALUE, _ADC_ZERO_VALUE, _ADC_SMOOTH_FACTOR)) {
-
-    return true;
+  if (!_initADC(analogPin, true, _ADC_MAX_VALUE, _ADC_ZERO_VALUE, _ADC_SMOOTH_FACTOR)) {
+    Serial.println(F("Error initializing analog EMF device"));
+    return false;
   }
 
-  Serial.println(F("Error initializing analog EMF device"));
-
-  return false;
+  return true;
 }
 
 bool VSensorEMF::wake()

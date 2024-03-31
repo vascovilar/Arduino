@@ -3,18 +3,22 @@
 
 bool VSensorLTR390::init()
 {
-  if (_ltr.begin()) {
-    _ltr.setGain(LTR390_GAIN_3);
-    _ltr.setResolution(LTR390_RESOLUTION_18BIT);
-    _ltr.setThresholds(100, 1000);
-    //_ltr.configInterrupt(true, LTR390_MODE_UVS);
-    _ltr.setMode(LTR390_MODE_ALS);
-
-    return true;
+  if (analogPin != 0x53) {
+    Serial.println(F("Error LTR390 device use I2C address 0x53"));
+    return false;
   }
 
-  Serial.println(F("Error initializing I2C LTR390 device"));
-  
+  if (!_ltr.begin()) {
+    Serial.println(F("Error initializing I2C LTR390 device"));
+    return false;    
+  }
+
+  _ltr.setGain(LTR390_GAIN_3);
+  _ltr.setResolution(LTR390_RESOLUTION_18BIT);
+  _ltr.setThresholds(100, 1000);
+  //_ltr.configInterrupt(true, LTR390_MODE_UVS);
+  _ltr.setMode(LTR390_MODE_ALS); // by default for check facilities
+
   return true;
 }
 

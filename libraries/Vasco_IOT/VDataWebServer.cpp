@@ -2,7 +2,7 @@
 #include "uri/UriBraces.h"
 
 
-void VDataWebServer::init()
+bool VDataWebServer::init()
 {
   _server.onNotFound([](){ 
     String out = "\
@@ -17,15 +17,20 @@ void VDataWebServer::init()
   });
 
   _server.begin();
+
+  return true;
 }
 
-void VDataWebServer::run()
+bool VDataWebServer::run()
 {
   if (millis() - _timer > 10) {
     _timer = millis();
-    
     _server.handleClient();
+
+    return true;
   }
+
+  return false;
 }
 
 void VDataWebServer::onHtml(const String &uri, std::function<String()> callHtml)

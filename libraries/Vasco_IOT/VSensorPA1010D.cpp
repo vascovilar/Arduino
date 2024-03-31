@@ -2,24 +2,32 @@
 
 bool VSensorPA1010D::init()
 {
-  if (_gps.begin(_I2C_ADDRESS)) {
-    // turn on RMC (recommended minimum) and GGA (fix data) including altitude
-    _gps.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);  
-    // 1 Hz update rate
-    _gps.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
-    _gps.sendCommand(PMTK_API_SET_FIX_CTL_1HZ);
-    // Request updates on antenna status, comment out to keep quiet
-    //_gps.sendCommand(PGCMD_ANTENNA);
-
-    // activate AlwaysLocate mode (dynamic power consumption)
-    _gps.sendCommand("$PMTK225,8*23");
-
-    return true;
+  if (analogPin != 0x10) {
+    Serial.println(F("Error PA1010D device use I2C address 0x10"));
+    return false;
   }
 
-  Serial.println(F("Error initializing I2C PA1010D device"));
+  if (!_gps.begin(analogPin)) {
+    Serial.println(F("Error initializing I2C PA1010D device"));
+    return false;
+  }    
+
+  // turn on RMC (recommended minimum) and GGA (fix data) including altitude
+  _gps.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);  
+  // 1 Hz update rate
+  _gps.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
+  _gps.sendCommand(PMTK_API_SET_FIX_CTL_1HZ);
   
+  // Request updates on antenna status, comment out to keep quiet
+  //_gps.sendCommand(PGCMD_ANTENNA);
+
+  delay(1000);
+
+  // activate AlwaysLocate mode (dynamic power consumption)
+  //_gps.sendCommand("$PMTK225,8*23"); // TODO vasco debug dynamic low consumption (making init fail) after $PMTK225,0*2B OR com:$PMTK225,9*22 ack:$PMTK001,225,3*35
+
   return true;
+
 }
 
 bool VSensorPA1010D::wake()
