@@ -1,5 +1,8 @@
 /*
- * Read ambiant sound level with SEN0487
+ * Read ambiant sound level with DFRobot SEN0487
+ * Ref: https://wiki.dfrobot.com/Fermion_MEMS_Microphone_Sensor_SKU_SEN0487
+ * Doc: https://dfimg.dfrobot.com/nobody/wiki/5160bfe4d49deff484e1bd66a44d743a.pdf
+ * 
  * Implementation:
  *
  *   #include <VSensorSEN0487.h>
@@ -19,37 +22,44 @@
 #define VSensorSEN0487_h
 
 #include "Arduino.h"
+#include "VUsePins.h"
 #include "VDevice.h"
 #include "VSensor.h"
 
-class VSensorSEN0487 : public VDevice, public VSensor, public VAnalogPin
+class VSensorSEN0487 : public VDevice, public VSensor, public VUseAdcPin
 {  
   static const int _ADC_MAX_VALUE = 4000;
   static const int _ADC_ZERO_VALUE = 1638;
-  static const int _ADC_SMOOTH_FACTOR = 10;
   static const int _NOISE_THRESOLD_VALUE = 0.38;
 
   public:
 
-    VSensorSEN0487(byte pin) : VDevice(FERMION_SEN0487), VSensor(pin) {};
+    VSensorSEN0487(byte pin) : VDevice(MICROPHONE_SENSOR), VSensor(true) {
+      _analogPin = pin;
+    };
   
-    bool init();
-    bool wake();
-    bool sleep();
-    bool sync();
-    bool event();
-    float check();
+    // interfaces
+    bool    init();
+    bool    wake();
+    bool    sleep();
+    bool    check();
+    bool    update();
+    float   read();
 
-    field_data   getMaxValue() { return _data.maxValue; }
+    // data updated
+    vfield_data   getMaxValue() { return _data.maxValue; }
     
   private:
+
+    byte     _analogPin;
+    float    _maxValue = 0;
      
     struct fields {
-      field_data   maxValue = {"Intensité Sonore", "%", 2.0};
+      vfield_data   maxValue = {"Intensité Sonore", "%", 2.0};
     };
     fields _data;
 
-    legend_data _maxValues[6] = {
+    vlegend_data _maxValues[6] = {
       {0, VERT, "silence"},
       {3, VERT, "calme"},
       {10, VERT, "moyenne"},

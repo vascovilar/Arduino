@@ -1,65 +1,97 @@
 
 #include "Arduino.h"
 
-void setup() {
+// put includes here
+
+#include "VDeviceESP32.h"
+#include "VUsePins.h"
+#include "VData.h"
+
+// custom classes go there
+
+class Test : public VData, public VUseAdcPin
+{
+  public:
+    Test(byte pin) {
+      _attachedPin = pin;
+    }
+    bool  init()    { return _initADC(_attachedPin, false, 4096, 0); }
+    float read()    { return _readADC(); }
+
+    float smooth(float value, int factor)     { return _smooth(value, factor); }
+    float maximum(float value, int factor)    { return _maximum(value, factor); }
+    float inertia(float value, int factor)    { return _inertia(value, factor); }
+
+
+
+  private:
+    byte  _attachedPin;
+};
+
+// put instanciations here
+
+VDeviceESP32    esp(2);
+Test            test(35);
+
+void setup() 
+{
   Serial.begin(115200);
   delay(1000);
   Serial.println("***********************************************************************************");  
 
   // put your setup code here, to run once:
 
-  /*
-  byte red = 0;
-  byte green = 0;
-  byte blue = 255;
-  //int rgb = (((red & 0b11111000)<<8) + ((green & 0b11111100)<<3)+(blue>>3));
-  //Serial.println(rgb, HEX);
+  esp.init();
+  esp.onboardedLed(true);
 
-  int number = 0x0000FF;
-  int r = number >> 16;
-  int g = number >> 8 & 0xFF;
-  int b = number & 0xFF;
-  //int rgb = (((r & 0b11111000)<<8) + ((g & 0b11111100)<<3)+(b>>3));
-  //Serial.println(rgb, HEX);
-  
-  String html = "FF00FF";
-  byte len = html.length() + 1; // with one extra character for the null terminator
-  char str[len];
-  char *ptr;
-  html.toCharArray(str, html.length() + 1);
-  //int rgb = strtoul(str, &ptr, 16);
-  //Serial.println(rgb, HEX);
-  */
+  test.init();
 
-  /*
-   from html string to rgb gfx code
-  */
-
-  String html = "#00FF00";
-  
-  html = html.substring(1); // remove first # symbol
-  byte len = html.length() + 1; // with one extra character for the null terminator
-  char str[len];
-  char *ptr;
-  html.toCharArray(str, html.length() + 1);
-  int number = strtoul(str, &ptr, 16);
-  
-  int red = number >> 16;
-  int green = number >> 8 & 0xFF;
-  int blue = number & 0xFF;
-
-  int rgb = (((red & 0b11111000)<<8) + ((green & 0b11111100)<<3)+(blue>>3));
-  
-  
-
-
-
-
-  
-  Serial.println(rgb, HEX);
 }
 
-void loop() {
+long timer;
+int t;
+float a,b,c,d;
+
+void loop()
+{
   // put your main code here, to run repeatedly:
+
+  /*
+  for (int i=0; i < 4096; i++) {
+    esp.onboardedLed(i);
+    Serial.println(i);
+    delay(1);
+  }
+  esp.onboardedLed(false);
+  */
+
+  timer = micros();
+  //********************************
+  
+  a = test.read() * 1000;
+  b = test.smooth(a, 7);
+  c = test.maximum(b, 10); 
+  d = test.inertia(b,10); 
+
+  //********************************
+  t = micros() - timer;
+
+  
+  Serial.print("42000,");
+  Serial.print(a); Serial.print(",");
+  Serial.print(b); Serial.print(",");
+  Serial.print(c); Serial.print(",");
+  Serial.print(d); Serial.print(",");
+  Serial.print("41755,");
+  Serial.println("");
+   
+  //Serial.println(t);
+ 
+
+// milieu 41.85
+    
+  //Serial.println("**********");
+  //delay(1000);
+
 
 }

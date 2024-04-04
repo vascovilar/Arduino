@@ -2,7 +2,7 @@
 #include "uri/UriBraces.h"
 
 
-bool VDataWebServer::init()
+bool VDataWebServer::begin(vmode_code mode)
 {
   _server.onNotFound([](){ 
     String out = "\
@@ -18,6 +18,9 @@ bool VDataWebServer::init()
 
   _server.begin();
 
+  // TODO vasco change delay 10 in fct of mode
+  // go TODO vasco return false if no wifi ?
+  
   return true;
 }
 

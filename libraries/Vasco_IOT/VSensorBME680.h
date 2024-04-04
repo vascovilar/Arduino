@@ -1,5 +1,8 @@
 /*
- * Read data on BME680
+ * Read data on BME680 meteo device from Adafruit
+ * Ref: https://learn.adafruit.com/adafruit-bme680-humidity-temperature-barometic-pressure-voc-gas
+ * Doc: https://cdn-shop.adafruit.com/product-files/3660/BME680.pdf
+ * 
  * Implementation:
  *
  *   #include <VSensorBME680.h>
@@ -18,52 +21,58 @@
 #define VSensorBME680_h
 
 #include "Arduino.h"
+#include "VUsePins.h"
 #include "VDevice.h"
 #include "VSensor.h"
 #include "bsec.h"
 #include "Wire.h"
 
-class VSensorBME680 : public VDevice, public VSensor, public VI2CPins
+class VSensorBME680 : public VDevice, public VSensor, public VUseI2cPins
 {
   public:
 
-    VSensorBME680(byte pin) : VDevice(ADA_BME680), VSensor(pin) {};
+    VSensorBME680(byte addr) : VDevice(METEO_SENSOR), VSensor(false) {
+      _i2cAddress = addr;
+    };
 
-    bool init();
-    bool wake();
-    bool sleep();
-    bool sync();
-    bool event();
-    float check();
+    // interfaces
+    bool    init();
+    bool    wake();
+    bool    sleep();
+    bool    check();
+    bool    update();
+    float   read();
     
-    field_data   getTemperature() { return _data.temperature; }
-    field_data   getPressure() { return _data.pressure; }
-    field_data   getHumidity() { return _data.humidity; }
-    field_data   getGasResistance() { return _data.gasResistance; }
-    field_data   getAirQuality() { return _data.airQuality; }
-    field_data   getCo2Equivalent() { return _data.co2Equivalent; }
-    field_data   getVocEquivalent() { return _data.vocEquivalent; }
-    field_data   getGasPercentage() { return _data.gasPercentage; }
-    field_data   getIaqAccuracy() { return _data.iaqAccuracy; }
+    // data updated
+    vfield_data   getTemperature() { return _data.temperature; }
+    vfield_data   getPressure() { return _data.pressure; }
+    vfield_data   getHumidity() { return _data.humidity; }
+    vfield_data   getGasResistance() { return _data.gasResistance; }
+    vfield_data   getAirQuality() { return _data.airQuality; }
+    vfield_data   getCo2Equivalent() { return _data.co2Equivalent; }
+    vfield_data   getVocEquivalent() { return _data.vocEquivalent; }
+    vfield_data   getGasPercentage() { return _data.gasPercentage; }
+    vfield_data   getIaqAccuracy() { return _data.iaqAccuracy; }
     
   private:
 
-    Bsec _iaq;
+    Bsec         _iaq;
+    byte         _i2cAddress;
     
     struct fields {
-      field_data   temperature = {"Température", "°C", 0.5};
-      field_data   pressure = {"Pression", "mBar", 1.0}; 
-      field_data   humidity = {"Humidité", "%", 1.0};
-      field_data   gasResistance = {"Resistivité air", "kOhm", 10000.0};
-      field_data   airQuality = {"Qualité air", "", 10.0};
-      field_data   co2Equivalent = {"Equivalent CO2", "ppm", 50.0};
-      field_data   vocEquivalent = {"Equivalent VOC", "ppm", 0.5};
-      field_data   gasPercentage = {"Particules air", "%", 5.0};
-      field_data   iaqAccuracy = {"Précision air", "", 1.0};
+      vfield_data   temperature = {"Température", "°C", 0.5};
+      vfield_data   pressure = {"Pression", "mBar", 1.0}; 
+      vfield_data   humidity = {"Humidité", "%", 1.0};
+      vfield_data   gasResistance = {"Resistivité air", "kOhm", 10000.0};
+      vfield_data   airQuality = {"Qualité air", "", 10.0};
+      vfield_data   co2Equivalent = {"Equivalent CO2", "ppm", 50.0};
+      vfield_data   vocEquivalent = {"Equivalent VOC", "ppm", 0.5};
+      vfield_data   gasPercentage = {"Particules air", "%", 5.0};
+      vfield_data   iaqAccuracy = {"Précision air", "", 1.0};
     };
     fields _data;
 
-    legend_data _temperatures[6] = {
+    vlegend_data _temperatures[6] = {
       {0, ORANGE, "glacé"},
       {18, JAUNE, "froid"},
       {25, VERT, "confortable"},
@@ -72,7 +81,7 @@ class VSensorBME680 : public VDevice, public VSensor, public VI2CPins
       {85, ROUGE, "trop chaud"},
     };
     
-    legend_data _pressures[10] = {
+    vlegend_data _pressures[10] = {
       {920, VIOLET, "ouragan classe 5"},
       {944, VIOLET, "ouragan classe 4"},
       {964, ROUGE, "ouragan classe 3"},
@@ -85,7 +94,7 @@ class VSensorBME680 : public VDevice, public VSensor, public VI2CPins
       {10000, ORANGE, "hyperbare"},
     };
     
-    legend_data _humidities[6] = {
+    vlegend_data _humidities[6] = {
       {10, VIOLET, "dangereux"},
       {20, ROUGE, "sec"},
       {50, VERT, "confortable"},
@@ -94,11 +103,11 @@ class VSensorBME680 : public VDevice, public VSensor, public VI2CPins
       {100, ROUGE, "tropical"},
     };
     
-    legend_data _gasResistances[1] = {
+    vlegend_data _gasResistances[1] = {
       {0, VERT, "ok"},
     };
 
-    legend_data _airQualities[8] = {
+    vlegend_data _airQualities[8] = {
       {20, VERT, "excellente"},
       {60, VERT, "bonne"},
       {100, JAUNE, "moyenne"},
@@ -109,15 +118,15 @@ class VSensorBME680 : public VDevice, public VSensor, public VI2CPins
       {1000, VIOLET, "toxique"},
     };
 
-    legend_data _co2Equivalents[1] = {
+    vlegend_data _co2Equivalents[1] = {
       {0, VERT, "ok"},
     };
 
-    legend_data _vocEquivalents[1] = {
+    vlegend_data _vocEquivalents[1] = {
       {0, VERT, "ok"},
     };
 
-    legend_data _gasPercentages[5] = {
+    vlegend_data _gasPercentages[5] = {
       {5, VERT, "air pur"},
       {20, JAUNE, "aérer"},
       {40, ORANGE, "ventiler"},
@@ -125,7 +134,7 @@ class VSensorBME680 : public VDevice, public VSensor, public VI2CPins
       {100, VIOLET, "maximum"},
     };
 
-    legend_data _iaqAccuracies[4] = {
+    vlegend_data _iaqAccuracies[4] = {
       {0, VERT, "non fiable"},
       {1, JAUNE, "faible"},
       {2, ORANGE, "moyenne"},

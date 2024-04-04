@@ -73,7 +73,7 @@ void setBuffer(sensor_code code)
 
 String getAllSensorsTable()
 {
-  field_data sensors[29];
+  field_data sensors[100];
 
   sensors[0] = air.getTemperature();
   sensors[1] = air.getPressure();

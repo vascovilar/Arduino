@@ -1,12 +1,12 @@
 #include "VDataBuffer.h"
 
-bool VDataBuffer::push(float value)
+bool VDataBuffer::push(float value, long timeStamp)
 { 
   _pushBuffer(value);
   
-  if (millis() - _timer > _DELAY_TO_PUSH) { 
+  if (millis() - _timer > delay) { 
     _timer = millis();
-    _pushHistory(_getBufferAverageValue());
+    _pushHistory(_popBufferAverageValue(), timeStamp);
 
     return true;
   }
@@ -14,89 +14,86 @@ bool VDataBuffer::push(float value)
   return false;
 }
 
-void VDataBuffer::_pushHistory(float value)
+void VDataBuffer::_pushHistory(float value, long timeStamp)
 {
-  float total = 0;
-  float last = 0;
-  float average = 0;
+  float historyTotal = 0;
+  float lastValuesTotal = 0;
+  float lastValuesAverage = 0;
 
-  _countHistory++;
-  if (_countHistory > _HISTORY_MAX_SIZE) {
-    _countHistory = _HISTORY_MAX_SIZE;
+  length++;
+  if (length > _HISTORY_BUFFER_MAX_SIZE) {
+    length = _HISTORY_BUFFER_MAX_SIZE;
   }
 
-  _data.minimum = 9999999;
-  _data.maximum = 0;
-  for (int i = _countHistory - 1; i >= 0; i--) {
+  minimum = 9999999;
+  maximum = 0;
+  for (int i = length - 1; i >= 0; i--) {
     // fifo = push value in buffer by sliding others from end to start index
     if (i == 0) {
-      _data.history[i] = value;
+      history[i] = value;
+      timeline[i] = timeStamp;
+      
     } else {
-      _data.history[i] = _data.history[i-1];
+      history[i] = history[i-1];
+      timeline[i] = timeline[i-1];
     }
 
-    if (_data.history[i] > _data.maximum) { 
-      _data.maximum = _data.history[i]; 
+    if (history[i] > maximum) { 
+      maximum = history[i]; 
     }
-    if (_data.history[i] < _data.minimum) { 
-      _data.minimum = _data.history[i]; 
+    if (history[i] < minimum) { 
+      minimum = history[i]; 
     }
-    total += _data.history[i];
+    historyTotal += history[i];
 
-    // get last 10 sum to calculate average
+    // get last 10 values to calculate average trending
     if (i < 10) {
-      last += _data.history[i];
+      lastValuesTotal += history[i];
     }
   }
 
-  // calc
-  _data.average = (float) total / (float) _countHistory;
-  _data.delta = _data.maximum - _data.minimum;
-  average = (float) last / (float) 10;
-  _data.trend = 0;
-  if (average > _data.average) { 
-    _data.trend = 1; 
+  // calc stats
+  average = (float) historyTotal / (float) length;
+  delta = maximum - minimum;
+  lastValuesAverage = (float) lastValuesTotal / 10.0;
+  trend = 0;
+  if (lastValuesAverage > average) { 
+    trend = 1; 
   }
-  if (average < _data.average) { 
-    _data.trend = 2; 
+  if (lastValuesAverage < average) { 
+    trend = 2; 
   }
 }
 
 void VDataBuffer::_pushBuffer(float value)
 {
-  _data.value = value;
+  // if there is 6 values: average on these 6 first, if 140 value: average on last 100 values
+  _bufferLength++;
+  if (_bufferLength >= _TMP_BUFFER_MAX_SIZE) {
+    _bufferLength = _TMP_BUFFER_MAX_SIZE;
+  } 
 
-  _countBuffer++;
-  if (_countBuffer > _BUFFER_MAX_SIZE) {
-    _countBuffer = _BUFFER_MAX_SIZE;
-  }
-
-  for (int i = _countBuffer - 1; i >= 0; i--) {
-    // fifo = push value in buffer by sliding others from end to start index
-    if (i == 0) {
-      _buffer[i] = value;
-    } else {
-      _buffer[i] = _buffer[i-1];
-    }
+  _buffer[_bufferIndex] = value;
+  
+  _bufferIndex++;
+  if (_bufferIndex >= _TMP_BUFFER_MAX_SIZE) {
+    _bufferIndex = 0;
   }
 }
 
-float VDataBuffer::_getBufferAverageValue()
+float VDataBuffer::_popBufferAverageValue()
 {
-  float total = 0;
-  byte  count = 0;
+  float bufferValuesTotal = 0;
+  float bufferValuesAverage = 0;
   
-  for (int i = 0; i < _BUFFER_MAX_SIZE; i++) { 
-    if (i < _countBuffer) {
-      total += _buffer[i];
-      count++;
-    } else {
-      // clean other values
-      _buffer[i] = 0;
-    }
+  for (int i = 0; i < _bufferLength; i++) {
+    bufferValuesTotal += _buffer[i];
   }
+  
+  bufferValuesAverage = (float) bufferValuesTotal / (float) _bufferLength;
+  
+  _bufferIndex = 0;
+  _bufferLength = 0;
 
-  _countBuffer = 0;
-
-  return (float) total / (float) count;
+  return bufferValuesAverage;
 }

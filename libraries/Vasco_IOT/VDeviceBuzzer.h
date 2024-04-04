@@ -1,5 +1,6 @@
 /*
- * Piezo disk driver 
+ * Simple custom piezo disk driver 
+ *
  * Implementation:
  *
  *   #include <VDeviceBuzzer.h>
@@ -19,36 +20,42 @@
 #define VDeviceBuzzer_h
 
 #include "Arduino.h"
+#include "VUsePins.h"
 #include "VDevice.h"
 
-class VDeviceBuzzer : public VDevice, public VPwmPin
+class VDeviceBuzzer : public VDevice, public VUsePwmPin
 {
   static const byte _PWM_CHANNEL = 1;
 
   public:
 
-    VDeviceBuzzer(byte pin) : VDevice(CUSTOM_BUZZER) { _pwmPin = pin; }
+    VDeviceBuzzer(byte pin) : VDevice(BUZZER) { 
+      _pwmPin = pin; 
+    }
     
-    bool init();
-    bool wake();
-    bool sleep();
+    // interfaces
+    bool    init();
+    bool    wake();
+    bool    sleep();
+    bool    check();
+    bool    update();
     
-    void beep();
-    void notice();
-    void warning();
-    void alert();
-    void open();
-    void close();
-    void modem();
-    void isabel();
-    void test() { _tonePWM(2300); }
+    // sounds
+    void    beep();
+    void    notice();
+    void    warning();
+    void    alert();
+    void    open();
+    void    close();
+    void    modem();
+    void    isabel();
 
   private:
 
-    byte  _pwmPin;
+    byte    _pwmPin;
 
-    void  _note(byte octave, int milliHertz, int milliSeconds);
-    void  _silence(int milliSeconds);
+    void    _note(byte octave, int milliHertz, int milliSeconds);
+    void    _silence(int milliSeconds);
 
     enum vnote_frequency {
       DO = 261625,

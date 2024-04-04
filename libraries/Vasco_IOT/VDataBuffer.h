@@ -2,49 +2,39 @@
 #define VDataBuffer_h
 
 #include "Arduino.h"
+#include "VData.h"
 
-// TODO vasco add dateTime
-class VDataBuffer
+
+class VDataBuffer : public VData
 {
-  static const byte _HISTORY_MAX_SIZE = 240;
-  static const byte _BUFFER_MAX_SIZE = 100;
-
+  static const int  _DELAY_TO_PUSH_TO_HISTORY = 10000; // 180000 = 3 min means 240 mesures = 12h
+  static const int  _HISTORY_BUFFER_MAX_SIZE = 240;
+  static const byte _TMP_BUFFER_MAX_SIZE = 100;
+  
   public:
+    
+    float    history[_HISTORY_BUFFER_MAX_SIZE];   // last values stored
+    long     timeline[_HISTORY_BUFFER_MAX_SIZE];  // last dates
+    int      length;                              // real size of history
+    int      delay = _DELAY_TO_PUSH_TO_HISTORY;
+    float    minimum;
+    float    maximum;
+    float    average;
+    float    delta;
+    byte     trend;
 
-    static const unsigned int _DELAY_TO_PUSH = 30000; // 180000 = 3 min means 240 mesures = 12h
-
-    bool push(float value);
-
-    float   getValue() { return _data.value; } // realtime value
-    float*  getHistory() { return _data.history; } // 240 last values for last 24h
-    float   getMinimum() { return _data.minimum; }
-    float   getMaximum() { return _data.maximum; }
-    float   getAverage() { return _data.average; }
-    float   getDelta() { return _data.delta; }
-    byte    getTrend() { return _data.trend; }
-    byte    getLenght() { return _countHistory; } // real size of history
+    bool     push(float value, long timeStamp);
     
   private:
 
-    float         _buffer[_BUFFER_MAX_SIZE]; // last 100 values stored
-    byte          _countHistory = 0;
-    byte          _countBuffer = 0;
-    unsigned int  _timer = 0;
+    float    _buffer[_TMP_BUFFER_MAX_SIZE]; // last 100 values stored
+    int      _bufferIndex = 0;
+    int      _bufferLength = 0;
+    long     _timer = 0;
     
-    struct fields {
-      float    value;
-      float    history[_HISTORY_MAX_SIZE];
-      float    minimum;
-      float    maximum;
-      float    average;
-      float    delta;
-      byte     trend;
-    };
-    fields _data;
-    
-    void  _pushHistory(float value);
-    void  _pushBuffer(float value);
-    float _getBufferAverageValue();
+    void     _pushHistory(float value, long timeStamp);
+    void     _pushBuffer(float value);
+    float    _popBufferAverageValue();
 };
 
 

@@ -2,7 +2,7 @@
 
 bool VSensorSEN0487::init()
 {
-  if (!_initADC(analogPin, false, _ADC_MAX_VALUE, _ADC_ZERO_VALUE, _ADC_SMOOTH_FACTOR)) {
+  if (!_initADC(_analogPin, false, _ADC_MAX_VALUE, _ADC_ZERO_VALUE)) {
     Serial.println(F("Error initializing analog SEN0487 device"));
     return false;
   }
@@ -20,20 +20,26 @@ bool VSensorSEN0487::sleep()
   return true;
 }
 
-bool VSensorSEN0487::sync()
+bool VSensorSEN0487::check() 
+{ 
+  float value = read();
+  if (value > _maxValue) {
+    _maxValue = value;
+  }
+
+  // detecting anything over noise level
+  return _maxValue > _NOISE_THRESOLD_VALUE; 
+}
+
+bool VSensorSEN0487::update()
 {
-  _feed(_data.maxValue, maxValue, _maxValues, 6);
+  _feed(_data.maxValue, _maxValue, _maxValues, 6);
+  _maxValue = 0;
 
   return true;
 }
 
-bool VSensorSEN0487::event()
+float VSensorSEN0487::read()
 {
-  // detecting anything but noise
-  return maxValue > _NOISE_THRESOLD_VALUE;
-}
-
-float VSensorSEN0487::check() 
-{ 
-  return _readADC(); 
+  return _readADC();
 }

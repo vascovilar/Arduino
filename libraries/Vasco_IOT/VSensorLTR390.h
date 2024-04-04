@@ -1,17 +1,20 @@
 /*
- * Read uv index and visible light with LTR390
+ * Read uv index and visible light with Adafruit LTR390
+ * Ref: https://learn.adafruit.com/adafruit-ltr390-uv-sensor/overview-2
+ * Doc: https://optoelectronics.liteon.com/upload/download/DS86-2015-0004/LTR-390UV_Final_%20DS_V1%201.pdf
+ * 
  * Implementation:
  *
  *   #include <VSensorLTR390.h>
  *
- *   VSensorLTR390 sun(0); 
+ *   VSensorLTR390 light(0x53); 
  *
  *   void setup() {
- *     sun.init();
+ *     light.init();
  *   }
  * 
  *   void loop() {
- *     Serial.println(sun.getUvIndex().value);
+ *     Serial.println(light.getUvIndex().value);
  *   }
  */
 
@@ -19,38 +22,45 @@
 #define VSensorLTR390_h
 
 #include "Arduino.h"
+#include "VUsePins.h"
 #include "VDevice.h"
 #include "VSensor.h"
 #include "Adafruit_LTR390.h"
 #include "Wire.h"
 
-class VSensorLTR390 : public VDevice, public VSensor, public VI2CPins
+class VSensorLTR390 : public VDevice, public VSensor, public VUseI2cPins
 {
   public:
 
-    VSensorLTR390(byte pin) : VDevice(ADA_LTR390), VSensor(pin) {};
+    VSensorLTR390(byte addr) : VDevice(LIGHT_SENSOR), VSensor(true) {
+      _i2cAddress = addr;
+    };
  
-    bool init();
-    bool wake();
-    bool sleep();
-    bool sync();
-    bool event();
-    float check();
+    // interfaces
+    bool    init();
+    bool    wake();
+    bool    sleep();
+    bool    check();
+    bool    update();
+    float   read();
 
-    field_data   getUvIndex() { return _data.uvIndex; }
-    field_data   getVisible() { return _data.visible; }
+    // data updated
+    vfield_data   getUvIndex() { return _data.uvIndex; }
+    vfield_data   getVisible() { return _data.visible; }
 
   private:
   
     Adafruit_LTR390 _ltr = Adafruit_LTR390();
+    byte     _i2cAddress;
+    float    _maxValue = 0;
 
     struct fields {
-      field_data   uvIndex = {"Index UV", "", 1.0};
-      field_data   visible = {"Lumière visible", "lux", 10.0};
+      vfield_data   uvIndex = {"Index UV", "", 1.0};
+      vfield_data   visible = {"Lumière visible", "lux", 10.0};
     };
     fields _data;
 
-    legend_data _uvIndexes[5] = {
+    vlegend_data _uvIndexes[5] = {
       {2, VERT, "risque faible"},
       {5, JAUNE, "risque modéré"},
       {7, ORANGE, "risque élevé"},
@@ -58,7 +68,7 @@ class VSensorLTR390 : public VDevice, public VSensor, public VI2CPins
       {12, VIOLET, "risque extrême"},
     };
 
-    legend_data _visibles[10] = {
+    vlegend_data _visibles[10] = {
       {0, ORANGE, "obscurité"},
       {1, JAUNE, "minimum humain"},
       {20, JAUNE, "faible"},

@@ -3,7 +3,7 @@
 
 bool VSensorLTR390::init()
 {
-  if (analogPin != 0x53) {
+  if (_i2cAddress != 0x53) {
     Serial.println(F("Error LTR390 device use I2C address 0x53"));
     return false;
   }
@@ -17,6 +17,7 @@ bool VSensorLTR390::init()
   _ltr.setResolution(LTR390_RESOLUTION_18BIT);
   _ltr.setThresholds(100, 1000);
   //_ltr.configInterrupt(true, LTR390_MODE_UVS);
+
   _ltr.setMode(LTR390_MODE_ALS); // by default for check facilities
 
   return true;
@@ -32,29 +33,34 @@ bool VSensorLTR390::sleep()
   return true;
 }
 
-bool VSensorLTR390::sync()
+bool VSensorLTR390::check()
 {
-  _ltr.setMode(LTR390_MODE_UVS);
-  _feed(_data.uvIndex, _ltr.readUVS(), _uvIndexes, 5); 
-  _ltr.setMode(LTR390_MODE_ALS);
+  float value = read();
+  if (value > _maxValue) {
+    _maxValue = value;
+  }
+
+  // under sky
+  return _maxValue > 10000;
+}
+
+bool VSensorLTR390::update()
+{
+  //_ltr.setMode(LTR390_MODE_UVS); // TODO vasco fix LTR390 get UV
+  //_feed(_data.uvIndex, _ltr.readUVS(), _uvIndexes, 5); 
+  _ltr.setMode(LTR390_MODE_ALS); 
   _feed(_data.visible, _convertToLux(_ltr.readALS()), _visibles, 10);
+  _maxValue = 0;
 
   return true;
 }
 
-bool VSensorLTR390::event()
-{
-  // under sky
-  return maxValue > 10000;
-}
-
-float VSensorLTR390::check() 
-{ 
-  return _convertToLux(_ltr.readALS());
+float VSensorLTR390::read() { 
+  return _convertToLux(_ltr.readALS()); 
 }
 
 float VSensorLTR390::_convertToLux(float visible)
 { 
   // return Lux value for 18bit resolution and x3 gain
-  return (float) (0.6 * visible) / (float) 3;
+  return (float) (0.6 * visible) / 3.0;
 }

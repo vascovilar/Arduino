@@ -15,6 +15,20 @@
         "istream": "cpp",
         "*.def": "cpp",
         "memory": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "chrono": "c",
+        "ctime": "c",
+        "iomanip": "c",
+        "limits": "c",
+        "numeric": "c",
+        "ratio": "c",
+        "streambuf": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "fstream": "cpp",
+        "functional": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp"
     }
 }

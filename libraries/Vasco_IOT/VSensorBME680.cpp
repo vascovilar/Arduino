@@ -2,12 +2,12 @@
 
 bool VSensorBME680::init()
 {
-  if (analogPin != 0x76 && analogPin != 0x77) {
+  if (_i2cAddress != 0x76 && _i2cAddress != 0x77) {
     Serial.println(F("Error BME680 device use I2C address 0x76 or 0x77"));
     return false;
   }
 
-  _iaq.begin(analogPin, Wire);
+  _iaq.begin(_i2cAddress, Wire);
   
   bsec_virtual_sensor_t sensorList[13] = {
     BSEC_OUTPUT_IAQ,
@@ -28,7 +28,7 @@ bool VSensorBME680::init()
   
   if (!_iaq.run()) {
     _checkIaqSensorStatus();
-    Serial.println(F("Error initializing i2c BME680 device"));
+    Serial.println(F("Error initializing I2C BME680 device"));
     return false;
   }
 
@@ -45,7 +45,15 @@ bool VSensorBME680::sleep()
   return true;
 }
 
-bool VSensorBME680::sync()
+bool VSensorBME680::check() 
+{
+  // must call run every 3s or less, else air mesure never works. BSEC_SAMPLE_RATE_LP is 3s. BSEC_SAMPLE_RATE_ULP is 300s
+  _iaq.run(); 
+
+  return false;
+}
+
+bool VSensorBME680::update()
 {
   _feed(_data.temperature, _iaq.temperature, _temperatures, 6);
   _feed(_data.pressure, _convertToMilliBar(_iaq.pressure), _pressures, 10);
@@ -63,19 +71,9 @@ bool VSensorBME680::sync()
   return true;
 }
 
-bool VSensorBME680::event()
+float VSensorBME680::read()
 {
-  return false;
-}
-
-float VSensorBME680::check() 
-{
-  // must call run every 3s or less, else air mesure never works
-  // BSEC_SAMPLE_RATE_LP is 3s
-  // BSEC_SAMPLE_RATE_ULP is 300s
-  _iaq.run(); 
-
-  return 0.0;
+  return 0;
 }
 
 void VSensorBME680::_checkIaqSensorStatus()

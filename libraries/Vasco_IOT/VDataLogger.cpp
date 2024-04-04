@@ -7,7 +7,7 @@ void VDataLogger::start()
   delay(1000);
 }
 
-bool VDataLogger::update(unsigned int delay)
+bool VDataLogger::update(int delay)
 {
   if (millis() - _timer > delay) {
     _timer = millis();
@@ -30,7 +30,7 @@ void VDataLogger::print(String text)
   Serial.print(text);
 }
 
-String VDataLogger::dump(unsigned int delay)
+String VDataLogger::dump(int delay)
 {
   String text;
 

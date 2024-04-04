@@ -2,9 +2,17 @@
 
 bool VDeviceESP32::init()
 { 
-  pinMode(_ledPin, OUTPUT);
+  if (!_initPWM(_ledPin, _PWM_CHANNEL)) {
+    Serial.println(F("Onboard led init failed"));
+    return false;    
+  }
 
-  if (!_initROM()) {
+  if (!_initPSRAM()) {
+    Serial.println(F("Error initializing PSRAM"));
+    return false;
+  }
+
+  if (!_initEEPROM()) {
     Serial.println(F("Error initializing EEPROM"));
     return false;
   }
@@ -22,137 +30,62 @@ bool VDeviceESP32::sleep()
   return true;
 }
 
-bool VDeviceESP32::connectWifi()
-{
-  int count = WiFi.scanNetworks();
-
-  for (int i = 0; i < count; ++i) { 
-    for (int j = 0; j < _credentials_length; j++) { 
-      if (String(_credentials[j].user) == WiFi.SSID(i)) {
-        // connect with first matching credentials
-        WiFi.begin(_credentials[j].user, _credentials[j].password);
-        // wait for 10 seconds max
-        for (int k = 0; k < 20; k++) { 
-          delay(500);
-          if (WiFi.status() == WL_CONNECTED) {
-            // get dateTime from web
-            configTime(_GMT_OFFSET, _DAYLIGHT_OFFSET, _NTP_SERVER);
-            getDateTime();
-
-            return true;
-          }
-        }
-      }
-    }
-    delay(10);
-  }
-
-  return false;
-}
-
-bool VDeviceESP32::disconnectWifi()
-{
-  return WiFi.disconnect();
-}
-
-int VDeviceESP32::getWifiAccessPoints() 
+bool VDeviceESP32::check()
 { 
-  return WiFi.scanNetworks(); 
-}
-    
-String VDeviceESP32::getWifiAccessPointInfo(int index)
-{
-  return String(index) + "- " + String(WiFi.SSID(index)) + " (" + String(WiFi.RSSI(index)) + "db)";
-}
-
-String VDeviceESP32::getDeviceIP()
-{
-  return WiFi.localIP().toString();
-}
-
-String VDeviceESP32::getUpTime()
-{
-  unsigned int time = millis();
-  int sec = time / 1000;
-  int min = sec / 60;
-  int hr = min / 60;
-  
-  char uptime[40];
-  snprintf(uptime, 40, "%02d:%02d:%02d",
-    hr, 
-    min % 60, 
-    sec % 60
-  ); 
-
-  return uptime;
-}
-
-String VDeviceESP32::getDateTime()
-{
-  struct tm timeinfo;
-  timeinfo.tm_year = 0;
-  
-  if(!getLocalTime(&timeinfo, 5000)){
-    Serial.println(F("Failed to get time from ntp server, return uptime"));
-    
-    return "0000-01-01 " + getUpTime();
+  float value = read();
+  if (value > _maxValue) {
+    _maxValue = value;
   }
-
-  char dateTime[20];
-  snprintf(dateTime, 20, "%04d-%02d-%02d %02d:%02d:%02d", 
-    timeinfo.tm_year + 1900, 
-    timeinfo.tm_mon + 1, 
-    timeinfo.tm_mday, 
-    timeinfo.tm_hour, 
-    timeinfo.tm_min, 
-    timeinfo.tm_sec
-  );
-
-  return dateTime;
+  // detecting charge
+  return _maxValue >= 100;
 }
 
-void VDeviceESP32::setDateTime(String dateTime)
-{
-  // TODO vasco howto from GPS
-}
+bool VDeviceESP32::update()
+{ 
+  _feed(_data.memoryUsed, _maxValue, _memories, 3);
+  _maxValue = 0;
 
-unsigned long VDeviceESP32::getTimeStamp()
-{
-  time_t now;
-  struct tm timeinfo;
+  _data.psRamUsed = (1 - ((float) ESP.getFreePsram() / 4194304.0)) * 100; // on SPI channel 3, or use new esp_psram_get_size()
   
-  if (!getLocalTime(&timeinfo, 5000)) {
-    Serial.println(F("Failed to get epoch time from ntp server, return uptime"));
-    
-    return (int) (millis() / 1000);
-  }
-
-  time(&now);
-  
-  return now;
+  return true;
 }
 
-float VDeviceESP32::getMemoryUsage()
+float VDeviceESP32::read()
 {
-  return (1 - (ESP.getFreeHeap() / 532480.0)) * 100;
+  return (1 - ((float) ESP.getFreeHeap() / 327680.0)) * 100; // not 532480.0 ! Only have 320Ko in runtime
 }
 
-void VDeviceESP32::blueLed(bool status)
+void VDeviceESP32::onboardedLed(bool status)
 {
-  digitalWrite(_ledPin, status ? HIGH: LOW);
+  _ledPWM(status);
 }
 
-void VDeviceESP32::getROMTest()
+void VDeviceESP32::onboardedLed(int magnitude)
 {
-  // TODO vasco : EEPROM to use !
-  
+  _ledPWM(magnitude);
+}
+
+void VDeviceESP32::getPsramTest()
+{
+  byte *tab;
+  _bindPSRAM(tab, 500000); // instead of inline: tab = (byte *) ps_malloc(500000);
+
+  tab[10000] = 21;
+  Serial.println("PSRAM value must be 21: " + String(tab[10000]));
+
+  _freePSRAM(tab);
+  Serial.println("PSRAM: " + String(ESP.getFreePsram()) + " bytes free");
+}
+
+void VDeviceESP32::getEepromTest()
+{
   byte variable1 = 204;
-  _writeROM(ROM_BYTE_1, variable1);
+  _writeEEPROM(ROM_BYTE_1, variable1);
   byte value = 0;
-  _readROM(ROM_BYTE_1, value);
-  Serial.println(value);
+  _readEEPROM(ROM_BYTE_1, value);
+  Serial.println("EEPROM value must be 204: " + String(value));
 
-  memory_flags variable2 = {
+  bool variable2[8] = {
     true,
     false,
     false,
@@ -162,8 +95,7 @@ void VDeviceESP32::getROMTest()
     false,
     false,
   };
-  _setROMFlags(ROM_BYTE_1, variable2);
-  memory_flags status = _getROMFlags(ROM_BYTE_1);
-  Serial.println(status.flag1 ? "true": "false");
+  _setEepromFlag(ROM_BYTE_1, variable2);
+  bool status = _getEepromFlag(ROM_BYTE_1, 1);
+  Serial.println("EEPROM value must be true: " + String(status ? "true": "false"));
 }
-  

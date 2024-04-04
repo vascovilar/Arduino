@@ -20,6 +20,16 @@ bool VDeviceBuzzer::sleep()
   return true;
 }
 
+bool VDeviceBuzzer::check()
+{ 
+  return false;
+}
+
+bool VDeviceBuzzer::update()
+{ 
+  return false;
+}
+
 void VDeviceBuzzer::beep()
 {
   _note(1, 2300, NOIRE); // resonant frequency
@@ -84,7 +94,7 @@ void VDeviceBuzzer::isabel()
 
 void VDeviceBuzzer::_note(byte octave, int milliHertz, int milliSeconds)
 {
-  float frequencyInHerz = (float) (pow(2, octave) * milliHertz) / (float) 1000;
+  float frequencyInHerz = (float) (pow(2, octave) * milliHertz) / 1000.0;
 
   _tonePWM((int) frequencyInHerz);
   delay(milliSeconds);

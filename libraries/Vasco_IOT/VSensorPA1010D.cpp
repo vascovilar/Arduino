@@ -2,12 +2,12 @@
 
 bool VSensorPA1010D::init()
 {
-  if (analogPin != 0x10) {
+  if (_i2cAddress != 0x10) {
     Serial.println(F("Error PA1010D device use I2C address 0x10"));
     return false;
   }
 
-  if (!_gps.begin(analogPin)) {
+  if (!_gps.begin(_i2cAddress)) {
     Serial.println(F("Error initializing I2C PA1010D device"));
     return false;
   }    
@@ -21,9 +21,8 @@ bool VSensorPA1010D::init()
   // Request updates on antenna status, comment out to keep quiet
   //_gps.sendCommand(PGCMD_ANTENNA);
 
-  delay(1000);
-
   // activate AlwaysLocate mode (dynamic power consumption)
+  //delay(1000);
   //_gps.sendCommand("$PMTK225,8*23"); // TODO vasco debug dynamic low consumption (making init fail) after $PMTK225,0*2B OR com:$PMTK225,9*22 ack:$PMTK001,225,3*35
 
   return true;
@@ -40,7 +39,18 @@ bool VSensorPA1010D::sleep()
   return true;
 }
 
-bool VSensorPA1010D::sync()
+bool VSensorPA1010D::check() 
+{
+  // TODO vasco move in update fct ?
+  char c = _gps.read();
+  if (_gps.newNMEAreceived()) {
+    _gps.parse(_gps.lastNMEA());
+  }
+
+  return false;
+}
+
+bool VSensorPA1010D::update()
 {
   _feed(_data.satellite, _gps.satellites, _satellites, 5);
   _feed(_data.fixQuality, _gps.fixquality, _fixQualities, 3);
@@ -50,6 +60,7 @@ bool VSensorPA1010D::sync()
   _feed(_data.speed, _convertToKmH(_gps.speed), _speeds, 1);
   _feed(_data.directionAngle, _gps.angle, _directionAngles, 1);
   _feed(_data.compassAngle, _gps.magvariation, _compassAngles, 1);
+
   _data.dateTime = _convertToDateTime(_gps.year, _gps.month, _gps.day, _gps.hour, _gps.minute, _gps.seconds);
   _data.latCardinal = _gps.lat;
   _data.longCardinal = _gps.lon;
@@ -57,20 +68,9 @@ bool VSensorPA1010D::sync()
   return true;
 }
 
-bool VSensorPA1010D::event()
+float VSensorPA1010D::read()
 {
-  return false;
-}
-
-float VSensorPA1010D::check() 
-{ 
-  // TODO vasco: move in sync ?
-  char c = _gps.read();
-  if (_gps.newNMEAreceived()) {
-    _gps.parse(_gps.lastNMEA());
-  }
-
-  return 0.0;
+  return 0;
 }
 
 String VSensorPA1010D::_convertToDateTime(int year, int month, int day, int hour, int minute, int second)

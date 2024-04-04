@@ -4,18 +4,20 @@ bool VDeviceST7789SD::init()
 {  
   // SPI tft device
   _tft.init(135, 240);
-  _tft.setRotation(1); // TODO vasco set to 3 when device will be assembled 
+  _tft.setRotation(1); // TODO vasco set to 3 when device will be finally assembled 
   _tft.fillScreen(convert(COLOR_BLACK));
   
+  // TODO vasco: urgent fix SD card
+  /*
   // SPI SD card device
   if(!_sd.begin(_sdcdPin, SD_SCK_MHZ(10))) { // Breakouts require 10 MHz limit due to longer wires
     Serial.println(F("SD Card init failed"));
     return false;
-  }
+  }*/
 
   // backlight 
   if (!_initPWM(_litPin, _PWM_CHANNEL)) {
-    Serial.println(F("backlight init failed"));
+    Serial.println(F("Backlight init failed"));
     return false;    
   }
 
@@ -32,12 +34,22 @@ bool VDeviceST7789SD::sleep()
   return true;
 }
 
+bool VDeviceST7789SD::check()
+{ 
+  return false;
+}
+
+bool VDeviceST7789SD::update()
+{ 
+  return false;
+}
+
 void VDeviceST7789SD::clear()
 {
   _tft.fillScreen(convert(COLOR_BLACK));
 }
 
-void VDeviceST7789SD::light(byte magnitude)
+void VDeviceST7789SD::light(int magnitude)
 {
   _ledPWM(magnitude);
 }
@@ -58,8 +70,6 @@ void VDeviceST7789SD::text(String text, int x, int y, int color)
   _tft.setTextWrap(true);
   _tft.print(text);
 }
-
-
 
 int VDeviceST7789SD::convert(int hexadecimal)
 {
@@ -85,8 +95,6 @@ int VDeviceST7789SD::convert(String html)
 
 void VDeviceST7789SD::listFiles()
 {
-  // TODO vasco : SD to use ! (csv data)
-
   File32 dir;
   File32 file;
   char fileName[20];

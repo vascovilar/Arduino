@@ -1,7 +1,6 @@
 #include "VRunSequencer.h" 
 
-
-void VRunSequencer::begin(vmode_code mode) 
+bool VRunSequencer::begin(vmode_code mode) 
 {
   if (! _enabled) {
     _enabled = child.init();
@@ -19,11 +18,14 @@ void VRunSequencer::begin(vmode_code mode)
       _processMode = mode;
     }
   } 
+
+  return _enabled;
 }
 
-bool VRunSequencer::update()
+bool VRunSequencer::run()
 {
-  unsigned int delay;
+  long time = esp_timer_get_time();
+  int delay;
 
   switch (_processMode) {
     case LOW_REFRESH:
@@ -36,34 +38,30 @@ bool VRunSequencer::update()
       delay = LONG_UPDATE_TIME;
       break;
     default:
-
       return false;
   }
 
-  // TODO vasco: additionnal processTime in check and read fct
-  float value = child.check();
-  if (value > child.maxValue) {
-    child.maxValue = value;
-  }
-
-  if (_processMode == EVENT_TRIG && child.event()) {
+  if (child.check() && _processMode == EVENT_TRIG) {
     delay = 0;
   }
+  _checks++;
 
-  if (millis() - _timer > delay) {
+  if (millis() - _timer >= delay) {
+    _updates++;
     _timer = millis();
-    if (child.sync()) {
-      child.maxValue = 0;
-      _processTime = millis() - _timer;
+    if (child.update()) {
+      _processedTime = _time / 1000;
+      _processedChecks = _checks;
+      _processedUpdates = _updates;
+      _time = 0;
+      _checks = 0;
+      _updates = 0;
 
       return true;
     }
   }
 
-  return false;
-}
+  _time += esp_timer_get_time() - time;
 
-float VRunSequencer::read()
-{  
-  return 0.0;
+  return false;
 }
