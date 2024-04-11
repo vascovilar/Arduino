@@ -4,11 +4,12 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/../.arduino15/**"
+                "/home/vasco/.arduino15/packages/esp32/hardware/esp32/2.0.11/**",
+                "/home/vasco/.arduino15/packages/esp32/tools/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
-            "cStandard": "gnu17",
+            "cStandard": "c17",
             "cppStandard": "gnu++17",
             "intelliSenseMode": "linux-gcc-x64"
         }

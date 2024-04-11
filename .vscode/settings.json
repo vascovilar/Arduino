@@ -1,34 +1,3 @@
 {
-    "C_Cpp.errorSquiggles": "enabled",
-    "files.associations": {
-        "tft_espi_generic.c": "cpp",
-        "array": "cpp",
-        "deque": "cpp",
-        "list": "cpp",
-        "string": "cpp",
-        "unordered_map": "cpp",
-        "unordered_set": "cpp",
-        "vector": "cpp",
-        "string_view": "cpp",
-        "initializer_list": "cpp",
-        "*.tcc": "cpp",
-        "istream": "cpp",
-        "*.def": "cpp",
-        "memory": "cpp",
-        "random": "cpp",
-        "chrono": "c",
-        "ctime": "c",
-        "iomanip": "c",
-        "limits": "c",
-        "numeric": "c",
-        "ratio": "c",
-        "streambuf": "c",
-        "tuple": "c",
-        "type_traits": "c",
-        "utility": "c",
-        "fstream": "cpp",
-        "functional": "cpp",
-        "ostream": "cpp",
-        "sstream": "cpp"
-    }
+    "C_Cpp.errorSquiggles": "enabled"
 }

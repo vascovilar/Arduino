@@ -1,41 +1,39 @@
 #include "Arduino.h"
-#include "VData.h"
-#include "VDataBuffer.h"
-#include "VDataHtml.h"
-#include "VDataWebServer.h"
-#include "VDevice.h"
-#include "VDeviceESP32.h"
-#include "VDeviceBuzzer.h"
-#include "VDeviceST7789SD.h"
-#include "VSensor.h"
-#include "VSensorEMF.h"
-#include "VSensorLTR390.h"
-#include "VSensorSEN0487.h"
-#include "VSensorBME680.h"
-#include "VSensorPA1010D.h"
-#include "VRunSequencer.h"
+#include "ESP32X.h"
+#include "Buzzer.h"
+#include "ST7789SD.h"
+#include "EMF.h"
+#include "LTR390.h"
+#include "SEN0487.h"
+#include "BME680.h"
+#include "PA1010D.h"
+#include "Sequencer.h"
+#include "Webserver.h"
+#include "Buffer.h"
+#include "Html.h"
 
-VDeviceESP32      esp(2);
-VDeviceBuzzer     buzzer(4);
-VDeviceST7789SD   tft(5, 25, 33, 32);
-VSensorEMF        emf(36);
-VSensorLTR390     light(0x53);
-VSensorSEN0487    ear(34);
-VSensorBME680     air(0x77);
-VSensorPA1010D    gps(0x10);
+ESP32X        esp(2);
+Buzzer        buzzer(4);
+ST7789SD      tft(5, 25, 33, 32);
+EMF           emf(36);
+LTR390        light(0x53);
+SEN0487       ear(34);
+BME680        air(0x77);
+PA1010D       gps(0x10);
 
-VDataBuffer       graph[VSENSOR_COUNT];
-VDataWebServer    server;
-VDataHtml         html;
+Sequencer     deviceESP(esp);
+Sequencer     deviceBuzzer(buzzer);
+Sequencer     deviceTFT(tft);
+Sequencer     deviceEMF(emf);
+Sequencer     deviceLight(light);
+Sequencer     deviceEar(ear);
+Sequencer     deviceAir(air);
+Sequencer     deviceGPS(gps);
+Webserver     server;
 
-VRunSequencer     deviceESP(esp);
-VRunSequencer     deviceBuzzer(buzzer);
-VRunSequencer     deviceTFT(tft);
-VRunSequencer     deviceEMF(emf);
-VRunSequencer     deviceLight(light);
-VRunSequencer     deviceEar(ear);
-VRunSequencer     deviceAir(air);
-VRunSequencer     deviceGPS(gps);
+Buffer        graph[VSENSOR_COUNT];
+Html          html;
+
 
 void setup()
 {
@@ -59,7 +57,7 @@ void setup()
   Serial.println("Devices: initialized");
 
   for (int field = 0; field < VSENSOR_COUNT; field++) {
-    graph[field] = VDataBuffer();
+    graph[field] = Buffer();
   }
 
   // -----------------------------------------------------
@@ -88,7 +86,7 @@ void setup()
   /**/
   server.onHtml("/", [](){ return html.handleHomePage(3000); });
   for (int field = 0; field < VSENSOR_COUNT; field++) {
-    server.onHtml("/sensor/" + String(field) + ".svg", [field](){ return html.handleHistorySvgGraph(getSensor((vsensor_code) field), graph[field]); });
+    server.onHtml("/sensor/" + String(field) + ".svg", [field](){ return html.handleHistorySvgGraph(getSensor((vsensor) field), graph[field]); });
   }
   //server.onHtml("/sensors", [](){ return getAllSensorsTable(); });
   //server.onHtml("/logger", [](){ return esp.getDateTime() + "  " + logger.dump(SHORT_REFRESH_RATE); });
@@ -102,9 +100,11 @@ void setup()
   // tft
   // -----------------------------------------------------
   
-  tft.light(255);
+  tft.light(4095);
   tft.title("Bonjour !", 0, 0, COLOR_WHITE);
   tft.text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", 0, 20, COLOR_GREY);
+  delay(2000);
+  tft.clear();
   tft.light(0);
   
   
@@ -138,14 +138,9 @@ int a = 0;
 
 void loop() 
 {
-  // TODO vasco continue testing magnitude
-  /*a++; if (a > 25500) a = 25500;
-  tft.light(a);
-  Serial.println((int) (a/100));
-
   if (server.run()) {
     // TODO vasco on client call
-  }*/
+  }
   
   if (deviceESP.run()) {
     setBuffer(MEMORY_USED);
@@ -195,9 +190,9 @@ void loop()
 
 
 
-vfield_data getSensor(vsensor_code code)
+vfield getSensor(vsensor code)
 {
-  vfield_data data = {};
+  vfield data = {};
 
   switch (code) {
     case TEMPERATURE:
@@ -238,12 +233,13 @@ vfield_data getSensor(vsensor_code code)
   return data;
 }
 
-void setBuffer(vsensor_code code)
+void setBuffer(vsensor code)
 {
-  vfield_data sensor = getSensor(code);
+  vfield sensor = getSensor(code);
   if (sensor.status > GRIS) {
     graph[(int) code].push(sensor.value, esp.getTimeStamp());
   }
+  // TODO vasco sensor.getBuffer(value, esp.getTimeStamp())
 }
 
 
