@@ -38,7 +38,7 @@ class BME680 : public Device, public Sensor, public I2cPins
     bool    sleep();
     bool    check();
     bool    update();
-    float   read();   
+    long    read();   
     // data updated
     vfield  getTemperature() { return _data.temperature; }
     vfield  getPressure() { return _data.pressure; }

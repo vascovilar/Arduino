@@ -71,7 +71,7 @@ bool BME680::update()
   return true;
 }
 
-float BME680::read()
+long BME680::read()
 {
   return 0;
 }

@@ -102,11 +102,11 @@ void ST7789SD::listFiles()
   dir.open("/");
   dir.rewind();
 
-  Serial.println(F("Files in SD root directory:"));
+  Serial.println(F("Files in SD root:"));
   while (file.openNext(&dir, O_READ)) {
     if (!file.isHidden()) {
       file.getName(fileName, sizeof(fileName));
-      Serial.print(" - " + String(fileName));
+      Serial.print("- " + String(fileName));
 
       if (file.isDir()) {
         Serial.println(F("/"));

@@ -68,7 +68,7 @@ bool PA1010D::update()
   return true;
 }
 
-float PA1010D::read()
+long PA1010D::read()
 {
   return 0;
 }

@@ -29,7 +29,8 @@ class AdcPin
 
   protected:
     bool    _initADC(byte attachedPin, bool isAmplified, float maxAnalogValue, float zeroAnalogValue); 
-    float   _readADC(); 
+    int     _rawADC(); 
+    float   _readADC();
     float   _readADCFrequency(); 
 
   private:

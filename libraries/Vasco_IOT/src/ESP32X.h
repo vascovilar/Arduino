@@ -43,7 +43,7 @@ class ESP32X : public Device, public Sensor, public PwmPin, public Psram, public
     bool    sleep();
     bool    check();
     bool    update();
-    float   read();
+    long    read();
     // data updated
     vfield  getMemoryUsed() { return _data.memoryUsed; }
     float   getPsRamUsed() { return _data.psRamUsed; } 
@@ -64,14 +64,15 @@ class ESP32X : public Device, public Sensor, public PwmPin, public Psram, public
     // TODO vasco add http calls here and scraping tool in DataHtml
 
   private:
-    byte        _ledPin;  
-    float       _maxValue = 0;
+    byte     _ledPin;  
+    float    _maxValue = 0;
 
+    // human readable
     struct fields {
-      vfield memoryUsed = {"Mémoire utilisée", "%", 10.0};
-      float       psRamUsed = 0;
+      vfield   memoryUsed = {"Mémoire utilisée", "%", 10.0};
+      float    psRamUsed = 0;
     };
-    fields  _data;
+    fields _data;
 
     vlegend _memories[2] = {
       {80, VERT, ""},

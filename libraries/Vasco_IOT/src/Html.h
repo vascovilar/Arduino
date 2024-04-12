@@ -5,7 +5,7 @@
 #include "data/Filter.h"
 #include "interface/Sensor.h"
 #include "interface/Device.h"
-#include "Buffer.h"
+#include "data/Buffer.h"
 
 
 class Html : public Data, Filter

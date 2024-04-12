@@ -42,22 +42,22 @@ bool ESP32X::check()
 
 bool ESP32X::update()
 { 
-  _feed(_data.memoryUsed, _maxValue, _memories, 3);
+  _feed(_data.memoryUsed, (1 - ((float) ESP.getFreeHeap() / 327680.0)) * 100, _memories, 3); // not 532480.0 free ! Only have 320Ko in runtime memory
   _maxValue = 0;
 
-  _data.psRamUsed = (1 - ((float) ESP.getFreePsram() / 4194304.0)) * 100; // on SPI channel 3, or use new esp_psram_get_size()
+  _data.psRamUsed = (1 - ((float) ESP.getFreePsram() / 4194304.0)) * 100; // readed on SPI channel 3, or use new esp_psram_get_size()
   
   return true;
 }
 
-float ESP32X::read()
+long ESP32X::read()
 {
-  return (1 - ((float) ESP.getFreeHeap() / 327680.0)) * 100; // not 532480.0 ! Only have 320Ko in runtime
+  return ESP.getFreeHeap();
 }
 
 void ESP32X::onboardedLed(bool status)
 {
-  _ledPWM(status ? 4095: 0);
+  _ledPWM(status);
 }
 
 void ESP32X::onboardedLed(int magnitude)
@@ -71,10 +71,11 @@ void ESP32X::getPsramTest()
   _bindPSRAM(tab, 500000); // instead of inline: tab = (byte *) ps_malloc(500000);
 
   tab[10000] = 21;
-  Serial.println("PSRAM value must be 21: " + String(tab[10000]));
+  Serial.println("PSRAM test:");
+  Serial.print("- value must be 21, " + String(tab[10000]) + " found\n");
 
   _freePSRAM(tab);
-  Serial.println("PSRAM: " + String(ESP.getFreePsram()) + " bytes free");
+  Serial.print("- " + String(ESP.getFreePsram()) + " bytes free\n");
 }
 
 void ESP32X::getEepromTest()
@@ -83,7 +84,8 @@ void ESP32X::getEepromTest()
   _writeEEPROM(ROM_BYTE_1, variable1);
   byte value = 0;
   _readEEPROM(ROM_BYTE_1, value);
-  Serial.println("EEPROM value must be 204: " + String(value));
+  Serial.println("EEPROM test:"); 
+  Serial.print("- value must be 204, " + String(value) + " found\n");
 
   bool variable2[8] = {
     true,
@@ -97,5 +99,5 @@ void ESP32X::getEepromTest()
   };
   _setEepromFlag(ROM_BYTE_1, variable2);
   bool status = _getEepromFlag(ROM_BYTE_1, 1);
-  Serial.println("EEPROM value must be true: " + String(status ? "true": "false"));
+  Serial.print("- value must be true, " + String(status ? "true": "false") + " found\n");
 }

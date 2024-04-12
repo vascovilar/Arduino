@@ -2,7 +2,7 @@
 #define Wifi_h
 
 #include "Arduino.h"
-#include "interface/Data.h"
+#include "../interface/Data.h"
 #include "WiFi.h"
 
 

@@ -7,9 +7,10 @@
 #include "SEN0487.h"
 #include "BME680.h"
 #include "PA1010D.h"
+#include "AH49E.h"
 #include "Sequencer.h"
 #include "Webserver.h"
-#include "Buffer.h"
+#include "data/Buffer.h"
 #include "Html.h"
 
 ESP32X        esp(2);
@@ -20,6 +21,7 @@ LTR390        light(0x53);
 SEN0487       ear(34);
 BME680        air(0x77);
 PA1010D       gps(0x10);
+AH49E         hall(35);
 
 Sequencer     deviceESP(esp);
 Sequencer     deviceBuzzer(buzzer);
@@ -29,10 +31,14 @@ Sequencer     deviceLight(light);
 Sequencer     deviceEar(ear);
 Sequencer     deviceAir(air);
 Sequencer     deviceGPS(gps);
+Sequencer     deviceHall(hall);
 Webserver     server;
 
 Buffer        graph[VSENSOR_COUNT];
 Html          html;
+
+
+
 
 
 void setup()
@@ -53,12 +59,23 @@ void setup()
   deviceEar.begin(HIGH_REFRESH);
   deviceAir.begin(HIGH_REFRESH);
   deviceGPS.begin(HIGH_REFRESH);
+  deviceHall.begin(HIGH_REFRESH);
   
   Serial.println("Devices: initialized");
 
   for (int field = 0; field < VSENSOR_COUNT; field++) {
     graph[field] = Buffer();
   }
+
+  // -----------------------------------------------------
+  // realtime sensors calibration
+  // -----------------------------------------------------
+
+  Serial.println("Sensor calibration:");
+  Serial.print("- EMF zero: ");
+  calibrate(EMF_LEVEL);
+  Serial.print("- hall zero: ");
+  calibrate(GAUSS_LEVEL);
 
   // -----------------------------------------------------
   // wifi 
@@ -72,7 +89,8 @@ void setup()
    
   if (esp.connectWifi()) {
     esp.onboardedLed(true);
-    Serial.println("Wifi: sync dateTime from web, " + esp.getDateTime());
+    Serial.println("Onboard LED: check blue led is on");
+    Serial.println("Wifi: connected, sync dateTime from web " + esp.getDateTime());
   }
 
   //if (esp.disconnectWifi()) {
@@ -83,7 +101,6 @@ void setup()
   // webserver
   // -----------------------------------------------------
 
-  /**/
   server.onHtml("/", [](){ return html.handleHomePage(3000); });
   for (int field = 0; field < VSENSOR_COUNT; field++) {
     server.onHtml("/sensor/" + String(field) + ".svg", [field](){ return html.handleHistorySvgGraph(getSensor((vsensor) field), graph[field]); });
@@ -93,33 +110,26 @@ void setup()
   if (server.begin(HIGH_REFRESH)) {
     Serial.println("Webserver: listening on port 80, go http://" + esp.getIP());
   }
-
-
-
+    
   // -----------------------------------------------------
   // tft
   // -----------------------------------------------------
   
+  Serial.println("Screen: check message diplayed");
   tft.light(4095);
   tft.title("Bonjour !", 0, 0, COLOR_WHITE);
   tft.text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", 0, 20, COLOR_GREY);
-  delay(2000);
+  /*delay(2000);
   tft.clear();
-  tft.light(0);
-  
+  for (int i = 4095; i >= 0; i--) {
+    tft.light(i);
+  }*/
   
   // -----------------------------------------------------
   // sd
   // -----------------------------------------------------
 
-  //tft.listFiles();
-
-  // -----------------------------------------------------
-  // buzzer
-  // -----------------------------------------------------
-  
-  buzzer.warning();
-  
+  //tft.listFiles(); 
 
   // -----------------------------------------------------
   // EEPROM & PSRAM
@@ -128,13 +138,21 @@ void setup()
   //esp.getEepromTest(); // warning destroys rom in using it, keep commented
   esp.getPsramTest();
 
-  // end
+  // -----------------------------------------------------
+  // buzzer
+  // -----------------------------------------------------
+  
+  Serial.println("Buzzer: listen to a simple beep");
+  buzzer.warning();
+
+  // -----------------------------------------------------
+
   Serial.println("Tests OK\n");
 }
 
 
 
-int a = 0;
+
 
 void loop() 
 {
@@ -182,13 +200,52 @@ void loop()
 
   if (deviceGPS.run()) {
     setBuffer(ALTITUDE);
-    Serial.println("+GPS: " + String(deviceGPS.getProcessedTime()) + "ms (" + String(deviceEMF.getProcessedChecks()) + ")");
+    //Serial.println("+GPS: " + String(deviceGPS.getProcessedTime()) + "ms (" + String(deviceEMF.getProcessedChecks()) + ")");
   }
+
+  if (deviceHall.run()) {
+    setBuffer(GAUSS_LEVEL);
+    //Serial.println("+Hall: " + String(deviceHall.getProcessedTime()) + "ms (" + String(deviceHall.getProcessedChecks()) + ")");
+  }  
 }
 
 
 
 
+
+bool calibrate(vsensor code)
+{
+  long value = 0;
+  long total = 0;
+  
+  for (int i = 0; i < 100; i++) {
+    switch (code) {
+      case EMF_LEVEL:
+        value = emf.read();
+        break;      
+      case GAUSS_LEVEL:
+        value = hall.read();
+        break;
+      case VISIBLE:
+        value = light.read();
+        break;
+    }
+    value = value * 1000;
+    value = graph[0].smoothe(value, 7);
+    value = graph[0].maximume(value, 10); 
+    value = graph[0].inertiae(value,10);
+    total += value / 1000;
+    delay(10);
+  }
+
+  if (value != 0) {
+    Serial.print(String(total / 100) + "\n");
+
+    return true;
+  }
+  
+  return false;
+}
 
 vfield getSensor(vsensor code)
 {
@@ -227,7 +284,10 @@ vfield getSensor(vsensor code)
       break;  
     case MEMORY_USED:
       data = esp.getMemoryUsed();
-      break;  
+      break; 
+    case GAUSS_LEVEL:
+      data = hall.getMaxValue();
+      break;   
   }
 
   return data;
@@ -241,5 +301,7 @@ void setBuffer(vsensor code)
   }
   // TODO vasco sensor.getBuffer(value, esp.getTimeStamp())
 }
+
+
 
 

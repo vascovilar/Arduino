@@ -22,7 +22,7 @@ bool EMF::sleep()
 
 bool EMF::check()
 {
-  float value = read();
+  float value = _readADC();
   if (value > _maxValue) {
     _maxValue = value;
   }
@@ -39,7 +39,7 @@ bool EMF::update()
   return true;
 }
 
-float EMF::read()
+long EMF::read()
 {
-  return _readADC();
+  return _rawADC();
 }

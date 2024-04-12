@@ -19,9 +19,14 @@ bool AdcPin::_initADC(byte attachedPin, bool isAmplified, float maxAnalogValue, 
   return true;
 }
 
+int AdcPin::_rawADC()
+{
+  return analogRead(_attachedPin);
+}
+
 float AdcPin::_readADC() 
 {
-  int value = analogRead(_attachedPin);
+  int value = _rawADC();
 
   // float mapping
   if (value > _maxAnalogValue) value = _maxAnalogValue;
@@ -42,7 +47,7 @@ float AdcPin::_readADCFrequency()
   while (i < 100) { // total 100ms to measure
     if (micros() - timer > 1000) {
       timer = micros();
-      buffer[i] = _readADC();
+      buffer[i] = _rawADC();
       if (buffer[i] == 0 && buffer[i-1] > 0) {
         beat++;
       }

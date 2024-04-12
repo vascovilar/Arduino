@@ -39,7 +39,7 @@ class LTR390 : public Device, public Sensor, public I2cPins
     bool    sleep();
     bool    check();
     bool    update();
-    float   read();
+    long    read();
     // data updated
     vfield  getUvIndex() { return _data.uvIndex; }
     vfield  getVisible() { return _data.visible; }

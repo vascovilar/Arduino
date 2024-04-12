@@ -38,7 +38,7 @@ class EMF : public Device, public Sensor, public AdcPin
     bool    sleep();
     bool    check();
     bool    update(); 
-    float   read();
+    long    read();
     // data updated
     vfield  getMaxValue() { return _data.maxValue; }
     vfield  getFrequency() { return _data.frequency; }
@@ -49,8 +49,8 @@ class EMF : public Device, public Sensor, public AdcPin
 
     // human readable
     struct fields {
-      vfield  maxValue = {"Intensité EMF", "%", 1.0};
-      vfield  frequency = {"Fréquence EMF", "Hz", 10.0};
+      vfield   maxValue = {"Intensité EMF", "%", 1.0};
+      vfield   frequency = {"Fréquence EMF", "Hz", 10.0};
     };
     fields _data;
 

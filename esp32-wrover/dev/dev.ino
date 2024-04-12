@@ -72,7 +72,7 @@ void loop()
   b = test.smooth(a, 7);
   c = test.maximum(b, 10); 
   d = test.inertia(b,10); 
-
+4095
   //********************************
   t = micros() - timer;
 

@@ -22,7 +22,7 @@ bool SEN0487::sleep()
 
 bool SEN0487::check() 
 { 
-  float value = read();
+  float value = _readADC();
   if (value > _maxValue) {
     _maxValue = value;
   }
@@ -39,7 +39,7 @@ bool SEN0487::update()
   return true;
 }
 
-float SEN0487::read()
+long SEN0487::read()
 {
-  return _readADC();
+  return _rawADC();
 }

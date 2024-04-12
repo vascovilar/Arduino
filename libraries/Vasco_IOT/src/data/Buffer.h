@@ -2,10 +2,11 @@
 #define Buffer_h
 
 #include "Arduino.h"
-#include "interface/Data.h"
+#include "../interface/Data.h"
+#include "../data/Filter.h" // TODO vasco temp to test 
 
 
-class Buffer : public Data
+class Buffer : public Data, Filter
 {
   static const int  _DELAY_TO_PUSH_TO_HISTORY = 10000; // 180000 = 3 min means 240 mesures = 12h
   static const int  _HISTORY_BUFFER_MAX_SIZE = 240;
@@ -22,6 +23,11 @@ class Buffer : public Data
     float   delta;
     byte    trend;
     bool    push(float value, long timeStamp);
+    // TODO vasco temp to test
+    float   smoothe(float value, int factor) { return _smooth(value, factor); }
+    float   maximume(float value, int factor) { return _maximum(value, factor); }
+    float   inertiae(float value, int factor) { return _inertia(value, factor); }
+
     
   private:
     float   _buffer[_TMP_BUFFER_MAX_SIZE]; // last 100 values stored

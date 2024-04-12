@@ -29,6 +29,9 @@
 
 class AH49E : public Device, public Sensor, public AdcPin
 {
+  static const int  _ADC_MAX_VALUE = 4095;
+  static const int  _ADC_ZERO_VALUE = 1675;
+
   public:
     AH49E(byte pin) : Device(GAUSS_SENSOR), Sensor(true) { _analogPin = pin; }
     // interfaces
@@ -37,12 +40,27 @@ class AH49E : public Device, public Sensor, public AdcPin
     bool    sleep();
     bool    check();
     bool    update();
+    long    read();
+    // data updated
+    vfield  getMaxValue() { return _data.maxValue; }
 
   private:
     byte    _analogPin;
-    
-    // TODO vasco implement hall sensor driver
+    float   _maxValue = 0;
 
+    // human readable
+    struct fields {
+      vfield   maxValue = {"Magnétisme", "%", 10.0};
+    };
+    fields _data;
+
+    vlegend _maxValues[5] = {
+      {0, VERT, "aucun champ"},
+      {20, VERT, "champ faible"},
+      {40, JAUNE, "champ moyen"},
+      {80, ORANGE, "champ fort"},
+      {100, ROUGE, "champ maximum"},
+    };
 };
 
 #endif

@@ -38,7 +38,7 @@ class PA1010D : public Device, public Sensor, public I2cPins
     bool    sleep();
     bool    check();
     bool    update();
-    float   read();
+    long    read();
     // data updated
     vfield  getSatellite() { return _data.satellite; }
     vfield  getFixQuality() { return _data.fixQuality; }
@@ -62,19 +62,19 @@ class PA1010D : public Device, public Sensor, public I2cPins
     
     // human readable
     struct fields {
-      vfield  satellite = {"Satelites connectés", "", 1.0};
-      vfield  fixQuality = {"Qualité du réseau", "", 1.0};
-      vfield  latitude = {"Latitude", "°", 0.0000001}; // 7 decimals
-      vfield  longitude = {"Longitude", "°", 0.0000001}; // 7 decimals
-      vfield  altitude = {"Altitude", "m", 10.0};
-      vfield  speed = {"Vitesse", "km/h", 3.0};
-      vfield  directionAngle = {"Cap", "°", 20.0}; // North = 0
-      vfield  compassAngle = {"Compas", "°", 20.0}; // North = 0
-      String  dateTime;      // in timestamp GMT
-      String  latCardinal;   // N or S
-      String  longCardinal;  // W or E
+      vfield   satellite = {"Satelites connectés", "", 1.0};
+      vfield   fixQuality = {"Qualité du réseau", "", 1.0};
+      vfield   latitude = {"Latitude", "°", 0.0000001}; // 7 decimals
+      vfield   longitude = {"Longitude", "°", 0.0000001}; // 7 decimals
+      vfield   altitude = {"Altitude", "m", 10.0};
+      vfield   speed = {"Vitesse", "km/h", 3.0};
+      vfield   directionAngle = {"Cap", "°", 20.0}; // North = 0
+      vfield   compassAngle = {"Compas", "°", 20.0}; // North = 0
+      String   dateTime;      // in timestamp GMT
+      String   latCardinal;   // N or S
+      String   longCardinal;  // W or E
     };
-    struct fields _data;
+    fields _data;
 
     vlegend _satellites[5] = {
       {0, ROUGE, "aucun"},

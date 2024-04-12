@@ -55,8 +55,8 @@ bool LTR390::update()
   return true;
 }
 
-float LTR390::read() { 
-  return _convertToLux(_ltr.readALS()); 
+long LTR390::read() { 
+  return _ltr.readALS(); 
 }
 
 float LTR390::_convertToLux(float visible)

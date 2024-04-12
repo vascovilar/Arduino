@@ -40,7 +40,7 @@ class SEN0487 : public Device, public Sensor, public AdcPin
     bool    sleep();
     bool    check();
     bool    update();
-    float   read();
+    long    read();
     // data updated
     vfield  getMaxValue() { return _data.maxValue; }
     
