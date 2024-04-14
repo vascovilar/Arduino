@@ -1,26 +1,27 @@
-#include "EMF.h"
+#include "EMF001.h"
 
-bool EMF::init()
+bool EMF001::init()
 {
   if (!_initADC(_analogPin, true, _ADC_MAX_VALUE, _ADC_ZERO_VALUE)) {
-    Serial.println(F("Error initializing analog EMF device"));
+    Serial.println(F("Error initializing analog EMF001 device"));
+    
     return false;
   }
 
   return true;
 }
 
-bool EMF::wake()
+bool EMF001::wake()
 {
   return true;
 }
 
-bool EMF::sleep()
+bool EMF001::sleep()
 { 
   return true;
 }
 
-bool EMF::check()
+bool EMF001::check()
 {
   float value = _readADC();
   if (value > _maxValue) {
@@ -30,7 +31,7 @@ bool EMF::check()
   return _maxValue > 0;
 }
 
-bool EMF::update()
+bool EMF001::update()
 {
   _feed(_data.maxValue, _maxValue, _maxValues, 5);
   _feed(_data.frequency, _readADCFrequency(), _frequencies, 2);
@@ -39,7 +40,7 @@ bool EMF::update()
   return true;
 }
 
-long EMF::read()
+float EMF001::read()
 {
   return _rawADC();
 }

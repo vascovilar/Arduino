@@ -188,5 +188,5 @@ bool pimoroniTrackball::release()
 	}
 	return false;
 }
-pimoroniTrackball trackball;
+//pimoroniTrackball trackball;
 #endif

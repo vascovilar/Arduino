@@ -4,19 +4,27 @@ bool AH49E::init()
 {
   if (!_initADC(_analogPin, false, _ADC_MAX_VALUE, _ADC_ZERO_VALUE)) {
     Serial.println(F("Error initializing analog EMF device"));
+    
     return false;
   }
+
+  pinMode(26, OUTPUT);
+  digitalWrite(26, HIGH);
 
   return true;
 }
 
 bool AH49E::wake()
 {
+  digitalWrite(26, HIGH);
+  
   return true;
 }
 
 bool AH49E::sleep()
 { 
+  digitalWrite(26, LOW);
+  
   return true;
 }
 
@@ -38,7 +46,7 @@ bool AH49E::update()
   return true;
 }
 
-long AH49E::read()
+float AH49E::read()
 {
   return _rawADC();
 }

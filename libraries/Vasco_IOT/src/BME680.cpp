@@ -4,11 +4,11 @@ bool BME680::init()
 {
   if (_i2cAddress != 0x76 && _i2cAddress != 0x77) {
     Serial.println(F("Error BME680 device use I2C address 0x76 or 0x77"));
+    
     return false;
   }
 
   _iaq.begin(_i2cAddress, Wire);
-  
   bsec_virtual_sensor_t sensorList[13] = {
     BSEC_OUTPUT_IAQ,
     BSEC_OUTPUT_STATIC_IAQ,
@@ -29,6 +29,7 @@ bool BME680::init()
   if (!_iaq.run()) {
     _checkIaqSensorStatus();
     Serial.println(F("Error initializing I2C BME680 device"));
+    
     return false;
   }
 
@@ -71,7 +72,7 @@ bool BME680::update()
   return true;
 }
 
-long BME680::read()
+float BME680::read()
 {
   return 0;
 }
@@ -80,17 +81,17 @@ void BME680::_checkIaqSensorStatus()
 {
   if (_iaq.bsecStatus != BSEC_OK) {
     if (_iaq.bsecStatus < BSEC_OK) {
-      Serial.println("BSEC error code : "+ String(_iaq.bsecStatus));
+      //Serial.println("BSEC error code : "+ String(_iaq.bsecStatus));
     } else {
-      Serial.println("BSEC warning code : "+ String(_iaq.bsecStatus));
+      //Serial.println("BSEC warning code : "+ String(_iaq.bsecStatus));
     }
   }
 
   if (_iaq.bme68xStatus != BME68X_OK) {
     if (_iaq.bme68xStatus < BME68X_OK) {
-      Serial.println("BME68X error code : " + String(_iaq.bme68xStatus));
+      //Serial.println("BME68X error code : " + String(_iaq.bme68xStatus));
     } else {
-      Serial.println("BME68X warning code : " + String(_iaq.bme68xStatus));
+      //Serial.println("BME68X warning code : " + String(_iaq.bme68xStatus));
     }
   }
 }

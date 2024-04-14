@@ -2,7 +2,6 @@
 #define Wifi_h
 
 #include "Arduino.h"
-#include "../interface/Data.h"
 #include "WiFi.h"
 
 
@@ -14,6 +13,7 @@ class Wifi
   static const int  _CREDENTIAL_COUNT = 2;
     
   protected:
+
     bool    _connectWIFI();
     bool    _disconnectWIFI();
     int     _getAccessPointsWIFI();
@@ -21,6 +21,7 @@ class Wifi
     String  _getIpWIFI();
 
   private:
+  
     // TODO vasco move real credentials data in secure area
     struct vcredential {
       const char*   user;

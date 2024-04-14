@@ -10,6 +10,7 @@ class Filter : public Data
   static const byte _BUFFER_MAX_SIZE = 100;
 
   protected:
+
     // needed for precision, map function is only integers 
     int     _isometric(float value, float maximum, float minimum, int height, int offset);
     // iterators to smooth graphs
@@ -18,6 +19,7 @@ class Filter : public Data
     float   _inertia(float value, int factor); 
 
   private:
+  
     float   _smoothBuffer[_BUFFER_MAX_SIZE];
     int     _smoothIndex = 0;
     float   _smoothTotal = 0;

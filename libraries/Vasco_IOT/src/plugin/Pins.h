@@ -28,12 +28,14 @@ class AdcPin
   static const int _ADC_ZERO_VALUE = 0; // override with device value in child class
 
   protected:
+
     bool    _initADC(byte attachedPin, bool isAmplified, float maxAnalogValue, float zeroAnalogValue); 
     int     _rawADC(); 
     float   _readADC();
     float   _readADCFrequency(); 
 
   private:
+
     byte    _attachedPin;
     bool    _isAmplified;
     float   _maxAnalogValue;
@@ -46,12 +48,14 @@ class PwmPin
   static const byte _PWM_CHANNEL = 0; // override with device value in child class
   
   protected:
+
     bool    _initPWM(byte attachedPin, byte channel);
     void    _ledPWM(int magnitude); // 0~255
     void    _ledPWM(bool onOrOff);
     void    _tonePWM(int frequency); 
     
   private:
+  
     byte    _attachedPin;
     byte    _channel;
 };

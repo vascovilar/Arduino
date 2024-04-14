@@ -18,6 +18,7 @@ bool ST7789SD::init()
   // backlight 
   if (!_initPWM(_litPin, _PWM_CHANNEL)) {
     Serial.println(F("Backlight init failed"));
+    
     return false;    
   }
 
@@ -69,6 +70,11 @@ void ST7789SD::text(String text, int x, int y, int color)
   _tft.setTextColor(convert(color));
   _tft.setTextWrap(true);
   _tft.print(text);
+}
+
+void ST7789SD::point(int x, int y, int color)
+{
+   _tft.drawPixel(x, y, convert(color));
 }
 
 int ST7789SD::convert(int hexadecimal)

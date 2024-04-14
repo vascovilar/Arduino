@@ -1,77 +1,78 @@
-#include "Buzzer.h"
+#include "BUZ001.h"
 
-bool Buzzer::init()
+bool BUZ001::init()
 {
   if (!_initPWM(_pwmPin, _PWM_CHANNEL)) {
-    Serial.println(F("Error initializing buzzer device"));
+    Serial.println(F("Error initializing BUZ001 device"));
+    
     return false;
   }
   
   return true;
 }
 
-bool Buzzer::wake()
+bool BUZ001::wake()
 {
   return true;
 }
 
-bool Buzzer::sleep()
+bool BUZ001::sleep()
 { 
   return true;
 }
 
-bool Buzzer::check()
+bool BUZ001::check()
 { 
   return false;
 }
 
-bool Buzzer::update()
+bool BUZ001::update()
 { 
   return false;
 }
 
-void Buzzer::beep()
+void BUZ001::beep()
 {
   _note(1, 2300, NOIRE); // resonant frequency
 }
 
-void Buzzer::notice()
+void BUZ001::notice()
 {
   _note(4, LA, DOUBLE_CROCHE);
 }
 
-void Buzzer::warning()
+void BUZ001::warning()
 {
   _note(4, LA, CROCHE);
 }
 
-void Buzzer::alert()
+void BUZ001::alert()
 {
   _note(3, LA, TRIPLE_CROCHE);
   _silence(SOUPIR);
   _note(3, LA, TRIPLE_CROCHE);
 }
 
-void Buzzer::open()
+void BUZ001::open()
 {
   _note(1, LA, BLANCHE);
   _note(3, LA, CROCHE);
 }
 
-void Buzzer::close()
+void BUZ001::close()
 {
   _note(3, LA, NOIRE);
   _note(1, LA, NOIRE);
 }
 
-void Buzzer::modem()
+void BUZ001::modem()
 {
   for (int i; i< 40; i++) {
     _note((int) random(4), (int) random(1000000), DOUBLE_CROCHE);
   }
 }
 
-void Buzzer::isabel()
+void BUZ001::isabel()
 {
   int music[44] = {
     2, DO, CROCHE, DEMI_PAUSE,
@@ -92,7 +93,7 @@ void Buzzer::isabel()
   }
 }
 
-void Buzzer::_note(byte octave, int milliHertz, int milliSeconds)
+void BUZ001::_note(byte octave, int milliHertz, int milliSeconds)
 {
   float frequencyInHerz = (float) (pow(2, octave) * milliHertz) / 1000.0;
 
@@ -101,7 +102,7 @@ void Buzzer::_note(byte octave, int milliHertz, int milliSeconds)
   _silence(0);
 }
 
-void Buzzer::_silence(int milliSeconds)
+void BUZ001::_silence(int milliSeconds)
 {
   _tonePWM(0);
   delay(milliSeconds);

@@ -21,8 +21,8 @@
 #define BME680_h
 
 #include "Arduino.h"
-#include "interface/Sensor.h"
 #include "interface/Device.h"
+#include "interface/Sensor.h"
 #include "plugin/Pins.h"
 #include "bsec.h"
 #include "Wire.h"
@@ -31,6 +31,7 @@
 class BME680 : public Device, public Sensor, public I2cPins
 {
   public:
+
     BME680(byte addr) : Device(METEO_SENSOR), Sensor(false) { _i2cAddress = addr; }
     // interfaces
     bool    init();
@@ -38,7 +39,7 @@ class BME680 : public Device, public Sensor, public I2cPins
     bool    sleep();
     bool    check();
     bool    update();
-    long    read();   
+    float   read();   
     // data updated
     vfield  getTemperature() { return _data.temperature; }
     vfield  getPressure() { return _data.pressure; }
@@ -51,7 +52,8 @@ class BME680 : public Device, public Sensor, public I2cPins
     vfield  getIaqAccuracy() { return _data.iaqAccuracy; }
     
   private:
-    Bsec    _iaq;
+  
+    Bsec    _iaq; //  = Bsec(); TODO vasco try
     byte    _i2cAddress;
     void    _checkIaqSensorStatus();
     float   _convertToMilliBar(float pressure);

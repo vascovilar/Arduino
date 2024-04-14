@@ -19,7 +19,7 @@ bool Webserver::begin(vrun mode)
   _server.begin();
 
   // TODO vasco change delay 10 in fct of mode
-  // go TODO vasco return false if no wifi ?
+  // TODO vasco return false if no wifi ?
   
   return true;
 }
@@ -28,6 +28,7 @@ bool Webserver::run()
 {
   if (millis() - _timer > 10) {
     _timer = millis();
+    
     _server.handleClient();
 
     return true;

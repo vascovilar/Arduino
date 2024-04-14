@@ -4,25 +4,25 @@ bool PA1010D::init()
 {
   if (_i2cAddress != 0x10) {
     Serial.println(F("Error PA1010D device use I2C address 0x10"));
+    
     return false;
   }
 
   if (!_gps.begin(_i2cAddress)) {
     Serial.println(F("Error initializing I2C PA1010D device"));
+    
     return false;
   }    
 
-  // turn on RMC (recommended minimum) and GGA (fix data) including altitude
+  // Turn on RMC (recommended minimum) and GGA (fix data) including altitude
   _gps.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);  
-  // 1 Hz update rate
-  _gps.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
+  _gps.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ); // 1hz refresh rate
   _gps.sendCommand(PMTK_API_SET_FIX_CTL_1HZ);
-  
   // Request updates on antenna status, comment out to keep quiet
   //_gps.sendCommand(PGCMD_ANTENNA);
-
-  // activate AlwaysLocate mode (dynamic power consumption)
   //delay(1000);
+  
+  // Activate 'AlwaysLocate' mode (dynamic power consumption)
   //_gps.sendCommand("$PMTK225,8*23"); // TODO vasco debug dynamic low consumption (making init fail) after $PMTK225,0*2B OR com:$PMTK225,9*22 ack:$PMTK001,225,3*35
 
   return true;
@@ -41,7 +41,7 @@ bool PA1010D::sleep()
 
 bool PA1010D::check() 
 {
-  // TODO vasco move in update fct ?
+  // TODO vasco move gps in update fct ?
   char c = _gps.read();
   if (_gps.newNMEAreceived()) {
     _gps.parse(_gps.lastNMEA());
@@ -68,7 +68,7 @@ bool PA1010D::update()
   return true;
 }
 
-long PA1010D::read()
+float PA1010D::read()
 {
   return 0;
 }

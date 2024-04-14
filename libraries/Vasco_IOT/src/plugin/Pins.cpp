@@ -60,7 +60,7 @@ float AdcPin::_readADCFrequency()
 
 bool PwmPin::_initPWM(byte attachedPin, byte channel) 
 {
-  if ((attachedPin >= 0 && attachedPin <= 5) // for ESP32  // TODO vasco not in array 
+  if ((attachedPin >= 0 && attachedPin <= 5) // TODO vasco not in array 
     || (attachedPin >= 12 && attachedPin <= 15)
     || (attachedPin >= 18 && attachedPin <= 19)
     || (attachedPin >= 21 && attachedPin <= 23)

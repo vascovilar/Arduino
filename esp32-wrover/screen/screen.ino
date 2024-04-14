@@ -1,4 +1,4 @@
-//#define ARDUINO 100
+#define ARDUINO 100
 
 #include "Arduino.h"
 #include "Adafruit_GFX.h"         // Core graphics library

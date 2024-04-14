@@ -3,9 +3,9 @@
  *
  * Implementation:
  *
- *   #include <Buzzer.h>
+ *   #include <BUZ001.h>
  *
- *   Buzzer sound;
+ *   BUZ001 sound;
  *
  *   void setup() {
  *     sound.begin(2);
@@ -16,20 +16,21 @@
  *   }
  */
 
-#ifndef Buzzer_h
-#define Buzzer_h
+#ifndef BUZ001_h
+#define BUZ001_h
 
 #include "Arduino.h" 
 #include "interface/Device.h"
 #include "plugin/Pins.h"
 
 
-class Buzzer : public Device, public PwmPin
+class BUZ001 : public Device, public PwmPin
 {
   static const byte _PWM_CHANNEL = 1;
 
   public:
-    Buzzer(byte pin) : Device(BUZZER) { _pwmPin = pin; }
+
+    BUZ001(byte pin) : Device(BUZZER) { _pwmPin = pin; }
     // interfaces
     bool    init();
     bool    wake();
@@ -47,6 +48,7 @@ class Buzzer : public Device, public PwmPin
     void    isabel();
 
   private:
+  
     byte    _pwmPin;
     void    _note(byte octave, int milliHertz, int milliSeconds);
     void    _silence(int milliSeconds);

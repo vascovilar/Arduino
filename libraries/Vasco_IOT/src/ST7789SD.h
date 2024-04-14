@@ -39,6 +39,7 @@ class ST7789SD : public Device, public SpiPins, public PwmPin
   static const byte _PWM_CHANNEL = 2;
 
   public:
+  
     ST7789SD(byte tftcsPin, byte dcPin, byte sdcsPin, byte litPin) : Device(TFT_SD_SCREEN), _tft(Adafruit_ST7789(tftcsPin, dcPin, -1)) {
       _tftcsPin = tftcsPin; 
       _dcPin = dcPin; 
@@ -56,6 +57,7 @@ class ST7789SD : public Device, public SpiPins, public PwmPin
     void    light(int magnitude); // tft backligth 0: off, 255: intensity max
     void    title(String text, int x, int y, int colorCode);
     void    text(String text, int x, int y, int colorCode);
+    void    point(int x, int y, int colorCode);
     int     convert(int hexadecimal); // color code like 0x00FF00
     int     convert(String html); // color code like "#00FF00"
     // sd card api

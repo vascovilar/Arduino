@@ -8,10 +8,8 @@
 
 class Sequencer : public Run
 {
-  static const int  LONG_UPDATE_TIME = 10000;
-  static const int  SHORT_UPDATE_TIME = 1000;
-
   public:
+
     Sequencer(Device &obj) : child(obj) {}; 
     // interface
     bool    begin(vrun mode);
@@ -22,6 +20,7 @@ class Sequencer : public Run
     int     getProcessedUpdates() { return _processedUpdates; }
 
   private:
+  
     Device  &child;
     bool    _enabled = false;
     int     _processedTime = 0;  

@@ -32,6 +32,7 @@
 class LTR390 : public Device, public Sensor, public I2cPins
 {
   public:
+
     LTR390(byte addr) : Device(LIGHT_SENSOR), Sensor(true) { _i2cAddress = addr; }
     // interfaces
     bool    init();
@@ -39,12 +40,13 @@ class LTR390 : public Device, public Sensor, public I2cPins
     bool    sleep();
     bool    check();
     bool    update();
-    long    read();
+    float   read();
     // data updated
     vfield  getUvIndex() { return _data.uvIndex; }
     vfield  getVisible() { return _data.visible; }
 
   private:
+  
     Adafruit_LTR390 _ltr = Adafruit_LTR390();
     byte    _i2cAddress;
     float   _maxValue = 0;

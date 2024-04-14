@@ -35,7 +35,8 @@ class ESP32X : public Device, public Sensor, public PwmPin, public Psram, public
 {
   static const byte _PWM_CHANNEL = 3; 
 
-  public:   
+  public: 
+
     ESP32X(byte pin) : Device(MICRO_CONTROLLER), Sensor(true) { _ledPin = pin; }    
     // interfaces
     bool    init();
@@ -43,14 +44,13 @@ class ESP32X : public Device, public Sensor, public PwmPin, public Psram, public
     bool    sleep();
     bool    check();
     bool    update();
-    long    read();
+    float   read();
     // data updated
     vfield  getMemoryUsed() { return _data.memoryUsed; }
     float   getPsRamUsed() { return _data.psRamUsed; } 
-    // blue led
-    void    onboardedLed(bool status); // build-in led
-    void    onboardedLed(int magnitude);
-    // testing proxy
+    // api
+    void    led(bool status); // build-in blue led
+    void    led(int magnitude);
     bool    connectWifi() { return _connectWIFI(); }
     bool    disconnectWifi() { return _disconnectWIFI(); }
     int     getWifiAccessPoints() { return _getAccessPointsWIFI(); }
@@ -58,12 +58,14 @@ class ESP32X : public Device, public Sensor, public PwmPin, public Psram, public
     String  getIP() { return _getIpWIFI(); } 
     long    getTimeStamp() { return _getTimeRTC(); }
     String  getDateTime() { return _getDateTimeRTC(); }   
+    // testing proxy
     void    getPsramTest();
     void    getEepromTest();
 
-    // TODO vasco add http calls here and scraping tool in DataHtml
+    // TODO vasco add http calls here and scraping tool
 
   private:
+  
     byte     _ledPin;  
     float    _maxValue = 0;
 

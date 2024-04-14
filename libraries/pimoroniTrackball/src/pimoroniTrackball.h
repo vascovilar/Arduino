@@ -70,5 +70,5 @@ class pimoroniTrackball
 		uint8_t _lastState[5] = {0, 0, 0, 0, 0b10000000};					//Last state of the trackball, which resets on read
 };
 
-extern pimoroniTrackball trackball;
+//extern pimoroniTrackball trackball;
 #endif

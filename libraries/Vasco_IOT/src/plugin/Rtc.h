@@ -12,6 +12,7 @@ class Rtc
   static const int  _DATETIME_LENGTH = 20;
 
   protected:
+  
     long    _getTimeRTC(); // timestamp Unix
     void    _setTimeRTC(long timeStamp); // set internal Real Time Clock with timestamp Unix
     String  _getDateTimeRTC(); // return standard string format "2024-01-23 19:34:55"

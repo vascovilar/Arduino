@@ -4,16 +4,19 @@ bool ESP32X::init()
 { 
   if (!_initPWM(_ledPin, _PWM_CHANNEL)) {
     Serial.println(F("Onboard led init failed"));
+    
     return false;    
   }
 
   if (!_initPSRAM()) {
     Serial.println(F("Error initializing PSRAM"));
+    
     return false;
   }
 
   if (!_initEEPROM()) {
     Serial.println(F("Error initializing EEPROM"));
+    
     return false;
   }
 
@@ -50,17 +53,17 @@ bool ESP32X::update()
   return true;
 }
 
-long ESP32X::read()
+float ESP32X::read()
 {
   return ESP.getFreeHeap();
 }
 
-void ESP32X::onboardedLed(bool status)
+void ESP32X::led(bool status)
 {
   _ledPWM(status);
 }
 
-void ESP32X::onboardedLed(int magnitude)
+void ESP32X::led(int magnitude)
 {
   _ledPWM(magnitude);
 }

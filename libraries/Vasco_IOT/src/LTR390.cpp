@@ -5,11 +5,13 @@ bool LTR390::init()
 {
   if (_i2cAddress != 0x53) {
     Serial.println(F("Error LTR390 device use I2C address 0x53"));
+    
     return false;
   }
 
   if (!_ltr.begin()) {
     Serial.println(F("Error initializing I2C LTR390 device"));
+    
     return false;    
   }
 
@@ -55,7 +57,7 @@ bool LTR390::update()
   return true;
 }
 
-long LTR390::read() { 
+float LTR390::read() { 
   return _ltr.readALS(); 
 }
 

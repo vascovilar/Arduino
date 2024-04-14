@@ -26,6 +26,7 @@ class Eeprom
   static const int _EEPROM_SIZE = 512; // ESP32 all version
 
   protected:
+
     bool    _initEEPROM();
     bool    _getEepromFlag(vmemory_index index, int boolSlot); // 8 booleans in one octet, slots from 1 to 8
     bool    _setEepromFlag(vmemory_index index, bool* boolSlots); // send 8 values in array for one octet
@@ -45,10 +46,7 @@ class Eeprom
         EEPROM.put((int)index, value);
         EEPROM.commit();
       }
-    }
-
-  private:
-    
+    }    
 };
 
 #endif

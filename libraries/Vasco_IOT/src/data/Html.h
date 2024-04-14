@@ -2,15 +2,16 @@
 #define Html_h
 
 #include "Arduino.h"
-#include "data/Filter.h"
-#include "interface/Sensor.h"
-#include "interface/Device.h"
-#include "data/Buffer.h"
+#include "../interface/Data.h"
+#include "Filter.h"
+#include "../interface/Sensor.h"
+#include "Buffer.h"
 
 
 class Html : public Data, Filter
 {
   public:
+
     String    handleHomePage(int delay);
     String    handleHistorySvgGraph(vfield data, Buffer buffer);
     String    handleDataTable(vfield* sensors, int length);
@@ -19,6 +20,7 @@ class Html : public Data, Filter
     String    handleNotification(String text);
 
   private:
+  
     String    _getHtmlColor(vcolor code);
     String    _getHtmlColor(vstatus code);
     String    _getHtmlSvgLine(int x1, int y1, int x2, int y2, float size = 1.0);

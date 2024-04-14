@@ -22,7 +22,7 @@
 #define Webserver_h
 
 #include "Arduino.h"
-#include "interface/Run.h"
+#include "../interface/Run.h"
 #include "WebServer.h"
 #include "FS.h"
 
@@ -31,10 +31,11 @@ static WebServer _server(80); // need to be global because called by lambda func
 class Webserver : public Run
 {
   public:
+  
     // interface
     bool    begin(vrun mode);
     bool    run();
-    // api (config before begin server)
+    // api (config before calling begin function)
     void    onHtml(const String &uri, std::function<String()> callHtml);
     void    onHtml(const String &uri, std::function<String(int)> callHtml);
     void    onSvg(const String &uri, std::function<String()> callHtml);
@@ -45,6 +46,7 @@ class Webserver : public Run
     void    onCommand(const String &uri, std::function<void(int)> callCommand);
     
   private:
+  
     long _timer = 0;
 };
 

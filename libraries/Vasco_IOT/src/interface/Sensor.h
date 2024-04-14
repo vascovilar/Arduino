@@ -26,7 +26,7 @@ enum vstatus {
   GRIS = 0,   // inactif
   VERT = 1,   // confort
   JAUNE = 2,  // perturbé
-  ORANGE = 3, // gênestatuses
+  ORANGE = 3, // gêne
   ROUGE = 4,  // mauvais
   VIOLET = 5, // danger
 };
@@ -50,11 +50,13 @@ struct vlegend {
 class Sensor
 {
   public:
+
     Sensor(bool isRealtime) { _isRealtime = isRealtime; }
-    virtual long    read(); // read instant sensor value out of calibration or processtime incretementation, or return 0 if non applicable
-    bool            isRealTime() { return _isRealtime; }
+    virtual float   read(); // read instant sensor value out of calibration or processtime incretementation, or return 0 if non applicable
+    bool            isRealTime() { return _isRealtime; } // if so get access to read() realtime raw data
 
   protected:
+
     bool    _isRealtime;
     void    _feed(vfield &field, float value, vlegend* data, int length)
     {
@@ -69,6 +71,7 @@ class Sensor
     }
 
   private:
+  
     struct    fields {}; // override these fields by inheritance in child class
     fields    _data; // override too
 };

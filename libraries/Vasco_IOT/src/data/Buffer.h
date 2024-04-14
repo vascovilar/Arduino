@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 #include "../interface/Data.h"
-#include "../data/Filter.h" // TODO vasco temp to test 
+#include "Filter.h" // TODO vasco temp to test 
 
 
 class Buffer : public Data, Filter
@@ -13,6 +13,7 @@ class Buffer : public Data, Filter
   static const byte _TMP_BUFFER_MAX_SIZE = 100;
   
   public:  
+
     float   history[_HISTORY_BUFFER_MAX_SIZE];   // last values stored
     long    timeline[_HISTORY_BUFFER_MAX_SIZE];  // last dates
     int     length;                              // real size of history
@@ -30,6 +31,7 @@ class Buffer : public Data, Filter
 
     
   private:
+  
     float   _buffer[_TMP_BUFFER_MAX_SIZE]; // last 100 values stored
     int     _bufferIndex = 0;
     int     _bufferLength = 0;

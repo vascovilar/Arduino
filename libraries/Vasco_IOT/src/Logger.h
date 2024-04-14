@@ -28,6 +28,7 @@ class Logger : public Run
   static const int DEFAULT_UPDATE_TIME = 1000;
 
   public:
+
     // interface
     bool    begin(vrun mode);
     bool    run();  
@@ -37,6 +38,7 @@ class Logger : public Run
     String  dump(int delay);
 
   private:
+  
     long    _timer = 0;
     void    _addHistory(String text);
     

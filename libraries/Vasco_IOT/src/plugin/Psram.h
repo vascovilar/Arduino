@@ -9,6 +9,7 @@ class Psram
   static const int  _PSRAM_SIZE = 4194304; // ESP32 wrover-B
 
   protected:
+  
     bool    _initPSRAM();
     
     template<typename T> 

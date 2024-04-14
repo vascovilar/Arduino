@@ -30,9 +30,10 @@
 class AH49E : public Device, public Sensor, public AdcPin
 {
   static const int  _ADC_MAX_VALUE = 4095;
-  static const int  _ADC_ZERO_VALUE = 1675;
+  static const int  _ADC_ZERO_VALUE = 1652;
 
   public:
+
     AH49E(byte pin) : Device(GAUSS_SENSOR), Sensor(true) { _analogPin = pin; }
     // interfaces
     bool    init();
@@ -40,11 +41,12 @@ class AH49E : public Device, public Sensor, public AdcPin
     bool    sleep();
     bool    check();
     bool    update();
-    long    read();
+    float   read();
     // data updated
     vfield  getMaxValue() { return _data.maxValue; }
 
   private:
+  
     byte    _analogPin;
     float   _maxValue = 0;
 

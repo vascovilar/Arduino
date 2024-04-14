@@ -33,6 +33,7 @@ class SEN0487 : public Device, public Sensor, public AdcPin
   static const int  _NOISE_THRESOLD_VALUE = 0.38;
 
   public:
+
     SEN0487(byte pin) : Device(MICROPHONE_SENSOR), Sensor(true) { _analogPin = pin; }
     // interfaces
     bool    init();
@@ -40,11 +41,12 @@ class SEN0487 : public Device, public Sensor, public AdcPin
     bool    sleep();
     bool    check();
     bool    update();
-    long    read();
+    float   read();
     // data updated
     vfield  getMaxValue() { return _data.maxValue; }
     
   private:
+  
     byte     _analogPin;
     float    _maxValue = 0;
      

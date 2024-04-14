@@ -37,6 +37,9 @@ bool Sequencer::run()
     case EVENT_TRIG:
       delay = LONG_UPDATE_TIME;
       break;
+    case CONTINUOUS:
+      delay = CONTINUOUS_UPDATE_TIME;
+      break;
     default:
       return false;
   }

@@ -3,9 +3,9 @@
  * 
  * Implementation:
  *
- *   #include <EMF.h>
+ *   #include <EMF001.h>
  *
- *   EMF emf(36); 
+ *   EMF001 emf(36); 
  *
  *   void setup() {
  *     emf.init();
@@ -16,8 +16,8 @@
  *   }
  */
 
-#ifndef EMF_h
-#define EMF_h
+#ifndef EMF001_h
+#define EMF001_h
 
 #include "Arduino.h"
 #include "interface/Device.h"
@@ -25,25 +25,27 @@
 #include "plugin/Pins.h"
 
 
-class EMF : public Device, public Sensor, public AdcPin
+class EMF001 : public Device, public Sensor, public AdcPin
 {  
   static const int  _ADC_MAX_VALUE = 4095;
   static const int  _ADC_ZERO_VALUE = 0;
 
   public:
-    EMF(byte pin) : Device(EMF_SENSOR), Sensor(true) { _analogPin = pin; }
+
+    EMF001(byte pin) : Device(EMF_SENSOR), Sensor(true) { _analogPin = pin; }
     // interfaces
     bool    init();
     bool    wake();
     bool    sleep();
     bool    check();
     bool    update(); 
-    long    read();
+    float   read();
     // data updated
     vfield  getMaxValue() { return _data.maxValue; }
     vfield  getFrequency() { return _data.frequency; }
 
   private:
+  
     byte    _analogPin;
     float   _maxValue = 0;
 
