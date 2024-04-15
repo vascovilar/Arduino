@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 
-static const byte VDEVICE_COUNT = 10;
+static const byte VDEVICE_COUNT = 12;
     
 enum vdevice {
   MICRO_CONTROLLER = 0,
@@ -16,17 +16,8 @@ enum vdevice {
   EMF_SENSOR = 7,
   GAMMA_SENSOR = 8,
   BUZZER = 9,
-};
-
-struct vpointer {
-  int   x;
-  int   y;
-  bool  focus;
-  bool  click;
-  bool  left;
-  bool  right;
-  bool  up;
-  bool  down;
+  POINTER = 10,
+  INERTIAL_UNIT = 11,
 };
 
 

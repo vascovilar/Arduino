@@ -2,8 +2,8 @@
 #define Sequencer_h
 
 #include "Arduino.h"
-#include "interface/Run.h"
-#include "interface/Device.h"
+#include "../interface/Run.h"
+#include "../interface/Device.h"
 
 
 class Sequencer : public Run
@@ -14,7 +14,8 @@ class Sequencer : public Run
     // interface
     bool    begin(vrun mode);
     bool    run();
-    // data updated
+    // additionnal updated data
+    int     isEnabled() { return _enabled; }
     int     getProcessedTime() { return _processedTime; }
     int     getProcessedChecks() { return _processedChecks; }
     int     getProcessedUpdates() { return _processedUpdates; }

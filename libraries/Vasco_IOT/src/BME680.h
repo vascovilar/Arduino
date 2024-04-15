@@ -63,7 +63,7 @@ class BME680 : public Device, public Sensor, public I2cPins
     struct fields {
       vfield   temperature = {"Température", "°C", 0.5};
       vfield   pressure = {"Pression", "mBar", 1.0}; 
-      vfield   humidity = {"Humidité", "%", 1.0};
+      vfield   humidity = {"Humidité", "%", 2.0};
       vfield   gasResistance = {"Resistivité air", "kOhm", 10000.0};
       vfield   airQuality = {"Qualité air", "", 10.0};
       vfield   co2Equivalent = {"Equivalent CO2", "ppm", 50.0};

@@ -26,10 +26,12 @@ bool Webserver::begin(vrun mode)
 
 bool Webserver::run()
 {
-  if (millis() - _timer > 10) {
+  if (millis() - _timer > _REFRESH_RATE) {
     _timer = millis();
     
     _server.handleClient();
+
+    // TODO vasco on client call increment something like processedTime and more ?
 
     return true;
   }

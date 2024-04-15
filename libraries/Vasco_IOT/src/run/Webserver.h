@@ -1,5 +1,6 @@
 /*
- * Web Server api
+ * Web Server (if wifi connected), return html pages over http on port 80
+ * 
  * Implementation:
  *
  *   #include "Webserver.h"
@@ -28,8 +29,11 @@
 
 static WebServer _server(80); // need to be global because called by lambda functions
 
+
 class Webserver : public Run
 {
+  static const int _REFRESH_RATE = 10;
+
   public:
   
     // interface

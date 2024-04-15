@@ -42,7 +42,7 @@ bool ST7789SD::check()
 
 bool ST7789SD::update()
 { 
-  return false;
+  return true;
 }
 
 void ST7789SD::clear()

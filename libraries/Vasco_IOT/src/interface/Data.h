@@ -18,6 +18,23 @@ enum vcolor {
   COLOR_TURQUOISE = 0x018387, 
 };
 
+struct vpointer {
+  int     x;
+  int     y;
+  bool    focus;
+  bool    click;
+  bool    left;
+  bool    right;
+  bool    up;
+  bool    down;
+};
+
+struct vcoord {
+  float   x;
+  float   y;
+  float   z;
+};
+
 
 class Data
 {

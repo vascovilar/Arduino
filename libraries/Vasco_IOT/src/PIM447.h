@@ -30,34 +30,36 @@
 #define PIM447_h
 
 #include "Arduino.h"
-#include "interface/Run.h"
+#include "interface/Device.h"
 #include "plugin/Pins.h"
 #include "interface/Data.h"
-#include "interface/Device.h"
 #include "interface/Sensor.h"
 #include "Wire.h"
 #include "pimoroniTrackball.h"
 
 
-class PIM447 : public Run, public I2cPins
+class PIM447 : public Device, public I2cPins
 {
   public:
 
-    PIM447(byte addr) { _i2cAddress = addr; }   
+    PIM447(byte addr) : Device(POINTER) { _i2cAddress = addr; }   
     // interface
-    bool     begin(vrun mode);
-    bool     run();
+    bool     init();
+    bool     wake();
+    bool     sleep();
+    bool     check();
+    bool     update();
+    // data updated
+    vpointer getPointer() { return vpointer {_x, _y, _focus, _click, _left, _right, _up, _down}; }
     // api
     void     led(int hex, byte brightness);
     void     led(vstatus code);
     void     setBoundary(int width, int height);
-    vpointer getPointer(); 
     void     setPointer(int x, int y);
     void     resetPointer();
 
   private:
   
-    long              _timer = 0;
     pimoroniTrackball _trackBall = pimoroniTrackball();
     byte              _i2cAddress;
     int               _width;

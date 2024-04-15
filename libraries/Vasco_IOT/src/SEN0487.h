@@ -52,7 +52,7 @@ class SEN0487 : public Device, public Sensor, public AdcPin
      
     // human readable
     struct fields {
-      vfield   maxValue = {"Intensité Sonore", "%", 2.0};
+      vfield   maxValue = {"Intensité Sonore", "%", 1.0};
     };
     fields _data;
 

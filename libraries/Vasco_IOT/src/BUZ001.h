@@ -37,7 +37,7 @@ class BUZ001 : public Device, public PwmPin
     bool    sleep();
     bool    check();
     bool    update();
-    // sounds
+    // sound api
     void    beep();
     void    notice();
     void    warning();

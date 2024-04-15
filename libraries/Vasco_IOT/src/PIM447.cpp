@@ -1,6 +1,6 @@
 #include "PIM447.h"
 
-bool PIM447::begin(vrun mode)
+bool PIM447::init()
 {
   if (_i2cAddress != 0x0A) {
     Serial.println(F("Error Pimoroni Trackball device use I2C address 0x0A"));
@@ -22,40 +22,46 @@ bool PIM447::begin(vrun mode)
   return true;
 }
 
-bool PIM447::run()
+bool PIM447::wake()
 {
-  if (millis() - _timer > 100) {
-    _timer = millis();
+  return true;
+}
 
-    if (_trackBall.changed()) {
-      int left = _trackBall.left();
-      int right = _trackBall.right();
-      int up = _trackBall.up();
-      int down = _trackBall.down();
-      // i.e. screen referential
-      _x = _x + (right - left);
-      if (_x < 0) _x = 0;
-      if (_x > _width) _x = _width;
-      _y = _y + (down - up);
-      if (_y < 0) _y = 0;
-      if (_y > _height) _y = _height;
-      // consider clicked when button released
-      _focus = _trackBall.click();
-      _click = _trackBall.release();
-      // direction for menu navigation
-      _left = left > right;
-      _right = right > left;
-      _up = up > down;
-      _down = down > up;
-  
-      return true;
-    }
-  }
+bool PIM447::sleep()
+{
+  return true;
+}
 
+bool PIM447::check()
+{
   return false;
+}
 
+bool PIM447::update()
+{
+  if (_trackBall.changed()) {
+    int left = _trackBall.left();
+    int right = _trackBall.right();
+    int up = _trackBall.up();
+    int down = _trackBall.down();
+    // i.e. screen referential
+    _x = _x + (right - left);
+    if (_x < 0) _x = 0;
+    if (_x > _width) _x = _width;
+    _y = _y + (down - up);
+    if (_y < 0) _y = 0;
+    if (_y > _height) _y = _height;
+    // consider clicked when button released
+    _focus = _trackBall.click();
+    _click = _trackBall.release();
+    // direction for menu navigation
+    _left = left > right;
+    _right = right > left;
+    _up = up > down;
+    _down = down > up;
 
-  
+    return true;
+  }
 
   return false;
 }
@@ -103,20 +109,6 @@ void PIM447::setBoundary(int width, int height)
   _height = height;
 
   resetPointer();
-}
-
-vpointer PIM447::getPointer()
-{
-  return vpointer {
-    _x,
-    _y, 
-    _focus, 
-    _click, 
-    _left, 
-    _right, 
-    _up, 
-    _down
-  };
 }
 
 void PIM447::setPointer(int x, int y)

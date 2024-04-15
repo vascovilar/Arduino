@@ -52,7 +52,7 @@ class AH49E : public Device, public Sensor, public AdcPin
 
     // human readable
     struct fields {
-      vfield   maxValue = {"Magnétisme", "%", 10.0};
+      vfield   maxValue = {"Magnétisme", "%", 1.0};
     };
     fields _data;
 

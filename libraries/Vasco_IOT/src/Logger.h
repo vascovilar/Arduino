@@ -39,7 +39,7 @@ class Logger : public Run
 
   private:
   
-    long    _timer = 0;
+    long    _timer = 0; // TODO vasco move in Run process
     void    _addHistory(String text);
     
     struct message {
