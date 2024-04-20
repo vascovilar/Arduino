@@ -1,10 +1,10 @@
 #include "Buffer.h"
 
 bool Buffer::push(float value, long timeStamp)
-{ 
+{
   _pushBuffer(value);
-  
-  if (millis() - _timer > delay) { 
+
+  if (millis() - _timer > delay) {
     _timer = millis();
     _pushHistory(_popBufferAverageValue(), timeStamp);
 
@@ -32,17 +32,17 @@ void Buffer::_pushHistory(float value, long timeStamp)
     if (i == 0) {
       history[i] = value;
       timeline[i] = timeStamp;
-      
+
     } else {
       history[i] = history[i-1];
       timeline[i] = timeline[i-1];
     }
 
-    if (history[i] > maximum) { 
-      maximum = history[i]; 
+    if (history[i] > maximum) {
+      maximum = history[i];
     }
-    if (history[i] < minimum) { 
-      minimum = history[i]; 
+    if (history[i] < minimum) {
+      minimum = history[i];
     }
     historyTotal += history[i];
 
@@ -53,28 +53,28 @@ void Buffer::_pushHistory(float value, long timeStamp)
   }
 
   // calc stats
-  average = (float) historyTotal / (float) length;
+  average = (float)historyTotal / (float)length;
   delta = maximum - minimum;
-  lastValuesAverage = (float) lastValuesTotal / 10.0;
+  lastValuesAverage = (float)lastValuesTotal / 10.0;
   trend = 0;
-  if (lastValuesAverage > average) { 
-    trend = 1; 
+  if (lastValuesAverage > average) {
+    trend = 1;
   }
-  if (lastValuesAverage < average) { 
-    trend = 2; 
+  if (lastValuesAverage < average) {
+    trend = 2;
   }
 }
 
 void Buffer::_pushBuffer(float value)
 {
-  // if there is 6 values: average on these 6 first, if 140 value: average on last 100 values
+  // if there is 6 values: average on these 6 first, if 140 value: average on (buffer max size) values
   _bufferLength++;
   if (_bufferLength >= _TMP_BUFFER_MAX_SIZE) {
     _bufferLength = _TMP_BUFFER_MAX_SIZE;
-  } 
+  }
 
   _buffer[_bufferIndex] = value;
-  
+
   _bufferIndex++;
   if (_bufferIndex >= _TMP_BUFFER_MAX_SIZE) {
     _bufferIndex = 0;
@@ -85,13 +85,13 @@ float Buffer::_popBufferAverageValue()
 {
   float bufferValuesTotal = 0;
   float bufferValuesAverage = 0;
-  
+
   for (int i = 0; i < _bufferLength; i++) {
     bufferValuesTotal += _buffer[i];
   }
-  
-  bufferValuesAverage = (float) bufferValuesTotal / (float) _bufferLength;
-  
+
+  bufferValuesAverage = (float)bufferValuesTotal / (float)_bufferLength;
+
   _bufferIndex = 0;
   _bufferLength = 0;
 

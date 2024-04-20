@@ -1,50 +1,83 @@
 #include "PA1010D.h"
 
+#define PMTK_SET_NMEA_FULL_POWER "$PMTK225,0*2B"
+
 bool PA1010D::init()
 {
   if (_i2cAddress != 0x10) {
     Serial.println(F("Error PA1010D device use I2C address 0x10"));
-    
+
     return false;
   }
 
   if (!_gps.begin(_i2cAddress)) {
     Serial.println(F("Error initializing I2C PA1010D device"));
-    
-    return false;
-  }    
 
-  // Turn on RMC (recommended minimum) and GGA (fix data) including altitude
-  _gps.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);  
+    return false;
+  }
+
+  // Configure GPS: Turn on RMC (minimum) and GGA (fix data) including altitude
+  _gps.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
   _gps.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ); // 1hz refresh rate
   _gps.sendCommand(PMTK_API_SET_FIX_CTL_1HZ);
   // Request updates on antenna status, comment out to keep quiet
   //_gps.sendCommand(PGCMD_ANTENNA);
-  //delay(1000);
-  
+
+  // TODO vasco why this makes GPS fail after reboot ?
   // Activate 'AlwaysLocate' mode (dynamic power consumption)
-  //_gps.sendCommand("$PMTK225,8*23"); // TODO vasco debug dynamic low consumption (making init fail) after $PMTK225,0*2B OR com:$PMTK225,9*22 ack:$PMTK001,225,3*35
+  /*
+  delay(1000);
+  _gps.sendCommand("$PMTK225,8*23");
+  if (_gps.read()) {
+    if (_gps.newNMEAreceived()) {
+      if (_gps.lastNMEA() != "$PMTK001,225,3*35") {
+        Serial.println(F("Failed to activate 'AlwaysLocate' mode"));
+      }
+    }
+  }
+  */
 
-  return true;
-
-}
-
-bool PA1010D::wake()
-{
   return true;
 }
 
 bool PA1010D::sleep()
-{ 
-  return true;
+{
+  if (_gps.standby()) {
+    //_gps.pause(true);
+
+    return true;
+  }
+
+  return false;
 }
 
-bool PA1010D::check() 
+bool PA1010D::wake()
 {
-  // TODO vasco move gps in update fct ?
-  char c = _gps.read();
+  //_gps.pause(false);
+  _gps.sendCommand("$PMTK225,0*2B");
+  _gps.read();
   if (_gps.newNMEAreceived()) {
-    _gps.parse(_gps.lastNMEA());
+    Serial.println(String(_gps.lastNMEA())); // TODO vasco remove println
+
+    return true;
+  }
+
+  return false;
+
+  /*if (_gps.wakeup()) { // TODO vasco why bloqued in waitForSentence function ?
+    return true;
+  }
+  return false;*/
+}
+
+bool PA1010D::check()
+{
+  // run as frequently as possible to empty NMEA device buffer avoiding device memory overflow
+  // 82 octet by NMEA sentence, 10 time per second = 820 octets
+  if (_gps.read()) {
+    if (_gps.newNMEAreceived()) {
+      _gps.parse(_gps.lastNMEA());
+    }
   }
 
   return false;
@@ -54,16 +87,16 @@ bool PA1010D::update()
 {
   _feed(_data.satellite, _gps.satellites, _satellites, 5);
   _feed(_data.fixQuality, _gps.fixquality, _fixQualities, 3);
-  _feed(_data.latitude, _gps.latitudeDegrees, _latitudes, 1);
-  _feed(_data.longitude, _gps.longitudeDegrees, _longitudes, 1);
   _feed(_data.altitude, _gps.altitude, _altitudes, 1);
   _feed(_data.speed, _convertToKmH(_gps.speed), _speeds, 1);
-  _feed(_data.directionAngle, _gps.angle, _directionAngles, 1);
-  _feed(_data.compassAngle, _gps.magvariation, _compassAngles, 1);
-
+  _data.latitude = _gps.latitude;
+  _data.longitude = _gps.longitude;
   _data.dateTime = _convertToDateTime(_gps.year, _gps.month, _gps.day, _gps.hour, _gps.minute, _gps.seconds);
   _data.latCardinal = _gps.lat;
   _data.longCardinal = _gps.lon;
+  _data.isoLabel = String(_data.latitude, 7) + " " + _data.latCardinal + "," + String(_data.longitude, 7) + " " + _data.longCardinal;
+  _data.compassAngle = _gps.magvariation;
+  _data.directionAngle = _gps.angle;
 
   return true;
 }

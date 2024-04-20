@@ -1,20 +1,20 @@
 /*
  * Read BMI160 6DoF inertial sensor with I2C transport. Inherit from the Intel's CurieIMU driver
- * Ref: https://github.com/EmotiBit/EmotiBit_BMI160/tree/master 
+ * Ref: https://github.com/EmotiBit/EmotiBit_BMI160/tree/master
  * Pin: https://github.com/hanyazou/BMI160-Arduino/issues/2
  * Doc: https://docs.arduino.cc/retired/archived-libraries/CurieIMU/
- * 
+ *
  * Implementation:
  *
  *   #include <BMI160X.h>
  *
- *   BMI160X gyro(0x68); 
+ *   BMI160X gyro(0x68);
  *   int gxRaw, gyRaw, gzRaw;
  *
  *   void setup() {
  *     gyro.init();
  *   }
- * 
+ *
  *   void loop() {
  *     gyro.readGyro(gxRaw, gyRaw, gzRaw);
  *     Serial.println(gxRaw);
@@ -31,7 +31,7 @@
 #include "CurieIMU.h"
 #include "Wire.h"
 
-class BMI160X : public CurieIMUClass, public Device, public I2cPins
+class BMI160X : public Device, public CurieIMUClass, public I2cPins
 {
   public:
 
@@ -39,13 +39,12 @@ class BMI160X : public CurieIMUClass, public Device, public I2cPins
     static const int _ACCELEROMETER_RATE = 100; // values: 12.5, 25, 50, 100, 200, 400, 800, 1600 (Hz)
     static const int _GYROSCOPE_RANGE = 250; // values: 125, 250, 500, 1000, 2000 (degrees/second)
     static const int _ACCELEROMETER_RANGE = 2; // values: 2, 4, 8, 16 (G)
-    
 
     BMI160X(byte addr) : Device(INERTIAL_UNIT) { _i2cAddress = addr; }
     // interfaces
     bool    init();
-    bool    wake();
     bool    sleep();
+    bool    wake();
     bool    check();
     bool    update();
     // curie class serial transport override
@@ -55,7 +54,7 @@ class BMI160X : public CurieIMUClass, public Device, public I2cPins
     vcoord  getGyroscope() { return vcoord {_gx, _gy, _gz}; } // in milli-degree / second
     vcoord  getAccelerometer() { return vcoord {_ax, _ay, _az}; } // in milli G
     float   getTemperature() { return _temperature; }
-    
+
     /*
     // TODO vasco: continue implemting CurieIMU
     bool    shockDetected(int axis, int direction); // X_AXIS Y_AXIS Z_AXIS
@@ -66,7 +65,7 @@ class BMI160X : public CurieIMUClass, public Device, public I2cPins
 
   private:
 
-    byte    _i2cAddress; 
+    byte    _i2cAddress;
     float   _gx;
     float   _gy;
     float   _gz;
@@ -75,7 +74,7 @@ class BMI160X : public CurieIMUClass, public Device, public I2cPins
     float   _az;
     float   _temperature;
     float   _convertRawMotion(int raw, int range);
-    float   _convertToCelcius(int raw); 
+    float   _convertToCelcius(int raw);
 
 };
 

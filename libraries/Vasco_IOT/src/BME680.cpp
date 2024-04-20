@@ -4,7 +4,7 @@ bool BME680::init()
 {
   if (_i2cAddress != 0x76 && _i2cAddress != 0x77) {
     Serial.println(F("Error BME680 device use I2C address 0x76 or 0x77"));
-    
+
     return false;
   }
 
@@ -25,14 +25,19 @@ bool BME680::init()
     BSEC_OUTPUT_GAS_PERCENTAGE
   };
   _iaq.updateSubscription(sensorList, 13, BSEC_SAMPLE_RATE_LP);
-  
+
   if (!_iaq.run()) {
     _checkIaqSensorStatus();
     Serial.println(F("Error initializing I2C BME680 device"));
-    
+
     return false;
   }
 
+  return true;
+}
+
+bool BME680::sleep()
+{
   return true;
 }
 
@@ -41,15 +46,10 @@ bool BME680::wake()
   return true;
 }
 
-bool BME680::sleep()
-{ 
-  return true;
-}
-
-bool BME680::check() 
+bool BME680::check()
 {
-  // must call run every 3s or less, else air mesure never works. BSEC_SAMPLE_RATE_LP is 3s. BSEC_SAMPLE_RATE_ULP is 300s
-  _iaq.run(); 
+  // run every 3s or less, else air mesure takes 5 min to be available. BSEC_SAMPLE_RATE_LP is 3s. BSEC_SAMPLE_RATE_ULP is 300s
+  _iaq.run();
 
   return false;
 }
@@ -60,7 +60,7 @@ bool BME680::update()
   _feed(_data.pressure, _convertToMilliBar(_iaq.pressure), _pressures, 10);
   _feed(_data.humidity, _iaq.humidity, _humidities, 6);
   _feed(_data.iaqAccuracy, _iaq.staticIaqAccuracy, _iaqAccuracies, 4);
-  
+
   if (_iaq.stabStatus == 1 && _iaq.staticIaqAccuracy > 0) {
     _feed(_data.gasResistance, _convertToKiloOhm(_iaq.gasResistance), _gasResistances, 1);
     _feed(_data.airQuality, _iaq.staticIaq, _airQualities, 8);

@@ -12,7 +12,7 @@
 #include "PIM447.h"
 #include "BMI160X.h"
 
-#include "run/Container.h"
+#include "Container.h"
 #include "run/Sequencer.h"
 #include "run/Webserver.h"
 #include "data/Buffer.h"
@@ -30,6 +30,7 @@ AH49E         hall(35);
 PIM447        trackball(0x0A);
 BMI160X       imu(0x68);
 
+// TODO vasco in container
 Sequencer     deviceESP(esp);
 Sequencer     deviceBUZ(buzzer);
 Sequencer     deviceTFT(tft);
@@ -41,20 +42,20 @@ Sequencer     deviceGPS(gps);
 Sequencer     deviceHall(hall);
 Sequencer     devicePointer(trackball);
 Sequencer     deviceIMU(imu);
-Webserver     server;
-
 Buffer        graph[VSENSOR_COUNT];
+
+Webserver     server;
 Html          html;
 Container     container;
 
-bool          error = false;
-int           screenMagnitude = 4095; 
+
+
 
 void setup()
 {
   Serial.begin(115200);
   delay(1000);
-  Serial.println("***********************************************************************************");  
+  Serial.println("***********************************************************************************");
 
   //Wire.begin(21, 22);
   //SPI.begin();
@@ -62,14 +63,15 @@ void setup()
 
 
 
+
 /*
-  container.add(buzzer);
+  container.add(buzzer);COLOR_WHITE
 
   Serial.println("device code: " + String(container.go1()));
   Serial.println("device init: " + String((container.go2() ? "true": "false")));
   container.go3();
 
-  //while(true); 
+  //while(true);
 */
 
 
@@ -77,9 +79,11 @@ void setup()
 
 
   // -----------------------------------------------------
-  // devices
+  // Init: devices
   // -----------------------------------------------------
 
+  // TODO vasco in container
+  bool error = false;
   if (!deviceESP.begin(LOW_REFRESH)) error = true;
   if (!deviceBUZ.begin(LOW_REFRESH)) error = true;
   if (!deviceTFT.begin(LOW_REFRESH)) error = true;
@@ -90,63 +94,74 @@ void setup()
   if (!deviceGPS.begin(LOW_REFRESH)) error = true;
   if (!deviceHall.begin(LOW_REFRESH)) error = true;
   if (!devicePointer.begin(CONTINUOUS)) error = true;
-  if (!deviceIMU.begin(HIGH_REFRESH)) error = true;
-  
-  Serial.println("Devices: initialized");
+  if (!deviceIMU.begin(LOW_REFRESH)) error = true;
 
+  Serial.print("\nDevices initialization..."); 
+  if (!error) {
+    Serial.println("OK");
+  } else {
+    Serial.println("Fail !");
+  }
+  // TODO vasco in container
   for (int field = 0; field < VSENSOR_COUNT; field++) {
     graph[field] = Buffer();
   }
-  delay(1000);
+  delay(500);
 
   // -----------------------------------------------------
-  // wifi 
+  // Init: wifi
   // -----------------------------------------------------
-  
+
   //int lenght = esp.getWifiAccessPoints();
   //Serial.println("bornes: " + String(lenght));
   //for (int i = 0; i < lenght; i++) {
   //  Serial.println(esp.getWifiAccessPointInfo(i));
   //}
-   
+
   Serial.print("Connecting to Wifi... ");
   if (esp.connectWifi()) {
     Serial.println("OK");
-    Serial.println("Sync dateTime from Internet " + esp.getDateTime());
-    esp.led(true);
-    Serial.println("LED: check blue led");
+    Serial.println("- sync dateTime from Internet: " + esp.getDateTime());
   } else {
     error = true;
     Serial.println("failed !");
   }
-  delay(1000);
-
-  //if (esp.disconnectWifi()) {
-  //  esp.led(false);
-  //}
+  delay(500);
 
   // -----------------------------------------------------
-  // webserver
+  // Init: webserver
   // -----------------------------------------------------
 
-  server.onHtml("/", [](){ return html.handleHomePage(3000); });
+  Serial.print("Initializing webserver..."); 
+  server.onHtml("/", [](){ return html.handleHomePage(10000); }); // TODO vasco get delay from container
   for (int field = 0; field < VSENSOR_COUNT; field++) {
     server.onHtml("/sensor/" + String(field) + ".svg", [field](){ return html.handleHistorySvgGraph(getSensor((vsensor) field), graph[field]); });
   }
   //server.onHtml("/sensors", [](){ return getAllSensorsTable(); });
   //server.onHtml("/logger", [](){ return esp.getDateTime() + "  " + logger.dump(SHORT_REFRESH_RATE); });
   if (server.begin(CONTINUOUS)) {
-    Serial.println("Webserver: listening on port 80, go http://" + esp.getIP());
+    Serial.println("OK");
+    Serial.println("- listening port 80, go: http://" + esp.getIP());
   } else {
     error = true;
-    Serial.println("Webserver: can't start");
+    Serial.println("failed");
   }
-  delay(1000);
+  delay(500);
 
   // -----------------------------------------------------
-  // Trackball
+  // Test: Led
   // -----------------------------------------------------
-  
+
+  if (deviceESP.isEnabled()) {
+    esp.led(true);
+    Serial.println("Led: check esp blue led");
+    delay(500);
+  }
+
+  // -----------------------------------------------------
+  // Test: Trackball
+  // -----------------------------------------------------
+
   if (devicePointer.isEnabled()) {
     Serial.println("Trackball: check led colors and screen cursor");
     trackball.setBoundary(240, 135);
@@ -155,40 +170,43 @@ void setup()
     trackball.led(COLOR_ORANGE, 0); Serial.print(" orange"); delay(1000);
     trackball.led(COLOR_RED, 0); Serial.print(" red"); delay(1000);
     trackball.led(COLOR_VIOLET, 0); Serial.println(" violet"); delay(1000);
-    trackball.led(COLOR_BLACK, 0); 
-    delay(1000);
-  } 
-  // -----------------------------------------------------
-  // tft
-  // -----------------------------------------------------
-  
-  if (deviceTFT.isEnabled()) {
-    Serial.println("Screen: check diplay, fade out after beep");
-    tft.light(screenMagnitude);
-    tft.title("Bonjour !", 0, 0, COLOR_WHITE);
-    tft.text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", 0, 20, COLOR_GREY);
-    delay(1000);
+    trackball.led(COLOR_BLACK, 0);
+    delay(500);
   }
-  
-  // -----------------------------------------------------
-  // sd
-  // -----------------------------------------------------
-
-  //tft.listFiles(); 
 
   // -----------------------------------------------------
-  // EEPROM & PSRAM
+  // Test: TFT
   // -----------------------------------------------------
-  
+
+  if (deviceTFT.isEnabled()) {
+    Serial.println("Screen: check diplay, fade out when program loops");
+    tft.clear();
+    tft.led(4095);
+    tft.title("IOT #3", 0, 0, COLOR_GREY);
+    tft.text("http://" + esp.getIP(), 0, 17, COLOR_WHITE);
+    tft.text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat.", 0, 30, COLOR_GREY);
+    delay(500);
+  }
+
+  // -----------------------------------------------------
+  // Test: SD
+  // -----------------------------------------------------
+
+  //tft.listFiles();
+
+  // -----------------------------------------------------
+  // Test: EEPROM & PSRAM
+  // -----------------------------------------------------
+
   //esp.getEepromTest(); // warning destroys rom in using it, keep commented
   esp.getPsramTest();
-  delay(1000);
+  delay(500);
 
   // -----------------------------------------------------
-  // realtime sensors calibration
+  // Test: realtime sensors calibration
   // -----------------------------------------------------
 
-  Serial.println("Instant snapshot for calibration:");
+  Serial.println("Calibration:");
   Serial.print("- EMF zero: ");
   calibrate(EMF_LEVEL);
   Serial.print("- Hall zero: ");
@@ -197,37 +215,30 @@ void setup()
   calibrate(EAR_LEVEL);
   Serial.print("- Light zero: ");
   calibrate(VISIBLE);
-  delay(1000);
+  delay(500);
 
   // -----------------------------------------------------
-  // buzzer
+  // Test: buzzer
   // -----------------------------------------------------
-  
-  Serial.println("Buzzer: listen to beep");
+
+  Serial.println("Buzzer: beep once\n");
   buzzer.warning();
-  delay(1000);
+  delay(500);
 
   // -----------------------------------------------------
-  Serial.println("Tests " + String(error ? "failed !": "OK") + "\n");
+  esp.led(4095, 0, 5000);
+  tft.led(4095, 0, 5000);
 }
 
 
 
 
-void loop() 
+void loop()
 {
-  if (server.run()) {
-  }
+  // TODO vasco in container
 
-  if (devicePointer.run()) {
-    vpointer pointer = trackball.getPointer();
-    tft.point(pointer.x, pointer.y, COLOR_WHITE);
-    //Serial.println("+Trackball: " + String(devicePointer.getProcessedTime()) + "ms (" + String(devicePointer.getProcessedChecks()) + ")");
-  }
-  
-  if (deviceESP.run()) {
-    setBuffer(MEMORY_USED);
-    //Serial.println("+ESP: " + String(deviceESP.getProcessedTime()) + "ms (" + String(deviceESP.getProcessedChecks()) + ")");
+  if (server.run()) {
+    //Serial.println("+Webserver: " + String(server.getProcessedTime()) + "ms"int);
   }
 
   if (deviceBUZ.run()) {
@@ -235,13 +246,16 @@ void loop()
   }
 
   if (deviceTFT.run()) {
-    if (screenMagnitude > 0) {
-      screenMagnitude = screenMagnitude - 900;
-      if (screenMagnitude < 0) screenMagnitude = 0;
-      tft.light(screenMagnitude);
-      Serial.println("Decreasing screen backlight (" + String(screenMagnitude) + ")");
-    }
     //Serial.println("+TFT: " + String(deviceTFT.getProcessedTime()) + "ms (" + String(deviceTFT.getProcessedChecks()) + ")");
+  }
+
+  if (devicePointer.run()) {
+    // write pixel in screen
+    vpointer pointer = trackball.getPointer();
+    tft.point(pointer.x, pointer.y, COLOR_WHITE);
+    // screen saver
+    tft.led(4095, 0, 20000);
+    //Serial.println("+Trackball: " + String(devicePointer.getProcessedTime()) + "ms (" + String(devicePointer.getProcessedChecks()) + ")");
   }
 
   if (deviceEMF.run()) {
@@ -252,6 +266,7 @@ void loop()
   if (deviceLight.run()) {
     setBuffer(UV_INDEX);
     setBuffer(VISIBLE);
+    //Serial.println("UVS:" + String(light.getUvIndex().value) + " ALS:" + String(light.getVisible().value));
     //Serial.println("+Light: " + String(deviceLight.getProcessedTime()) + "ms (" + String(deviceLight.getProcessedChecks()) + ")");
   }
 
@@ -267,22 +282,19 @@ void loop()
     setBuffer(AIR_QUALITY);
     setBuffer(GAS_PERCENTAGE);
     //Serial.println("+Air: " + String(deviceAir.getProcessedTime()) + "ms (" + String(deviceAir.getProcessedChecks()) + ")");
-
-    // set color on trackball if one status > JAUNE
-    vstatus limit = GRIS;
-    for (int i = 0; i < VSENSOR_COUNT; i++) {
-      vfield value = getSensor((vsensor) i);
-      if ((int) value.status > limit) limit = value.status;
-    }
-    if (limit > JAUNE) {
-      trackball.led(limit);
-    } else {
-      trackball.led(0, 0);
-    }
   }
 
   if (deviceGPS.run()) {
     setBuffer(ALTITUDE);
+    /*
+    tft.clear();
+    tft.title("GPS", 0, 0, COLOR_GREY);
+    tft.text(String(gps.getDateTime()), 0, 20, COLOR_WHITE);
+    tft.text("sat: " + String(gps.getSatellite().value), 0, 30, COLOR_WHITE);
+    tft.text("fix: " + String(gps.getFixQuality().text), 0, 40, COLOR_WHITE);
+    tft.text("lat: " + String(gps.getLatitude(), 7), 0, 60, COLOR_WHITE);
+    tft.text("lon: " + String(gps.getLongitude(), 7), 0, 50, COLOR_WHITE);
+    */
     //Serial.println("+GPS: " + String(deviceGPS.getProcessedTime()) + "ms (" + String(deviceGPS.getProcessedChecks()) + ")");
   }
 
@@ -297,11 +309,33 @@ void loop()
     Serial.print(String(coord.x) + ", " + String(coord.y) + ", " + String(coord.z) + "    ");
     */
     //Serial.println("+IMU: " + String(deviceIMU.getProcessedTime()) + "ms (" + String(deviceIMU.getProcessedChecks()) + ")");
-  } 
+  }
+
+  if (deviceESP.run()) {
+    setBuffer(MEMORY_USED);
+    setBuffer(RUN_CYCLES); // TODO vasco get data from global Container
+    //Serial.println("+ESP: " + String(deviceESP.getProcessedTime()) + "ms (" + String(deviceESP.getProcessedChecks()) + ")");
+
+    /*
+    // EVENT manager to do: set color on trackball if one status > JAUNE
+    vstatus limit = GRIS;
+    for (int i = 0; i < VSENSOR_COUNT; i++) {
+      vfield value = getSensor((vsensor) i);
+      if ((int) value.status > limit) limit = value.status;
+    }
+    if (limit > JAUNE) {
+      trackball.led(limit);
+    } else {
+      trackball.led(0, 0);
+    }
+    */
+  }
 }
 
 
-// program subroutines
+
+
+// TODO vasco in container
 
 vfield getSensor(vsensor code)
 {
@@ -337,36 +371,45 @@ vfield getSensor(vsensor code)
       break;
     case ALTITUDE:
       data = gps.getAltitude();
-      break;  
+      break;
     case MEMORY_USED:
       data = esp.getMemoryUsed();
-      break; 
+      break;
+    case RUN_CYCLES:
+      // TODO vasco get data from global Container
+      data = (vfield) {"Cycles programme", "/s", 10.0, (float)deviceESP.getProcessedChecks() / (float)(deviceESP.getCurrentDelay() / 1000), VERT};
+      break;
     case GAUSS_LEVEL:
       data = hall.getMaxValue();
-      break;   
+      break;
   }
 
   return data;
 }
 
+// TODO vasco in container
+
 void setBuffer(vsensor code)
 {
   vfield sensor = getSensor(code);
   if (sensor.status > GRIS) {
-    graph[(int) code].push(sensor.value, esp.getTimeStamp());
+    graph[(int)code].push(sensor.value, esp.getTimeStamp());
   }
 }
+
+// program subroutines
 
 void calibrate(vsensor code)
 {
   long value = 0;
   long total = 0;
-  
-  for (int i = 0; i < 100; i++) {
+  int  length = 100;
+
+  for (int i = 0; i < length; i++) {
     switch (code) {
       case EMF_LEVEL:
         value = emf.read();
-        break;      
+        break;
       case GAUSS_LEVEL:
         value = hall.read();
         break;
@@ -376,14 +419,13 @@ void calibrate(vsensor code)
       case VISIBLE:
         value = light.read();
         break;
+      default:
+
+        return;
     }
-    value = value * 1000;
-    value = graph[0].smoothe(value, 7);
-    value = graph[0].maximume(value, 10); 
-    value = graph[0].inertiae(value,10);
-    total += value / 1000;
+    total += value;
     delay(10);
   }
 
-  Serial.println(String(total / 100));
+  Serial.println(String(total / length));
 }

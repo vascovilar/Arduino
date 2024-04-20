@@ -4,12 +4,12 @@
  *
  *   #include <Logger.h>
  *
- *   Logger log; 
+ *   Logger log;
  *
  *   void setup() {
  *     log.begin();
  *   }
- * 
+ *
  *   void loop() {
  *     log.println("test");
  *     delay(1000);
@@ -25,23 +25,23 @@
 
 class Logger : public Run
 {
-  static const int DEFAULT_UPDATE_TIME = 1000;
+  static const int _DEFAULT_UPDATE_TIME = 1000;
 
   public:
 
     // interface
     bool    begin(vrun mode);
-    bool    run();  
+    bool    run();
     // api
     void    println(String text);
     void    print(String text);
     String  dump(int delay);
 
   private:
-  
+
     long    _timer = 0; // TODO vasco move in Run process
     void    _addHistory(String text);
-    
+
     struct message {
       long    time;
       String  text;

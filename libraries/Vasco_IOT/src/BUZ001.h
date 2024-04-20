@@ -1,5 +1,5 @@
 /*
- * Simple custom piezo disk driver 
+ * Simple custom piezo disk driver
  *
  * Implementation:
  *
@@ -19,7 +19,7 @@
 #ifndef BUZ001_h
 #define BUZ001_h
 
-#include "Arduino.h" 
+#include "Arduino.h"
 #include "interface/Device.h"
 #include "plugin/Pins.h"
 
@@ -33,8 +33,8 @@ class BUZ001 : public Device, public PwmPin
     BUZ001(byte pin) : Device(BUZZER) { _pwmPin = pin; }
     // interfaces
     bool    init();
-    bool    wake();
     bool    sleep();
+    bool    wake();
     bool    check();
     bool    update();
     // sound api
@@ -48,7 +48,7 @@ class BUZ001 : public Device, public PwmPin
     void    isabel();
 
   private:
-  
+
     byte    _pwmPin;
     void    _note(byte octave, int milliHertz, int milliSeconds);
     void    _silence(int milliSeconds);
@@ -80,8 +80,8 @@ class BUZ001 : public Device, public PwmPin
     };
 
     enum vsilence_time {
-      BATON_DE_PAUSE = 667, 
-      PAUSE = 333, 
+      BATON_DE_PAUSE = 667,
+      PAUSE = 333,
       DEMI_PAUSE = 166,
       SOUPIR = 83,
       DEMI_SOUPIR = 41,

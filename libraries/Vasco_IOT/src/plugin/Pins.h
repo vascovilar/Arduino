@@ -15,9 +15,9 @@ class I2cPins
 class SpiPins
 {
   // ESP32 Harware default 4 wire SPI. Speeder if not modified
-  static const byte _SPI_MOSI_PIN = 23; 
-  static const byte _SPI_MISO_PIN = 19;  
-  static const byte _SPI_CLK_PIN = 18;  
+  static const byte _SPI_MOSI_PIN = 23;
+  static const byte _SPI_MISO_PIN = 19;
+  static const byte _SPI_CLK_PIN = 18;
   static const byte _SPI_CS_PIN = 5;
 };
 
@@ -29,10 +29,10 @@ class AdcPin
 
   protected:
 
-    bool    _initADC(byte attachedPin, bool isAmplified, float maxAnalogValue, float zeroAnalogValue); 
-    int     _rawADC(); 
+    bool    _initADC(byte attachedPin, bool isAmplified, float maxAnalogValue, float zeroAnalogValue);
+    int     _rawADC();
     float   _readADC();
-    float   _readADCFrequency(); 
+    float   _readADCFrequency();
 
   private:
 
@@ -43,21 +43,28 @@ class AdcPin
 };
 
 
-class PwmPin 
+class PwmPin
 {
   static const byte _PWM_CHANNEL = 0; // override with device value in child class
-  
+  static const int _LED_FADEOUT_DELAY = 10;
+
   protected:
 
     bool    _initPWM(byte attachedPin, byte channel);
-    void    _ledPWM(int magnitude); // 0~255
     void    _ledPWM(bool onOrOff);
-    void    _tonePWM(int frequency); 
-    
+    void    _ledPWM(int magnitude); // 0~4095
+    void    _ledPWM(int from, int to, int duration);
+    void    _updateLedPMW();
+    void    _tonePWM(int frequency);
+
   private:
-  
+
     byte    _attachedPin;
     byte    _channel;
+    int     _fadeOutMagnitude = 0;
+    float   _fadeOutIncrement = 0;
+    long    _fadeOutTimer = 0;
+
 };
 
 #endif

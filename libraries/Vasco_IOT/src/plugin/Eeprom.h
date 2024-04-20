@@ -5,10 +5,8 @@
 #include "EEPROM.h"
 
 
-static const byte VEMORY_SIZE = 16;
-
 enum vmemory_index {
-  ROM_BYTE_1 = 0,
+  ROM_BYTE_1 = 0, // 1 byte long
   ROM_BYTE_2 = 1,
   ROM_BYTE_3 = 2,
   ROM_BYTE_4 = 3,
@@ -16,8 +14,10 @@ enum vmemory_index {
   ROM_BYTE_6 = 5,
   ROM_BYTE_7 = 6,
   ROM_BYTE_8 = 7,
-  ROM_FLOAT_1 = 8,
-  ROM_FLOAT_2 = 12,
+  ROM_LONG_1 = 8, // 4 byte long
+  ROM_LAST_EVENT_TIME = 12,
+  ROM_PASSWORD_COUNT = 16, // 1 byte long
+  ROM_PASSWORDS_RAW = 17, // 32 bytes long per password
 };
 
 
@@ -29,24 +29,31 @@ class Eeprom
 
     bool    _initEEPROM();
     bool    _getEepromFlag(vmemory_index index, int boolSlot); // 8 booleans in one octet, slots from 1 to 8
-    bool    _setEepromFlag(vmemory_index index, bool* boolSlots); // send 8 values in array for one octet
+    void    _setEepromFlag(vmemory_index index, bool* boolSlots); // send 8 values in array for one octet
+    char*   _getPassword(byte index);
+    void    _setPassword(byte index, char* password);
 
-    template<typename T> 
-    void    _readEEPROM(vmemory_index index, T &value)
+    template<typename T>
+    void    _readEEPROM(int index, T &value)
     {
-      EEPROM.get((int)index, value);
+      EEPROM.get(index, value);
     }
 
-    template<typename T> 
-    void    _writeEEPROM(vmemory_index index, T &value)
+    template<typename T>
+    void    _writeEEPROM(int index, T &value)
     {
+      if ((sizeof(T) + index) > _EEPROM_SIZE) {
+        Serial.println(F("Error: EEPROM memory is full"));
+
+        return;
+      }
       T oldValue = 0;
-      EEPROM.get((int)index, oldValue);
+      EEPROM.get(index, oldValue);
       if (value != oldValue) {
-        EEPROM.put((int)index, value);
+        EEPROM.put(index, value);
         EEPROM.commit();
       }
-    }    
+    }
 };
 
 #endif

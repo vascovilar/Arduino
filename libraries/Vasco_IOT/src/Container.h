@@ -2,9 +2,9 @@
 #define Container_h
 
 #include "Arduino.h"
-#include "../interface/Run.h"
-#include "../interface/Device.h"
-#include "../run/Sequencer.h"
+#include "interface/Run.h"
+#include "interface/Device.h"
+#include "run/Sequencer.h"
 
 
 class Container : public Run
@@ -19,14 +19,14 @@ class Container : public Run
     // test
     int     go1();
     bool    go2();
-    void    go3();    
+    void    go3();
 
   private:
 
     Device*     _instance[VDEVICE_COUNT];
     Sequencer*  _sequencer[VDEVICE_COUNT];
     int         _index = 0;
-    
+
 };
 
 #endif

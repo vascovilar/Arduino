@@ -1,6 +1,6 @@
 /*
  * Web Server (if wifi connected), return html pages over http on port 80
- * 
+ *
  * Implementation:
  *
  *   #include "Webserver.h"
@@ -32,13 +32,17 @@ static WebServer _server(80); // need to be global because called by lambda func
 
 class Webserver : public Run
 {
-  static const int _REFRESH_RATE = 10;
+  static const int _AWARE_REFRESH_RATE = 10;
+  static const int _LAZY_REFRESH_RATE = 1000;
 
   public:
-  
+
     // interface
     bool    begin(vrun mode);
     bool    run();
+    // additionnal updated data // TODO vasco add this in Run interface now
+    int     isEnabled() { return _enabled; }
+    int     getProcessedTime() { return _processedTime; }
     // api (config before calling begin function)
     void    onHtml(const String &uri, std::function<String()> callHtml);
     void    onHtml(const String &uri, std::function<String(int)> callHtml);
@@ -48,10 +52,14 @@ class Webserver : public Run
     void    onJpg(const String &uri, std::function<File(int)> callFile);
     void    onCommand(const String &uri, std::function<void()> callCommand);
     void    onCommand(const String &uri, std::function<void(int)> callCommand);
-    
+
   private:
-  
-    long _timer = 0;
+
+    bool    _enabled = false;
+    int     _processedTime = 0;
+    long    _timer = 0;
+    long    _timeBuffer = 0;
+
 };
 
 #endif

@@ -2,17 +2,17 @@
  * Read uv index and visible light with Adafruit LTR390
  * Ref: https://learn.adafruit.com/adafruit-ltr390-uv-sensor/overview-2
  * Doc: https://optoelectronics.liteon.com/upload/download/DS86-2015-0004/LTR-390UV_Final_%20DS_V1%201.pdf
- * 
+ *
  * Implementation:
  *
  *   #include <LTR390.h>
  *
- *   LTR390 light(0x53); 
+ *   LTR390 light(0x53);
  *
  *   void setup() {
  *     light.init();
  *   }
- * 
+ *
  *   void loop() {
  *     Serial.println(light.getUvIndex().value);
  *   }
@@ -36,8 +36,8 @@ class LTR390 : public Device, public Sensor, public I2cPins
     LTR390(byte addr) : Device(LIGHT_SENSOR), Sensor(true) { _i2cAddress = addr; }
     // interfaces
     bool    init();
-    bool    wake();
     bool    sleep();
+    bool    wake();
     bool    check();
     bool    update();
     float   read();
@@ -46,16 +46,17 @@ class LTR390 : public Device, public Sensor, public I2cPins
     vfield  getVisible() { return _data.visible; }
 
   private:
-  
+
     Adafruit_LTR390 _ltr = Adafruit_LTR390();
     byte    _i2cAddress;
-    float   _maxValue = 0;
+    float   _maxValueBuffer = 0;
     float   _convertToLux(float visible);
-    
-    // human readable
+    float   _convertToIndexUV(float(uvs));
+
+    // human readable buffer. Updated by udpate function
     struct fields {
       vfield   uvIndex = {"Index UV", "", 1.0};
-      vfield   visible = {"Lumière visible", "lux", 10.0};
+      vfield   visible = {"Lumière ambiante", "lux", 10.0};
     };
     fields _data;
 

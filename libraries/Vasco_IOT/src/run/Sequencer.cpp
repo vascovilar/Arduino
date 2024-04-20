@@ -1,12 +1,12 @@
-#include "Sequencer.h" 
+#include "Sequencer.h"
 
-bool Sequencer::begin(vrun mode) 
+bool Sequencer::begin(vrun mode)
 {
   if (! _enabled) {
     _enabled = child.init();
-  } 
+  }
   if (_enabled) {
-    if (mode == SLEEPING) {  
+    if (mode == SLEEPING) {
       if (child.sleep()) {
         _processMode = SLEEPING;
       }
@@ -17,7 +17,7 @@ bool Sequencer::begin(vrun mode)
     } else {
       _processMode = mode;
     }
-  } 
+  }
 
   return _enabled;
 }
@@ -25,46 +25,47 @@ bool Sequencer::begin(vrun mode)
 bool Sequencer::run()
 {
   long time = esp_timer_get_time();
-  int delay;
 
   switch (_processMode) {
     case LOW_REFRESH:
-      delay = LONG_UPDATE_TIME;
+      _currentDelay = LONG_UPDATE_TIME;
       break;
     case HIGH_REFRESH:
-      delay = SHORT_UPDATE_TIME;
+    case SLEEPING:
+      _currentDelay = SHORT_UPDATE_TIME;
       break;
     case EVENT_TRIG:
-      delay = LONG_UPDATE_TIME;
+      _currentDelay = LONG_UPDATE_TIME;
       break;
     case CONTINUOUS:
-      delay = CONTINUOUS_UPDATE_TIME;
+      _currentDelay = CONTINUOUS_UPDATE_TIME;
       break;
     default:
+
       return false;
   }
 
   if (child.check() && _processMode == EVENT_TRIG) {
-    delay = 0;
+    _currentDelay = 0;
   }
-  _checks++;
+  _checksBuffer++;
 
-  if (millis() - _timer >= delay) {
-    _updates++;
-    _timer = millis();
+  if (millis() - _timer >= _currentDelay) {
+    _updatesBuffer++;
+    _timer = millis(); // reset timer
     if (child.update()) {
-      _processedTime = _time / 1000;
-      _processedChecks = _checks;
-      _processedUpdates = _updates;
-      _time = 0;
-      _checks = 0;
-      _updates = 0;
+      _processedTime = _timeBuffer / 1000;
+      _processedChecks = _checksBuffer;
+      _processedUpdates = _updatesBuffer;
+      _timeBuffer = 0;
+      _checksBuffer = 0;
+      _updatesBuffer = 0;
 
       return true;
     }
   }
 
-  _time += esp_timer_get_time() - time;
+  _timeBuffer += esp_timer_get_time() - time;
 
   return false;
 }

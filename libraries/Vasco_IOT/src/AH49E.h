@@ -2,17 +2,17 @@
  * Read data on AH49E hall sensor
  * Ref: https://www.gotronic.fr/pj2-sen-ky035-manual-1934.pdf
  * Doc: https://www.diodes.com/assets/Datasheets/AH49E.pdf
- * 
+ *
  * Implementation:
  *
  *   #include <AH49E.h>
  *
- *   AH49E gauss(35); 
+ *   AH49E gauss(35);
  *
  *   void setup() {
  *     gauss.init();
  *   }
- * 
+ *
  *   void loop() {
  *     Serial.println(gauss.getMaxValue().value);
  *   }
@@ -37,8 +37,8 @@ class AH49E : public Device, public Sensor, public AdcPin
     AH49E(byte pin) : Device(GAUSS_SENSOR), Sensor(true) { _analogPin = pin; }
     // interfaces
     bool    init();
-    bool    wake();
     bool    sleep();
+    bool    wake();
     bool    check();
     bool    update();
     float   read();
@@ -46,13 +46,13 @@ class AH49E : public Device, public Sensor, public AdcPin
     vfield  getMaxValue() { return _data.maxValue; }
 
   private:
-  
-    byte    _analogPin;
-    float   _maxValue = 0;
 
-    // human readable
+    byte    _analogPin;
+    float   _maxValueBuffer = 0;
+
+    // human readable buffer. Updated by udpate function
     struct fields {
-      vfield   maxValue = {"Magnétisme", "%", 1.0};
+      vfield   maxValue = {"Champ magnétique", "%", 1.0};
     };
     fields _data;
 

@@ -1,17 +1,18 @@
 #include "Pins.h"
 
-bool AdcPin::_initADC(byte attachedPin, bool isAmplified, float maxAnalogValue, float zeroAnalogValue) 
+bool AdcPin::_initADC(byte attachedPin, bool isAmplified, float maxAnalogValue, float zeroAnalogValue)
 {
   if (!(attachedPin >= 32 && attachedPin <= 39)) {
-    Serial.println(F("You must use ADC1 (pin 32 to 39) in order to work with ESP32. ADC2 is used by Wifi."));
+    Serial.println(F("You must use ADC1 (pin 32 to 39) in order to work with ESP32. ADC2 is already used by Wifi"));
+
     return false;
   }
-  
+
   _attachedPin = attachedPin;
   _isAmplified = isAmplified;
   _maxAnalogValue = maxAnalogValue;
   _zeroAnalogValue = zeroAnalogValue;
-  
+
   pinMode(_attachedPin, INPUT);
   analogReadResolution(12); // 4096 values
   analogSetPinAttenuation(_attachedPin, _isAmplified ? ADC_0db: ADC_11db);
@@ -24,7 +25,7 @@ int AdcPin::_rawADC()
   return analogRead(_attachedPin);
 }
 
-float AdcPin::_readADC() 
+float AdcPin::_readADC()
 {
   int value = _rawADC();
 
@@ -33,7 +34,7 @@ float AdcPin::_readADC()
   value = value - _zeroAnalogValue;
 
   // signed % returned
-  return ((float) value / (float) (_maxAnalogValue - _zeroAnalogValue)) * 100;
+  return ((float)value / (float)(_maxAnalogValue - _zeroAnalogValue)) * 100;
 }
 
 float AdcPin::_readADCFrequency()
@@ -55,17 +56,16 @@ float AdcPin::_readADCFrequency()
     }
   }
 
-  return beat != 0 ? 1000.0 / ((float) (millis() - time) / (float) beat): 0;    
+  return beat != 0 ? 1000.0 / ((float)(millis() - time) / (float)beat): 0;
 }
 
-bool PwmPin::_initPWM(byte attachedPin, byte channel) 
+bool PwmPin::_initPWM(byte attachedPin, byte channel)
 {
-  if ((attachedPin >= 0 && attachedPin <= 5) // TODO vasco not in array 
-    || (attachedPin >= 12 && attachedPin <= 15)
-    || (attachedPin >= 18 && attachedPin <= 19)
+  // ESP 32
+  if ((attachedPin >= 0 && attachedPin <= 19)
     || (attachedPin >= 21 && attachedPin <= 23)
     || (attachedPin >= 25 && attachedPin <= 27)
-    || (attachedPin >= 32 && attachedPin <= 33)
+    || (attachedPin >= 32 && attachedPin <= 39)
   ) {
     _attachedPin = attachedPin;
     _channel = channel;
@@ -77,27 +77,51 @@ bool PwmPin::_initPWM(byte attachedPin, byte channel)
     return true;
   }
 
-  Serial.println(F("You must use PWM pins in order to work with ESP32."));
-  
+  Serial.println(F("You must use PWM pins in order to work with ESP32"));
+
   return false;
 }
-
-void PwmPin::_ledPWM(int magnitude) // 0~4096
-{
-  if (magnitude > 4096) {
-    Serial.println(F("LED magnitude is too big, use values between 0 and 4095"));
-  }
-  analogWrite(_attachedPin, magnitude); 
-  }
 
 void PwmPin::_ledPWM(bool onOrOff)
 {
   pinMode(_attachedPin, OUTPUT);
-  digitalWrite(_attachedPin, (int) onOrOff);
+  digitalWrite(_attachedPin, (int)onOrOff);
 }
 
-void PwmPin::_tonePWM(int frequency) 
+void PwmPin::_ledPWM(int magnitude) // 0~4096
+{
+  if (magnitude > 4096 || magnitude < 0) {
+    Serial.println(F("Use LED magnitude values only between 0 and 4095"));
+  }
+  analogWrite(_attachedPin, magnitude);
+}
+
+void PwmPin::_ledPWM(int from, int to, int duration)
+{
+  // led fadeout start
+  _ledPWM(from);
+  _fadeOutMagnitude = from;
+  _fadeOutIncrement = (float)(from - to) / (float)(duration / _LED_FADEOUT_DELAY);
+  _fadeOutTimer = millis();
+}
+
+void PwmPin::_updateLedPMW()
+{
+  // led fadeout update
+  if (_fadeOutIncrement != 0) {
+  if (millis() - _fadeOutTimer > _LED_FADEOUT_DELAY) {
+      _fadeOutTimer = millis(); // reset timer
+      _fadeOutMagnitude -= _fadeOutIncrement;
+      if (_fadeOutMagnitude <= 0) {
+        _fadeOutMagnitude = 0;
+        _fadeOutIncrement = 0;
+      }
+      _ledPWM(_fadeOutMagnitude);
+    }
+  }
+}
+
+void PwmPin::_tonePWM(int frequency)
 {
   ledcWriteTone(_channel, frequency);
 }
-

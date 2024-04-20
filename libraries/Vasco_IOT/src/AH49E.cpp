@@ -3,13 +3,27 @@
 bool AH49E::init()
 {
   if (!_initADC(_analogPin, false, _ADC_MAX_VALUE, _ADC_ZERO_VALUE)) {
-    Serial.println(F("Error initializing analog EMF device"));
-    
+    Serial.println(F("Error initializing analog AH49E device"));
+
     return false;
   }
 
   pinMode(26, OUTPUT);
   digitalWrite(26, HIGH);
+
+  delay(500);
+  if (_rawADC() == 0) {
+    Serial.println(F("Error AH49E device not responding"));
+
+    return false;
+  }
+
+  return true;
+}
+
+bool AH49E::sleep()
+{
+  digitalWrite(26, LOW);
 
   return true;
 }
@@ -17,31 +31,24 @@ bool AH49E::init()
 bool AH49E::wake()
 {
   digitalWrite(26, HIGH);
-  
-  return true;
-}
 
-bool AH49E::sleep()
-{ 
-  digitalWrite(26, LOW);
-  
   return true;
 }
 
 bool AH49E::check()
 {
   float value = _readADC();
-  if (value > _maxValue) {
-    _maxValue = value;
+  if (value > _maxValueBuffer) {
+    _maxValueBuffer = value;
   }
   // detecting anything
-  return _maxValue > 0;
+  return _maxValueBuffer > 0;
 }
 
 bool AH49E::update()
 {
-  _feed(_data.maxValue, _maxValue, _maxValues, 5);
-  _maxValue = 0;
+  _feed(_data.maxValue, _maxValueBuffer, _maxValues, 5);
+  _maxValueBuffer = 0;
 
   return true;
 }

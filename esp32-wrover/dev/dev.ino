@@ -19,7 +19,7 @@
 
 
 // instanciations come here
-
+SEN0487       ear(34);
 
 
 
@@ -39,7 +39,7 @@ void setup()
   // TODO
   // -----------------------------------------------------
 
-  
+  ear.init();
 
   // -----------------------------------------------------
 }
@@ -53,8 +53,15 @@ void loop()
   // -----------------------------------------------------
   // TODO
   // -----------------------------------------------------
+  
+  ear.update();
+  Serial.println(String("1700," + String(ear.read()) + ",1740"));
 
-
+  /*
+  imu.update();
+  vcoord coord = imu.getGyroscope();
+  Serial.println(String(coord.x) + "," + String(coord.y) + "," + String(coord.z));
+  */
 
   // -----------------------------------------------------
   //Serial.print(String((millis() - timer)) + "ms");

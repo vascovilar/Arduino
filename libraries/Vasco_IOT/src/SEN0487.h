@@ -2,17 +2,17 @@
  * Read ambiant sound level with DFRobot SEN0487
  * Ref: https://wiki.dfrobot.com/Fermion_MEMS_Microphone_Sensor_SKU_SEN0487
  * Doc: https://dfimg.dfrobot.com/nobody/wiki/5160bfe4d49deff484e1bd66a44d743a.pdf
- * 
+ *
  * Implementation:
  *
  *   #include <SEN0487.h>
  *
- *   SEN0487 ear(39); 
+ *   SEN0487 ear(39);
  *
  *   void setup() {
  *     ear.init();
  *   }
- * 
+ *
  *   void loop() {
  *     Serial.println(ear.getMaxValue().value);
  *   }
@@ -27,9 +27,9 @@
 #include "plugin/Pins.h"
 
 class SEN0487 : public Device, public Sensor, public AdcPin
-{  
+{
   static const int  _ADC_MAX_VALUE = 4000;
-  static const int  _ADC_ZERO_VALUE = 1638;
+  static const int  _ADC_ZERO_VALUE = 1723;
   static const int  _NOISE_THRESOLD_VALUE = 0.38;
 
   public:
@@ -37,20 +37,20 @@ class SEN0487 : public Device, public Sensor, public AdcPin
     SEN0487(byte pin) : Device(MICROPHONE_SENSOR), Sensor(true) { _analogPin = pin; }
     // interfaces
     bool    init();
-    bool    wake();
     bool    sleep();
+    bool    wake();
     bool    check();
     bool    update();
     float   read();
     // data updated
     vfield  getMaxValue() { return _data.maxValue; }
-    
+
   private:
-  
+
     byte     _analogPin;
-    float    _maxValue = 0;
-     
-    // human readable
+    float    _maxValueBuffer = 0;
+
+    // human readable buffer. Updated by udpate function
     struct fields {
       vfield   maxValue = {"Intensité Sonore", "%", 1.0};
     };

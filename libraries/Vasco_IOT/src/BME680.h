@@ -2,12 +2,12 @@
  * Read data on BME680 meteo device from Adafruit
  * Ref: https://learn.adafruit.com/adafruit-bme680-humidity-temperature-barometic-pressure-voc-gas
  * Doc: https://cdn-shop.adafruit.com/product-files/3660/BME680.pdf
- * 
+ *
  * Implementation:
  *
  *   #include <BME680.h>
  *
- *   Air meteo(0); 
+ *   Air meteo(0);
  *
  *   void setup() {
  *     meteo.init();
@@ -35,11 +35,11 @@ class BME680 : public Device, public Sensor, public I2cPins
     BME680(byte addr) : Device(METEO_SENSOR), Sensor(false) { _i2cAddress = addr; }
     // interfaces
     bool    init();
-    bool    wake();
     bool    sleep();
+    bool    wake();
     bool    check();
     bool    update();
-    float   read();   
+    float   read();
     // data updated
     vfield  getTemperature() { return _data.temperature; }
     vfield  getPressure() { return _data.pressure; }
@@ -50,20 +50,20 @@ class BME680 : public Device, public Sensor, public I2cPins
     vfield  getVocEquivalent() { return _data.vocEquivalent; }
     vfield  getGasPercentage() { return _data.gasPercentage; }
     vfield  getIaqAccuracy() { return _data.iaqAccuracy; }
-    
+
   private:
-  
-    Bsec    _iaq; //  = Bsec(); TODO vasco try
+
+    Bsec    _iaq = Bsec();
     byte    _i2cAddress;
     void    _checkIaqSensorStatus();
     float   _convertToMilliBar(float pressure);
     float   _convertToKiloOhm(float resistance);
-    
-    // human readable
+
+    // human readable buffer. Updated by udpate function
     struct fields {
-      vfield   temperature = {"Température", "°C", 0.5};
-      vfield   pressure = {"Pression", "mBar", 1.0}; 
-      vfield   humidity = {"Humidité", "%", 2.0};
+      vfield   temperature = {"Température", "°C", 1.0};
+      vfield   pressure = {"Pression", "mBar", 1.0};
+      vfield   humidity = {"Humidité", "%", 5.0};
       vfield   gasResistance = {"Resistivité air", "kOhm", 10000.0};
       vfield   airQuality = {"Qualité air", "", 10.0};
       vfield   co2Equivalent = {"Equivalent CO2", "ppm", 50.0};
@@ -81,7 +81,7 @@ class BME680 : public Device, public Sensor, public I2cPins
       {35, ORANGE, "très chaud"},
       {85, ROUGE, "trop chaud"},
     };
-    
+
     vlegend _pressures[10] = {
       {920, VIOLET, "ouragan classe 5"},
       {944, VIOLET, "ouragan classe 4"},
@@ -94,7 +94,7 @@ class BME680 : public Device, public Sensor, public I2cPins
       {1050, JAUNE, "très sec"},
       {10000, ORANGE, "hyperbare"},
     };
-    
+
     vlegend _humidities[6] = {
       {10, VIOLET, "dangereux"},
       {20, ROUGE, "sec"},
@@ -103,7 +103,7 @@ class BME680 : public Device, public Sensor, public I2cPins
       {90, ORANGE, "très humide"},
       {100, ROUGE, "tropical"},
     };
-    
+
     vlegend _gasResistances[1] = {
       {0, VERT, "ok"},
     };

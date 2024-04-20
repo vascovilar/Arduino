@@ -9,7 +9,7 @@ bool Logger::begin(vrun mode)
 
 bool Logger::run()
 {
-  if (millis() - _timer > DEFAULT_UPDATE_TIME) {
+  if (millis() - _timer > _DEFAULT_UPDATE_TIME) {
     _timer = millis();
 
     return true;
@@ -43,7 +43,7 @@ String Logger::dump(int delay)
   return text;
 }
 
-void Logger::_addHistory(String text) 
+void Logger::_addHistory(String text)
 {
   // fifo = push value in buffer by sliding others from end to start index
   for (int i = 20 - 1; i >= 0; i--) {

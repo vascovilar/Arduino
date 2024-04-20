@@ -19,7 +19,7 @@ void Container::add(Device &device)
 
 int Container::go1()
 {
-  return (int) _instance[_index]->getDeviceCode();
+  return (int)_instance[_index]->getDeviceCode();
 }
 
 bool Container::go2()
@@ -32,13 +32,12 @@ void Container::go3()
   Serial.println("device list:");
   for (int i = 0; i < VDEVICE_COUNT; i++) {
     if(_instance[i]) {
-      Serial.println("- " + String(i) + " OK");  
-    } 
+      Serial.println("- " + String(i) + " OK");
+    }
   }
 }
 
 
 /* device.beep();
   Serial.println("beep ?");
-}*/ 
-
+}*/

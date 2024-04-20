@@ -3,31 +3,29 @@
 bool PIM447::init()
 {
   if (_i2cAddress != 0x0A) {
-    Serial.println(F("Error Pimoroni Trackball device use I2C address 0x0A"));
-    
+    Serial.println(F("Error PIM447 device use I2C address 0x0A"));
+
     return false;
   }
 
   _trackBall.begin(_i2cAddress, Wire);
   if(!_trackBall.isConnected()) {
-    Serial.println(F("Error initializing I2C Pimoroni Trackball device"));
+    Serial.println(F("Error initializing I2C PIM447 device"));
 
     return false;
   }
 
   resetPointer();
 
-  // TODO vasco change delay 100 in fct of mode
-
-  return true;
-}
-
-bool PIM447::wake()
-{
   return true;
 }
 
 bool PIM447::sleep()
+{
+  return true;
+}
+
+bool PIM447::wake()
 {
   return true;
 }
@@ -96,7 +94,7 @@ void PIM447::led(vstatus code)
       color = COLOR_RED;
       break;
     case VIOLET:
-      color = COLOR_VIOLET;          
+      color = COLOR_VIOLET;
       break;
   }
   led(color, 0);

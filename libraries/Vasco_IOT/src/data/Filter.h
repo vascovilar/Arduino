@@ -11,15 +11,15 @@ class Filter : public Data
 
   protected:
 
-    // needed for precision, map function is only integers 
-    int     _isometric(float value, float maximum, float minimum, int height, int offset);
+    // needed for precision, map function is only integers
+    float   _isometric(float value, float maximum, float minimum, int height, int offset);
     // iterators to smooth graphs
     float   _smooth(float value, int factor);
-    float   _maximum(float value, int factor); 
-    float   _inertia(float value, int factor); 
+    float   _maximum(float value, int factor);
+    float   _inertia(float value, int factor);
 
   private:
-  
+
     float   _smoothBuffer[_BUFFER_MAX_SIZE];
     int     _smoothIndex = 0;
     float   _smoothTotal = 0;

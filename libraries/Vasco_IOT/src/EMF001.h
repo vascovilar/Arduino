@@ -1,16 +1,16 @@
 /*
  * Read electro-magnetic field level with custom sensor (15cm antenna with 10Mohm pulldown resistance on VP pin)
- * 
+ *
  * Implementation:
  *
  *   #include <EMF001.h>
  *
- *   EMF001 emf(36); 
+ *   EMF001 emf(36);
  *
  *   void setup() {
  *     emf.init();
  *   }
- * 
+ *
  *   void loop() {
  *     Serial.println(emf.getMaxValue().value);
  *   }
@@ -26,7 +26,7 @@
 
 
 class EMF001 : public Device, public Sensor, public AdcPin
-{  
+{
   static const int  _ADC_MAX_VALUE = 4095;
   static const int  _ADC_ZERO_VALUE = 0;
 
@@ -35,23 +35,23 @@ class EMF001 : public Device, public Sensor, public AdcPin
     EMF001(byte pin) : Device(EMF_SENSOR), Sensor(true) { _analogPin = pin; }
     // interfaces
     bool    init();
-    bool    wake();
     bool    sleep();
+    bool    wake();
     bool    check();
-    bool    update(); 
+    bool    update();
     float   read();
     // data updated
     vfield  getMaxValue() { return _data.maxValue; }
     vfield  getFrequency() { return _data.frequency; }
 
   private:
-  
-    byte    _analogPin;
-    float   _maxValue = 0;
 
-    // human readable
+    byte    _analogPin;
+    float   _maxValueBuffer = 0;
+
+    // human readable buffer. Updated by udpate function
     struct fields {
-      vfield   maxValue = {"Intensité EMF", "%", 1.0};
+      vfield   maxValue = {"Intensité EMF", "%", 2.0};
       vfield   frequency = {"Fréquence EMF", "Hz", 10.0};
     };
     fields _data;
@@ -63,7 +63,7 @@ class EMF001 : public Device, public Sensor, public AdcPin
       {80, ORANGE, "champ fort"},
       {100, ROUGE, "champ maximum"},
     };
-    
+
     vlegend _frequencies[2] = {
         {0, VERT, "non detectée"},
         {40000, VERT, ""},

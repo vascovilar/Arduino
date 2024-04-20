@@ -1,13 +1,14 @@
 #include "ST7789SD.h"
 
 bool ST7789SD::init()
-{  
+{
   // SPI tft device
   _tft.init(135, 240);
-  _tft.setRotation(1); // TODO vasco set to 3 when device will be finally assembled 
+  _tft.setRotation(3); // set to 3 when device will be finally assembled
   _tft.fillScreen(convert(COLOR_BLACK));
-  
-  // TODO vasco: urgent fix SD card
+  delay(1000);
+
+  // TODO vasco: urgent fix SD card ? or device dead ?
   /*
   // SPI SD card device
   if(!_sd.begin(_sdcdPin, SD_SCK_MHZ(10))) { // Breakouts require 10 MHz limit due to longer wires
@@ -15,13 +16,18 @@ bool ST7789SD::init()
     return false;
   }*/
 
-  // backlight 
+  // backlight
   if (!_initPWM(_litPin, _PWM_CHANNEL)) {
     Serial.println(F("Backlight init failed"));
-    
-    return false;    
+
+    return false;
   }
 
+  return true;
+}
+
+bool ST7789SD::sleep()
+{
   return true;
 }
 
@@ -30,18 +36,16 @@ bool ST7789SD::wake()
   return true;
 }
 
-bool ST7789SD::sleep()
-{ 
-  return true;
-}
-
 bool ST7789SD::check()
-{ 
+{
+  // led fadeout
+  _updateLedPMW();
+
   return false;
 }
 
 bool ST7789SD::update()
-{ 
+{
   return true;
 }
 
@@ -50,9 +54,14 @@ void ST7789SD::clear()
   _tft.fillScreen(convert(COLOR_BLACK));
 }
 
-void ST7789SD::light(int magnitude)
+void ST7789SD::led(int magnitude)
 {
   _ledPWM(magnitude);
+}
+
+void ST7789SD::led(int from, int to, int duration)
+{
+  _ledPWM(from, to, duration);
 }
 
 void ST7789SD::title(String text, int x, int y, int color)
@@ -87,10 +96,10 @@ int ST7789SD::convert(int hexadecimal)
 }
 
 int ST7789SD::convert(String html)
-{  
+{
   html = html.substring(1); // remove first # symbol
   byte len = html.length() + 1; // with one extra character for the null terminator
-  
+
   char str[len];
   char *ptr;
   html.toCharArray(str, len);

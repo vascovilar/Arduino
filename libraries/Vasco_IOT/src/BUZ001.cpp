@@ -3,11 +3,16 @@
 bool BUZ001::init()
 {
   if (!_initPWM(_pwmPin, _PWM_CHANNEL)) {
-    Serial.println(F("Error initializing BUZ001 device"));
-    
+    Serial.println(F("Error initializing analog BUZ001 device"));
+
     return false;
   }
-  
+
+  return true;
+}
+
+bool BUZ001::sleep()
+{
   return true;
 }
 
@@ -16,18 +21,13 @@ bool BUZ001::wake()
   return true;
 }
 
-bool BUZ001::sleep()
-{ 
-  return true;
-}
-
 bool BUZ001::check()
-{ 
+{
   return false;
 }
 
 bool BUZ001::update()
-{ 
+{
   return false;
 }
 
@@ -68,7 +68,7 @@ void BUZ001::close()
 void BUZ001::modem()
 {
   for (int i; i< 40; i++) {
-    _note((int) random(4), (int) random(1000000), DOUBLE_CROCHE);
+    _note((int)random(4), (int)random(1000000), DOUBLE_CROCHE);
   }
 }
 
@@ -79,25 +79,25 @@ void BUZ001::isabel()
     2, DO, CROCHE, DEMI_PAUSE,
     2, DO, CROCHE, DEMI_PAUSE,
     2, RE, CROCHE, DEMI_PAUSE,
-    2, MI, NOIRE, DEMI_PAUSE,    
+    2, MI, NOIRE, DEMI_PAUSE,
     2, RE, NOIRE, DEMI_PAUSE,
     2, DO, NOIRE, DEMI_PAUSE,
     2, MI, NOIRE, DEMI_PAUSE,
     2, RE, NOIRE, DEMI_PAUSE,
     2, RE, NOIRE, DEMI_PAUSE,
-    2, DO, BLANCHE, DEMI_PAUSE    
+    2, DO, BLANCHE, DEMI_PAUSE
   };
   for (int i = 0; i < 44; i+=4) {
-    _note(music[i], music[i+1], music[i+2]); 
-    _silence(music[i+3]);  
+    _note(music[i], music[i+1], music[i+2]);
+    _silence(music[i+3]);
   }
 }
 
 void BUZ001::_note(byte octave, int milliHertz, int milliSeconds)
 {
-  float frequencyInHerz = (float) (pow(2, octave) * milliHertz) / 1000.0;
+  float frequencyInHerz = (float)(pow(2, octave) * milliHertz) / 1000.0;
 
-  _tonePWM((int) frequencyInHerz);
+  _tonePWM((int)frequencyInHerz);
   delay(milliSeconds);
   _silence(0);
 }
@@ -107,4 +107,3 @@ void BUZ001::_silence(int milliSeconds)
   _tonePWM(0);
   delay(milliSeconds);
 }
-
