@@ -78,7 +78,7 @@ int BMI160X::ss_xfer(uint8_t *buf, unsigned tx_cnt, unsigned rx_cnt)
     Wire.write(*p++);
   }
   if( Wire.endTransmission() != 0 ) {
-      Serial.println(F("Error: Wire.endTransmission() for BMI160 failed.")); // TODO vasco if connexion sucks, this line repeats
+      Serial.println(F("Error: Wire.endTransmission() for BMI160 failed."));
   }
   if (0 < rx_cnt) {
     Wire.requestFrom(_i2cAddress, rx_cnt);

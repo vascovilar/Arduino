@@ -8,7 +8,7 @@
  *
  *   #include <ESP32X.h>
  *
- *   ESP32X esp;
+ *   ESP32X esp;modified
  *
  *   void setup() {
  *     esp.init();
@@ -60,7 +60,7 @@ class ESP32X : public Device, public Sensor, public PwmPin, public Psram, public
     String  getIP() { return _getIpWIFI(); }
     long    getTimeStamp() { return _getTimeStampRTC(); }
     String  getDateTime() { return _getDateTimeRTC(); }
-    // testing proxy
+    // TODO vasco tmp testing proxy
     void    getPsramTest();
     void    getEepromTest();
 

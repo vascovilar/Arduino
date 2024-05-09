@@ -28,17 +28,17 @@ bool Sequencer::run()
 
   switch (_processMode) {
     case LOW_REFRESH:
-      _currentDelay = LONG_UPDATE_TIME;
+      _currentDelay = VDELAY_LONG_UPDATE;
       break;
     case HIGH_REFRESH:
     case SLEEPING:
-      _currentDelay = SHORT_UPDATE_TIME;
+      _currentDelay = VDELAY_SHORT_UPDATE;
       break;
     case EVENT_TRIG:
-      _currentDelay = LONG_UPDATE_TIME;
+      _currentDelay = VDELAY_LONG_UPDATE;
       break;
     case CONTINUOUS:
-      _currentDelay = CONTINUOUS_UPDATE_TIME;
+      _currentDelay = VDELAY_CONTINUOUS_UPDATE;
       break;
     default:
 

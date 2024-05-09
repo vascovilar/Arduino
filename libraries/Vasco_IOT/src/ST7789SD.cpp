@@ -8,7 +8,7 @@ bool ST7789SD::init()
   _tft.fillScreen(convert(COLOR_BLACK));
   delay(1000);
 
-  // TODO vasco: urgent fix SD card ? or device dead ?
+  // TODO vasco: fix SD card ? or device dead ?
   /*
   // SPI SD card device
   if(!_sd.begin(_sdcdPin, SD_SCK_MHZ(10))) { // Breakouts require 10 MHz limit due to longer wires

@@ -1,10 +1,5 @@
 #include "Filter.h"
 
-float Filter::_isometric(float value, float maximum, float minimum, int height, int offset)
-{
-  return (1 - ((float)(value - minimum) / (float)(maximum - minimum))) * height + offset;
-}
-
 float Filter::_smooth(float value, int factor)
 {
   if (factor >= _BUFFER_MAX_SIZE) {

@@ -41,14 +41,13 @@ bool SEN0487::check()
   if (value > _maxValueBuffer) {
     _maxValueBuffer = value;
   }
-
   // detecting anything over noise level
   return _maxValueBuffer > _NOISE_THRESOLD_VALUE;
 }
 
 bool SEN0487::update()
 {
-  _feed(_data.maxValue, _maxValueBuffer, _maxValues, 6);
+  _feed(_data.maxValue, _smooth(_maxValueBuffer, 7), _maxValues, 6);
   _maxValueBuffer = 0;
 
   return true;

@@ -52,14 +52,14 @@ bool ESP32X::update()
   _feed(_data.memoryUsed, _maxValueBuffer, _memories, 3); // not 532480.0 free ! Only have 320Ko in runtime memory
   _maxValueBuffer = 0;
 
-  _data.psRamUsed = (1 - ((float)ESP.getFreePsram() / 4194304.0)) * 100; // readed on SPI channel 3, or use new esp_psram_get_size()
+  _data.psRamUsed = (1 - (ESP.getFreePsram() / 4194304.0)) * 100; // readed on SPI channel 3, or use new esp_psram_get_size()
 
   return true;
 }
 
 float ESP32X::read()
 {
-  return (1 - ((float)ESP.getFreeHeap() / 327680.0)) * 100;
+  return (1 - (ESP.getFreeHeap() / 327680.0)) * 100;
 }
 
 void ESP32X::led(bool status)
@@ -83,7 +83,7 @@ void ESP32X::getPsramTest()
   _bindPSRAM(tab, 500000); // instead of inline: tab = (byte *) ps_malloc(500000);
 
   tab[10000] = 21;
-  Serial.println("PSRAM test:"); // TODO vasco remove println
+  Serial.println("PSRAM test:");
   Serial.print("- value must be 21, " + String(tab[10000]) + " found\n");
 
   _freePSRAM(tab);
@@ -96,7 +96,7 @@ void ESP32X::getEepromTest()
   _writeEEPROM(ROM_BYTE_1, variable1);
   byte value = 0;
   _readEEPROM(ROM_BYTE_1, value);
-  Serial.println("EEPROM test:"); // TODO vasco remove println
+  Serial.println("EEPROM test:");
   Serial.print("- value must be 204, " + String(value) + " found\n");
 
   bool variable2[8] = {

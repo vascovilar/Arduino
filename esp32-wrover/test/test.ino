@@ -96,7 +96,7 @@ void setup()
   if (!devicePointer.begin(CONTINUOUS)) error = true;
   if (!deviceIMU.begin(LOW_REFRESH)) error = true;
 
-  Serial.print("\nDevices initialization..."); 
+  Serial.print("Devices initialization..."); 
   if (!error) {
     Serial.println("OK");
   } else {
@@ -147,7 +147,7 @@ void setup()
     Serial.println("failed");
   }
   delay(500);
-
+/*
   // -----------------------------------------------------
   // Test: Led
   // -----------------------------------------------------
@@ -216,18 +216,19 @@ void setup()
   Serial.print("- Light zero: ");
   calibrate(VISIBLE);
   delay(500);
-
+*/
   // -----------------------------------------------------
   // Test: buzzer
   // -----------------------------------------------------
 
-  Serial.println("Buzzer: beep once\n");
+  Serial.println("Buzzer: beep once");
   buzzer.warning();
   delay(500);
 
   // -----------------------------------------------------
   esp.led(4095, 0, 5000);
   tft.led(4095, 0, 5000);
+  Serial.println("");
 }
 
 

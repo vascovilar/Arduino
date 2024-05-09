@@ -4,17 +4,17 @@
 #include "Arduino.h"
 #include "../interface/Data.h"
 
+
 class Buffer : public Data
 {
-  static const int  _HISTORY_BUFFER_MAX_SIZE = 240;
   static const byte _TMP_BUFFER_MAX_SIZE = 60;
 
   public:
 
-    float   history[_HISTORY_BUFFER_MAX_SIZE];   // last values stored
-    long    timeline[_HISTORY_BUFFER_MAX_SIZE];  // last dates
+    float   history[VHISTORY_MAX_SIZE];   // last values stored
+    long    timeline[VHISTORY_MAX_SIZE];  // last dates
     int     length;                              // real size of history
-    int     delay = DELAY_TO_PUSH_TO_HISTORY;
+    int     delay = VHISTORY_PUSH_DELAY;
     float   minimum;
     float   maximum;
     float   average;

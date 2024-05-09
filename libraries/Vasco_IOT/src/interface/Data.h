@@ -3,7 +3,8 @@
 
 #include "Arduino.h"
 
-static const int  DELAY_TO_PUSH_TO_HISTORY = 1000; // 180000 = 3 min means 240 mesures = 12h
+static const int  VHISTORY_PUSH_DELAY = 90000; // 180000 = 3 min means 240 mesures = 12h
+static const int  VHISTORY_MAX_SIZE = 240;
 
 static const byte VCOLOR_COUNT = 9;
 
@@ -37,12 +38,12 @@ struct vcoord {
   float   z;
 };
 
+// TODO vasco add graphic structures text, lines, circles, arrow, big ..
+
 
 class Data
 {
-// TODO vasco add array structure value, history, array data
-// TODO vasco add graphic structures text, lines, circles, arrow, big ..
-// TODO vasco match champs et devices a placer dans un DataSensors
+
 };
 
 #endif

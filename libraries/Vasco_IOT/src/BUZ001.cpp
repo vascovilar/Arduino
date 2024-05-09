@@ -95,7 +95,7 @@ void BUZ001::isabel()
 
 void BUZ001::_note(byte octave, int milliHertz, int milliSeconds)
 {
-  float frequencyInHerz = (float)(pow(2, octave) * milliHertz) / 1000.0;
+  float frequencyInHerz = (pow(2, octave) * milliHertz) / 1000.0;
 
   _tonePWM((int)frequencyInHerz);
   delay(milliSeconds);

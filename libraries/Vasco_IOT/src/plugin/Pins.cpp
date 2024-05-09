@@ -34,7 +34,7 @@ float AdcPin::_readADC()
   value = value - _zeroAnalogValue;
 
   // signed % returned
-  return ((float)value / (float)(_maxAnalogValue - _zeroAnalogValue)) * 100;
+  return (value / (float)(_maxAnalogValue - _zeroAnalogValue)) * 100;
 }
 
 float AdcPin::_readADCFrequency()
@@ -56,7 +56,7 @@ float AdcPin::_readADCFrequency()
     }
   }
 
-  return beat != 0 ? 1000.0 / ((float)(millis() - time) / (float)beat): 0;
+  return beat != 0 ? 1000.0 / ((millis() - time) / (float)beat): 0;
 }
 
 bool PwmPin::_initPWM(byte attachedPin, byte channel)
@@ -101,7 +101,7 @@ void PwmPin::_ledPWM(int from, int to, int duration)
   // led fadeout start
   _ledPWM(from);
   _fadeOutMagnitude = from;
-  _fadeOutIncrement = (float)(from - to) / (float)(duration / _LED_FADEOUT_DELAY);
+  _fadeOutIncrement = (from - to) / (float)(duration / _LED_FADEOUT_DELAY);
   _fadeOutTimer = millis();
 }
 

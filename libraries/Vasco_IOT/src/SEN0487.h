@@ -25,8 +25,9 @@
 #include "interface/Device.h"
 #include "interface/Sensor.h"
 #include "plugin/Pins.h"
+#include "data/Filter.h"
 
-class SEN0487 : public Device, public Sensor, public AdcPin
+class SEN0487 : public Device, public Sensor, public AdcPin, public Filter
 {
   static const int  _ADC_MAX_VALUE = 4000;
   static const int  _ADC_ZERO_VALUE = 1723;

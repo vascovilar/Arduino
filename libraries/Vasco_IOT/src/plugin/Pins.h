@@ -6,7 +6,7 @@
 
 class I2cPins
 {
-  // ESP32 Harware default 2 wire I2C. Speeder if not modified
+  // ESP32 Harware default 2 wire I2C. Speeder if not override
   static const byte _I2C_SDA_PIN = 21; // SDA Qwiic blue
   static const byte _I2C_SCL_PIN = 22; // SCL Qwiic yellow
 };
@@ -14,7 +14,7 @@ class I2cPins
 
 class SpiPins
 {
-  // ESP32 Harware default 4 wire SPI. Speeder if not modified
+  // ESP32 Harware default 4 wire SPI. Speeder if not override
   static const byte _SPI_MOSI_PIN = 23;
   static const byte _SPI_MISO_PIN = 19;
   static const byte _SPI_CLK_PIN = 18;

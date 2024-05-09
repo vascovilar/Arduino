@@ -3,12 +3,11 @@
 
 #include "Arduino.h"
 #include "../interface/Data.h"
-#include "Filter.h"
 #include "../interface/Sensor.h"
 #include "Buffer.h"
 
 
-class Html : public Data, Filter
+class Html : public Data
 {
   public:
 
@@ -33,6 +32,9 @@ class Html : public Data, Filter
     String    _getHtmlSvgArrow(float x, float y, vcolor color);
     String    _getHtmlSvgCircle(float x, float y, vstatus color);
     String    _getHtmlLink(String href, String text);
+    // needed for precision, map function use integers only
+    float     _isometric(float value, float maximum, float minimum, int height, int offset);
+
 };
 
 #endif

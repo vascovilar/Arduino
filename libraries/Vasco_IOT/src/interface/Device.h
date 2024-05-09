@@ -26,11 +26,13 @@ class Device
   public:
 
     Device(vdevice code) { _deviceCode = code; }
+
     virtual bool  init() = 0; // init device
     virtual bool  sleep() = 0; // make device sleep and consuming less possible
     virtual bool  wake() = 0; // make device wake up
     virtual bool  check() = 0; // played each turn, return true to force update in trigger mode
     virtual bool  update() = 0; // played sometimes to get all data from device then store in local registry
+
     vdevice       getDeviceCode() { return _deviceCode; }
 
   protected:

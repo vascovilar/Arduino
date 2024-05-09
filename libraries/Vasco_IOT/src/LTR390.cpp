@@ -42,7 +42,6 @@ bool LTR390::check()
   if (value > _maxValueBuffer) {
     _maxValueBuffer = value;
   }
-
   // under sky
   return _maxValueBuffer > 10000;
 }
@@ -71,12 +70,12 @@ float LTR390::read() {
 float LTR390::_convertToLux(float visible)
 {
   // return Lux value for 18bit resolution and x3 gain
-  return (float)(0.6 * visible) / 3.0;
+  return (0.6 * visible) / 3.0;
 }
 
 float LTR390::_convertToIndexUV(float(uvs))
 {
   //fix formula for 18bit/x3 https://github.com/esphome/issues/issues/4380
   float sensitivity = 2300 * (3.0/18.0) * (100.0/400.0); // default 100ms for INT_TIME, sensitivity = 95.8333333
-  return (float)uvs / sensitivity;
+  return uvs / sensitivity;
 }

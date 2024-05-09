@@ -21,8 +21,8 @@ void Buffer::_pushHistory(float value, long timeStamp)
   float lastValuesAverage = 0;
 
   length++;
-  if (length > _HISTORY_BUFFER_MAX_SIZE) {
-    length = _HISTORY_BUFFER_MAX_SIZE;
+  if (length > VHISTORY_MAX_SIZE) {
+    length = VHISTORY_MAX_SIZE;
   }
 
   minimum = 9999999;
@@ -53,9 +53,9 @@ void Buffer::_pushHistory(float value, long timeStamp)
   }
 
   // calc stats
-  average = (float)historyTotal / (float)length;
+  average = historyTotal / (float)length;
   delta = maximum - minimum;
-  lastValuesAverage = (float)lastValuesTotal / 10.0;
+  lastValuesAverage = lastValuesTotal / 10.0;
   trend = 0;
   if (lastValuesAverage > average) {
     trend = 1;
@@ -90,7 +90,7 @@ float Buffer::_popBufferAverageValue()
     bufferValuesTotal += _buffer[i];
   }
 
-  bufferValuesAverage = (float)bufferValuesTotal / (float)_bufferLength;
+  bufferValuesAverage = bufferValuesTotal / (float)_bufferLength;
 
   _bufferIndex = 0;
   _bufferLength = 0;

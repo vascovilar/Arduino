@@ -53,7 +53,9 @@ class Sensor
   public:
 
     Sensor(bool isRealtime) { _isRealtime = isRealtime; }
+
     virtual float   read(); // read instant sensor value out of processtime incretementation, or return 0 if non applicable
+
     bool            isRealTime() { return _isRealtime; } // if so get access to read() realtime raw data
 
   protected:

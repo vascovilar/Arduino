@@ -21,60 +21,61 @@ String Html::handleHistorySvgGraph(vfield data, Buffer buffer)
 
   float top = buffer.maximum + data.tolerance / 2;
   float bottom = buffer.minimum - data.tolerance / 2;
+  float totalTime = VHISTORY_MAX_SIZE * VHISTORY_PUSH_DELAY / 1000.0;
 
-  // left title with text
+  // upper left: title and text
   text += _getHtmlSvgCircle(25, 20, data.status);
   text += _getHtmlSvgText(40, 25, 14, COLOR_WHITE, data.label);
   text += _getHtmlSvgText(40, 43, 12, COLOR_GREY, data.text + " +/-" + String(buffer.delta) + " (" + String(data.tolerance) + ")");
 
-  // right title with value
+  // upper right: value and unit
   if (data.status != GRIS) {
     text += _getHtmlSvgBig(50, data.value);
     text += _getHtmlSvgText(390, 23, 14, COLOR_GREY_DARK, data.unit);
-    if (buffer.trend == 2) {
-      trend += "▼";
-    }
-    if (buffer.trend == 1) {
-      trend += "▲";
-    }
+    if (buffer.trend == 2) trend += "▼";
+    if (buffer.trend == 1) trend += "▲";
     text += _getHtmlSvgText(390, 45, 18, COLOR_GREY_DARK, trend);
   }
 
-  // draw if history contains values
-  if (buffer.length > 0)
-  {
+  if (buffer.length > 0) {
     // iterate values to draw graph
     for (int i = 0; i < buffer.length; i++)
     {
-      float x1 = 410 - i * 1.5;
-      float x2 = 410 - (i + 1) * 1.5;
-      float y1 = _isometric(buffer.history[i - 1], top, bottom, 100, 60);
-      float y2 = _isometric(buffer.history[i], top, bottom, 100, 60);
-      bool isFirstLine = i == 0;
-
-      // right arrow (current real time value)
-      if (i == 0) {
-        float y3 = _isometric(data.value, top, bottom, 100, 60);
-        text += _getHtmlSvgArrow(x1, y3, COLOR_GREY);
+      int relativeTime = buffer.timeline[0] - buffer.timeline[i];
+      // do not show more than total time window
+      if (relativeTime > totalTime) {
+        break;
       }
 
-      // real values graph (first value is a point)
-      graph += _getHtmlSvgLine(x1, (isFirstLine ? y2: y1), x2, y2, COLOR_WHITE);
+      // calculate coords
+      float x1 = 410 - 360 * relativeTime / totalTime;
+      if (i != 0) {
+        float x2 = 410 - 360 * (buffer.timeline[0] - buffer.timeline[i - 1]) / totalTime;
+        float y1 = _isometric(buffer.history[i], top, bottom, 100, 60);
+        float y2 = _isometric(buffer.history[i - 1], top, bottom, 100, 60);
 
-      // vertical lines : timeline in minuts (first value is bold line)
+        // draw all values
+        graph += _getHtmlSvgLine(x1, y1, x2, y2, COLOR_WHITE);
+      }
+
+      // draw vertical lines : timeline in minuts (first value is bold line)
       if (i % 20 == 0) {
-        grid += _getHtmlSvgLine(x1, 60, x1, 165, COLOR_GREY_DARK, isFirstLine ? 1.0: 0.5);
-        text += _getHtmlSvgText(x1 - 3, 173, 8, COLOR_GREY, String((i * buffer.delay) / 1000 / 60));
+        grid += _getHtmlSvgLine(x1 , 60, x1, 165, COLOR_GREY_DARK, i == 0 ? 1.0: 0.5);
+        text += _getHtmlSvgText(x1 - 3, 173, 8, COLOR_GREY, String(relativeTime / 60));
       }
     }
 
-    // horizontal lines : values max, min, average
+    // draw right arrow (current real time value)
+    float y3 = _isometric(data.value, top, bottom, 100, 60);
+    text += _getHtmlSvgArrow(410, y3, COLOR_GREY);
+
+    // draw horizontal lines : values max, min, average
     float limits[3] = {buffer.maximum, buffer.minimum, buffer.average};
     for (int i = 0; i < 3; i++) {
       float y = _isometric(limits[i], top, bottom, 100, 60);
       bool isAverageLine = limits[i] == buffer.average;
       grid += _getHtmlSvgLine(50, y, 410, y, COLOR_GREY_DARK, isAverageLine ? 1: 0.5);
-      text += _getHtmlSvgText(20, y + 3, 10, isAverageLine ? COLOR_GREY: COLOR_GREY_DARK, String(limits[i]));
+      text += _getHtmlSvgText(15, y + 3, 10, isAverageLine ? COLOR_GREY: COLOR_GREY_DARK, String(limits[i]));
     }
   }
 
@@ -298,4 +299,9 @@ String Html::_getHtmlSvgCircle(float x, float y, vstatus color)
 String Html::_getHtmlLink(String href, String text)
 {
   return "<a href='" + href + "'>" + text + "</a>";
+}
+
+float Html::_isometric(float value, float maximum, float minimum, int height, int offset)
+{
+  return (1 - ((value - minimum) / (float)(maximum - minimum))) * height + offset;
 }

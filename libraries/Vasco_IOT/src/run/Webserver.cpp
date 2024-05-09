@@ -50,7 +50,7 @@ bool Webserver::run()
       return false;
   }
 
-  if (millis() - _timer > delay) { // TODO vasco count callbacks too ?
+  if (millis() - _timer > delay) { // TODO vasco count callbacks too, howto
     _timer = millis(); // reset timer
     _server.handleClient();
     _processedTime = _timeBuffer / 1000;

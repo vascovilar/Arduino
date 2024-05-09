@@ -49,7 +49,7 @@ bool BME680::wake()
 bool BME680::check()
 {
   // run every 3s or less, else air mesure takes 5 min to be available. BSEC_SAMPLE_RATE_LP is 3s. BSEC_SAMPLE_RATE_ULP is 300s
-  _iaq.run();
+  _iaq.run(); // TODO vasco put in time loop with local delay
 
   return false;
 }
