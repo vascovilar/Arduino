@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 
-static const int  VDELAY_LONG_UPDATE = 10000; // 10000
+static const int  VDELAY_LONG_UPDATE = 3000; // 10000
 static const int  VDELAY_SHORT_UPDATE = 1000;
 static const int  VDELAY_CONTINUOUS_UPDATE = 100; // seems continuous with 10 measure per second
 
@@ -25,10 +25,14 @@ class Run
     virtual bool  begin(vrun mode); // init
     virtual bool  run(); // return true if something new
 
+    int           isEnabled() { return _enabled; }
+    int           getProcessedTime() { return _processedTime; }
     vrun          getProcessMode() { return _processMode; }
 
   protected:
 
+    bool    _enabled = false;
+    int     _processedTime = 0;
     vrun    _processMode = INIT_ERROR;
 };
 

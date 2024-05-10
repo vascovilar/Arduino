@@ -23,18 +23,30 @@ bool EMF001::wake()
 
 bool EMF001::check()
 {
+  // must read continuously to listen for the slightest change in value
   float value = _readADC();
+
+  // noise reduction
+  if (value < _ADC_ZERO_THRESOLD) {
+    value = 0.0;
+  }
+
+  // store max
   if (value > _maxValueBuffer) {
     _maxValueBuffer = value;
   }
+
   // detecting anything
   return _maxValueBuffer > 0;
 }
 
 bool EMF001::update()
 {
+  // sensor class values
   _feed(_data.maxValue, _maxValueBuffer, _maxValues, 5);
   _feed(_data.frequency, _readADCFrequency(), _frequencies, 2);
+
+  // reset max value buffer for another round
   _maxValueBuffer = 0;
 
   return true;

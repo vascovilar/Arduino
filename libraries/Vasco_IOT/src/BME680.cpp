@@ -48,19 +48,21 @@ bool BME680::wake()
 
 bool BME680::check()
 {
-  // run every 3s or less, else air mesure takes 5 min to be available. BSEC_SAMPLE_RATE_LP is 3s. BSEC_SAMPLE_RATE_ULP is 300s
-  _iaq.run(); // TODO vasco put in time loop with local delay
+  // run every 3s or less (run already includes delay condition), else air mesure takes 5 min to be available. BSEC_SAMPLE_RATE_LP is 3s. BSEC_SAMPLE_RATE_ULP is 300s
+  _iaq.run();
 
   return false;
 }
 
 bool BME680::update()
 {
+  // sensor class values
   _feed(_data.temperature, _iaq.temperature, _temperatures, 6);
   _feed(_data.pressure, _convertToMilliBar(_iaq.pressure), _pressures, 10);
   _feed(_data.humidity, _iaq.humidity, _humidities, 6);
   _feed(_data.iaqAccuracy, _iaq.staticIaqAccuracy, _iaqAccuracies, 4);
 
+  // if data available (air sensor need 5 min to start)
   if (_iaq.stabStatus == 1 && _iaq.staticIaqAccuracy > 0) {
     _feed(_data.gasResistance, _convertToKiloOhm(_iaq.gasResistance), _gasResistances, 1);
     _feed(_data.airQuality, _iaq.staticIaq, _airQualities, 8);
@@ -74,7 +76,7 @@ bool BME680::update()
 
 float BME680::read()
 {
-  return 0;
+  return 0.0;
 }
 
 void BME680::_checkIaqSensorStatus()

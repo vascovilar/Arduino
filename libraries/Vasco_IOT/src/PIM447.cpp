@@ -8,6 +8,7 @@ bool PIM447::init()
     return false;
   }
 
+  Wire.begin(); // need to initialise I2C
   _trackBall.begin(_i2cAddress, Wire);
   if(!_trackBall.isConnected()) {
     Serial.println(F("Error initializing I2C PIM447 device"));
@@ -15,7 +16,7 @@ bool PIM447::init()
     return false;
   }
 
-  resetPointer();
+  resetMouse();
 
   return true;
 }
@@ -32,11 +33,13 @@ bool PIM447::wake()
 
 bool PIM447::check()
 {
+  // no need to listen continuously because device have memory
   return false;
 }
 
 bool PIM447::update()
 {
+  // update local variables
   if (_trackBall.changed()) {
     int left = _trackBall.left();
     int right = _trackBall.right();
@@ -97,6 +100,7 @@ void PIM447::led(vstatus code)
       color = COLOR_VIOLET;
       break;
   }
+
   led(color, 0);
 }
 
@@ -106,16 +110,16 @@ void PIM447::setBoundary(int width, int height)
   _width = width;
   _height = height;
 
-  resetPointer();
+  resetMouse();
 }
 
-void PIM447::setPointer(int x, int y)
+void PIM447::setMouse(int x, int y)
 {
   _x = x;
   _y = y;
 }
 
-void PIM447::resetPointer()
+void PIM447::resetMouse()
 {
   _x = _width / 2;
   _y = _height / 2;

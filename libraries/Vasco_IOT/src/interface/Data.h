@@ -21,7 +21,7 @@ enum vcolor {
   COLOR_TURQUOISE = 0x018387,
 };
 
-struct vpointer {
+struct vmouse {
   int     x;
   int     y;
   bool    focus;

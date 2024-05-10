@@ -35,23 +35,18 @@ bool ESP32X::wake()
 
 bool ESP32X::check()
 {
-  // led fadeout
+  // led fadeout if needed
   _updateLedPMW();
 
-  // event eval
-  float value = read();
-  if (value > _maxValueBuffer) {
-    _maxValueBuffer = value;
-  }
-  // detecting charge
-  return _maxValueBuffer >= 100;
+  return false;
 }
 
 bool ESP32X::update()
 {
-  _feed(_data.memoryUsed, _maxValueBuffer, _memories, 3); // not 532480.0 free ! Only have 320Ko in runtime memory
-  _maxValueBuffer = 0;
+  // sensor class values
+  _feed(_data.memoryUsed, (1 - (ESP.getFreeHeap() / 327680.0)) * 100, _memories, 3); // not 532480.0 free ! Only have 320Ko in runtime memory
 
+  // udpate local variables
   _data.psRamUsed = (1 - (ESP.getFreePsram() / 4194304.0)) * 100; // readed on SPI channel 3, or use new esp_psram_get_size()
 
   return true;
@@ -59,7 +54,7 @@ bool ESP32X::update()
 
 float ESP32X::read()
 {
-  return (1 - (ESP.getFreeHeap() / 327680.0)) * 100;
+  return 0.0;
 }
 
 void ESP32X::led(bool status)

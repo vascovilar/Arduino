@@ -14,8 +14,10 @@ class Container : public Run
     // interface
     bool    begin(vrun mode);
     bool    run();
+
     // api
     void    add(Device &device);
+
     // test
     int     go1();
     bool    go2();

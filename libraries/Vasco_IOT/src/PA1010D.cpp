@@ -85,10 +85,13 @@ bool PA1010D::check()
 
 bool PA1010D::update()
 {
+  // sensor class values
   _feed(_data.satellite, _gps.satellites, _satellites, 5);
   _feed(_data.fixQuality, _gps.fixquality, _fixQualities, 3);
   _feed(_data.altitude, _gps.altitude, _altitudes, 1);
   _feed(_data.speed, _convertToKmH(_gps.speed), _speeds, 1);
+
+  // update local variables
   _data.latitude = _gps.latitude;
   _data.longitude = _gps.longitude;
   _data.dateTime = _convertToDateTime(_gps.year, _gps.month, _gps.day, _gps.hour, _gps.minute, _gps.seconds);
@@ -103,7 +106,7 @@ bool PA1010D::update()
 
 float PA1010D::read()
 {
-  return 0;
+  return 0.0;
 }
 
 String PA1010D::_convertToDateTime(int year, int month, int day, int hour, int minute, int second)

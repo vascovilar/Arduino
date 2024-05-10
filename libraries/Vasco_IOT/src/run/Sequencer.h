@@ -11,12 +11,12 @@ class Sequencer : public Run
   public:
 
     Sequencer(Device &obj) : child(obj) {};
+
     // interface
     bool    begin(vrun mode);
     bool    run();
+
     // additionnal updated data
-    int     isEnabled() { return _enabled; }
-    int     getProcessedTime() { return _processedTime; }
     int     getProcessedChecks() { return _processedChecks; }
     int     getProcessedUpdates() { return _processedUpdates; }
     int     getCurrentDelay() { return _currentDelay; }
@@ -24,8 +24,6 @@ class Sequencer : public Run
   private:
 
     Device  &child;
-    bool    _enabled = false;
-    int     _processedTime = 0;
     int     _processedChecks = 0;
     int     _processedUpdates = 0;
     int     _currentDelay = 0;

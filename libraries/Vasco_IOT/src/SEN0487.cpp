@@ -37,17 +37,29 @@ bool SEN0487::wake()
 
 bool SEN0487::check()
 {
+  // must read continuously to listen for the slightest change in value
   float value = _readADC();
+
+  // noise reduction
+  if (value < _ADC_ZERO_THRESOLD) {
+    value = 0.0;
+  }
+
+  // store max
   if (value > _maxValueBuffer) {
     _maxValueBuffer = value;
   }
+
   // detecting anything over noise level
-  return _maxValueBuffer > _NOISE_THRESOLD_VALUE;
+  return _maxValueBuffer > _EVENT_THRESOLD_VALUE;
 }
 
 bool SEN0487::update()
 {
-  _feed(_data.maxValue, _smooth(_maxValueBuffer, 7), _maxValues, 6);
+  // sensor class values
+  _feed(_data.maxValue, _maxValueBuffer, _maxValues, 6);
+
+  // reset max value buffer for another round
   _maxValueBuffer = 0;
 
   return true;

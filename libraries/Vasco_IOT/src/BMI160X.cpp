@@ -9,6 +9,7 @@ bool BMI160X::init()
     return false;
   }
 
+  Wire.begin(); // need to initialise I2C
   if (!CurieIMUClass::begin()) {
     Serial.println(F("Error initializing I2C BMI160 device"));
 
@@ -19,11 +20,11 @@ bool BMI160X::init()
   setGyroRate(_GYROSCOPE_RATE);
   setGyroRange(_GYROSCOPE_RANGE);
   autoCalibrateGyroOffset();
-
   setAccelerometerRate(_ACCELEROMETER_RATE);
   setAccelerometerRange(_ACCELEROMETER_RANGE);
-  // autoCalibrateAccelerometerOffset(X_AXIS, -1);
-  // accelerometerOffsetEnabled(true);
+  autoCalibrateAccelerometerOffset(X_AXIS, 0);
+  autoCalibrateAccelerometerOffset(Y_AXIS, 0);
+  autoCalibrateAccelerometerOffset(Z_AXIS, 1);
 
   return true;
 }
@@ -40,23 +41,54 @@ bool BMI160X::wake()
 
 bool BMI160X::check()
 {
-  return false;
+  // check 10 time per second only
+  if (millis() - _timer >= 100) {
+    _timer = millis(); // reset timer
+    float value = read();
+
+    // store max
+    if (value > _maxValueBuffer) {
+      _maxValueBuffer = value;
+    }
+  }
+
+  // detecting anything
+  return _maxValueBuffer > 0;
 }
 
 bool BMI160X::update()
 {
-  int gxRaw, gyRaw, gzRaw, axRaw, ayRaw, azRaw; // return by reference
-  readMotionSensor(gxRaw, gyRaw, gzRaw, axRaw, ayRaw, azRaw);
-  _gx = _convertRawMotion(gxRaw, _GYROSCOPE_RANGE);
-  _gy = _convertRawMotion(gyRaw, _GYROSCOPE_RANGE);
-  _gz = _convertRawMotion(gzRaw, _GYROSCOPE_RANGE);
-  _ax = _convertRawMotion(axRaw, _ACCELEROMETER_RANGE);
-  _ay = _convertRawMotion(ayRaw, _ACCELEROMETER_RANGE);
-  _az = _convertRawMotion(azRaw, _ACCELEROMETER_RANGE);
+  // sensor class values
+  _feed(_data.maxValue, _maxValueBuffer, _maxValues, 1);
 
+  // reset max value buffer for another round
+  _maxValueBuffer = 0;
+
+  // update local variables
+  int gxRaw, gyRaw, gzRaw, axRaw, ayRaw, azRaw; // return by reference
+  readMotionSensor(axRaw, ayRaw, azRaw, gxRaw, gyRaw, gzRaw);
+  _gx = _convertRawGyro(gxRaw);
+  _gy = _convertRawGyro(gyRaw);
+  _gz = _convertRawGyro(gzRaw);
+  _ax = _convertRawAcceleration(axRaw);
+  _ay = _convertRawAcceleration(ayRaw);
+  _az = _convertRawAcceleration(azRaw);
   _temperature = _convertToCelcius(readTemperature());
 
   return true;
+}
+
+float BMI160X::read()
+{
+  float ax, ay;
+  int axRaw, ayRaw, azRaw;
+
+  readAccelerometer(axRaw, ayRaw, azRaw);
+  ax = _convertRawAcceleration(axRaw);
+  ay = _convertRawAcceleration(ayRaw);
+
+  // return max of X or Y
+  return ax > ay ? ax: ay;
 }
 
 void BMI160X::ss_init()
@@ -78,7 +110,7 @@ int BMI160X::ss_xfer(uint8_t *buf, unsigned tx_cnt, unsigned rx_cnt)
     Wire.write(*p++);
   }
   if( Wire.endTransmission() != 0 ) {
-      Serial.println(F("Error: Wire.endTransmission() for BMI160 failed."));
+      Serial.println(F("Error: BMI160 I2C transmission failed."));
   }
   if (0 < rx_cnt) {
     Wire.requestFrom(_i2cAddress, rx_cnt);
@@ -92,15 +124,25 @@ int BMI160X::ss_xfer(uint8_t *buf, unsigned tx_cnt, unsigned rx_cnt)
   return 0;
 }
 
-float BMI160X::_convertRawMotion(int raw, int range)
+float BMI160X::_convertRawGyro(int gRaw)
 {
-  // if we are using 250 (unit) range
-  // -250 maps to a raw value of -32768
-  // +250 maps to a raw value of 32767
-  return (raw / 32768.0) * range;
+  // since we are using 250 degrees range
+  // -125 (-90°) maps to a raw value of -16384
+  // +125 (+90°) maps to a raw value of 16384
+
+  return (gRaw / 32768.0) * 180;
 }
 
-float BMI160X::_convertToCelcius(int raw)
+float BMI160X::_convertRawAcceleration(int aRaw)
 {
-  return (raw / 512.0) + 23;
+  // since we are using 2G range
+  // -2g maps to a raw value of -32768
+  // +2g maps to a raw value of 32767
+
+  return (aRaw / 32768.0) * _ACCELEROMETER_RANGE;
+}
+
+float BMI160X::_convertToCelcius(int traw)
+{
+  return (traw / 512.0) + 23;
 }

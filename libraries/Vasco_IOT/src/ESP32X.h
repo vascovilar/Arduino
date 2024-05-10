@@ -37,7 +37,8 @@ class ESP32X : public Device, public Sensor, public PwmPin, public Psram, public
 
   public:
 
-    ESP32X(byte pin) : Device(MICRO_CONTROLLER), Sensor(true) { _ledPin = pin; }
+    ESP32X(byte pin) : Device(MICRO_CONTROLLER), Sensor(false) { _ledPin = pin; }
+
     // interfaces
     bool    init();
     bool    sleep();
@@ -45,6 +46,7 @@ class ESP32X : public Device, public Sensor, public PwmPin, public Psram, public
     bool    check();
     bool    update();
     float   read();
+
     // data updated
     vfield  getMemoryUsed() { return _data.memoryUsed; }
     float   getPsRamUsed() { return _data.psRamUsed; }
@@ -60,6 +62,7 @@ class ESP32X : public Device, public Sensor, public PwmPin, public Psram, public
     String  getIP() { return _getIpWIFI(); }
     long    getTimeStamp() { return _getTimeStampRTC(); }
     String  getDateTime() { return _getDateTimeRTC(); }
+
     // TODO vasco tmp testing proxy
     void    getPsramTest();
     void    getEepromTest();
@@ -69,7 +72,6 @@ class ESP32X : public Device, public Sensor, public PwmPin, public Psram, public
   private:
 
     byte     _ledPin;
-    float    _maxValueBuffer = 0;
 
     // human readable buffer. Updated by udpate function
     struct fields {

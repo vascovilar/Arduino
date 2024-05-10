@@ -33,6 +33,7 @@ class PA1010D : public Device, public Sensor, public I2cPins
   public:
 
     PA1010D(byte addr) : Device(GPS_NAVIGATOR), Sensor(false) { _i2cAddress = addr; }
+
     // interfaces
     bool    init();
     bool    sleep();
@@ -40,6 +41,7 @@ class PA1010D : public Device, public Sensor, public I2cPins
     bool    check();
     bool    update();
     float   read();
+
     // data updated
     vfield  getSatellite() { return _data.satellite; }
     vfield  getFixQuality() { return _data.fixQuality; }

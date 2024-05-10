@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 
-static const byte VSENSOR_COUNT = 13;
+static const byte VSENSOR_COUNT = 14;
 
 enum vsensor {
   TEMPERATURE = 0,
@@ -16,9 +16,10 @@ enum vsensor {
   VISIBLE = 7,
   EAR_LEVEL = 8,
   ALTITUDE = 9,
-  MEMORY_USED = 10,
-  RUN_CYCLES = 11,
-  GAUSS_LEVEL = 12,
+  MOVEMENT = 10,
+  GAUSS_LEVEL = 11,
+  MEMORY_USED = 12,
+  RUN_CYCLES = 13,
 };
 
 static const byte VSTATUS_COUNT = 6;
@@ -54,7 +55,7 @@ class Sensor
 
     Sensor(bool isRealtime) { _isRealtime = isRealtime; }
 
-    virtual float   read(); // read instant sensor value out of processtime incretementation, or return 0 if non applicable
+    virtual float   read(); // read instant sensor raw value out of processtime incretementation, or return 0 if non applicable
 
     bool            isRealTime() { return _isRealtime; } // if so get access to read() realtime raw data
 

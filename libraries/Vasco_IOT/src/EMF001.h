@@ -29,10 +29,12 @@ class EMF001 : public Device, public Sensor, public AdcPin
 {
   static const int  _ADC_MAX_VALUE = 4095;
   static const int  _ADC_ZERO_VALUE = 0;
+  const float       _ADC_ZERO_THRESOLD = 2.0;
 
   public:
 
     EMF001(byte pin) : Device(EMF_SENSOR), Sensor(true) { _analogPin = pin; }
+
     // interfaces
     bool    init();
     bool    sleep();
@@ -40,6 +42,7 @@ class EMF001 : public Device, public Sensor, public AdcPin
     bool    check();
     bool    update();
     float   read();
+
     // data updated
     vfield  getMaxValue() { return _data.maxValue; }
     vfield  getFrequency() { return _data.frequency; }

@@ -27,14 +27,14 @@ int AdcPin::_rawADC()
 
 float AdcPin::_readADC()
 {
-  int value = _rawADC();
+  int rawValue = _rawADC();
 
   // float mapping
-  if (value > _maxAnalogValue) value = _maxAnalogValue;
-  value = value - _zeroAnalogValue;
+  if (rawValue > _maxAnalogValue) rawValue = _maxAnalogValue;
+  rawValue = rawValue - _zeroAnalogValue;
 
   // signed % returned
-  return (value / (float)(_maxAnalogValue - _zeroAnalogValue)) * 100;
+  return (rawValue / (float)(_maxAnalogValue - _zeroAnalogValue)) * 100;
 }
 
 float AdcPin::_readADCFrequency()
@@ -109,7 +109,7 @@ void PwmPin::_updateLedPMW()
 {
   // led fadeout update
   if (_fadeOutIncrement != 0) {
-  if (millis() - _fadeOutTimer > _LED_FADEOUT_DELAY) {
+    if (millis() - _fadeOutTimer > _LED_FADEOUT_DELAY) {
       _fadeOutTimer = millis(); // reset timer
       _fadeOutMagnitude -= _fadeOutIncrement;
       if (_fadeOutMagnitude <= 0) {

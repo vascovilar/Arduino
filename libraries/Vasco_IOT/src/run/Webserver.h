@@ -40,9 +40,7 @@ class Webserver : public Run
     // interface
     bool    begin(vrun mode);
     bool    run();
-    // additionnal updated data // TODO vasco add this in Run interface now
-    int     isEnabled() { return _enabled; }
-    int     getProcessedTime() { return _processedTime; }
+
     // api (config before calling begin function)
     void    onHtml(const String &uri, std::function<String()> callHtml);
     void    onHtml(const String &uri, std::function<String(int)> callHtml);
@@ -55,11 +53,8 @@ class Webserver : public Run
 
   private:
 
-    bool    _enabled = false;
-    int     _processedTime = 0;
     long    _timer = 0;
     long    _timeBuffer = 0;
-
 };
 
 #endif

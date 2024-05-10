@@ -38,7 +38,7 @@ bool ST7789SD::wake()
 
 bool ST7789SD::check()
 {
-  // led fadeout
+  // led fadeout if needed
   _updateLedPMW();
 
   return false;

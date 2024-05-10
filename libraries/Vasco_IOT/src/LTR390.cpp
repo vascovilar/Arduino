@@ -38,33 +38,26 @@ bool LTR390::wake()
 
 bool LTR390::check()
 {
-  float value = read();
-  if (value > _maxValueBuffer) {
-    _maxValueBuffer = value;
-  }
-  // under sky
-  return _maxValueBuffer > 10000;
+  return false;
 }
 
 bool LTR390::update()
 {
-
+  // sensor class values
   _ltr.setMode(LTR390_MODE_UVS);
   delay(200); // need time delay to works
   while (!_ltr.newDataAvailable());
   _feed(_data.uvIndex, _convertToIndexUV(_ltr.readUVS()), _uvIndexes, 5);
-
-  _ltr.setMode(LTR390_MODE_ALS); // end with ALS to be ready in case of check function call
+  _ltr.setMode(LTR390_MODE_ALS); // end with ALS to be ready in case of read function call
   delay(50);
   while (!_ltr.newDataAvailable());
-  _feed(_data.visible, _maxValueBuffer, _visibles, 10);
-  _maxValueBuffer = 0;
+  _feed(_data.visible, _convertToLux(_ltr.readALS()), _visibles, 10);
 
   return true;
 }
 
 float LTR390::read() {
-  return _convertToLux(_ltr.readALS());
+  return _ltr.readALS();
 }
 
 float LTR390::_convertToLux(float visible)

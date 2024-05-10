@@ -18,6 +18,9 @@ class Rtc
     String  _getDateTimeRTC(); // return standard string format "2024-01-23 19:34:55"
     void    _setDateTimeRTC(String dateTime); // set RTC with standard string format "2024-01-23 19:34:55"
     String  _getUpTimeRTC(); // get seconds from power on
+    String  _convertTimeStampToDateTimeRTC(long timeStamp); // in seconds
+    long    _convertDateTimeToTimeStampRTC(String dateTime); // string format "2024-01-23 19:34:55"
+    String  _convertUpTimeToDateTimeRTC(int upTime, bool isShort = false); // in seconds
 
     // TODO vasco include timezone
 

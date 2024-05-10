@@ -31,12 +31,14 @@ class BUZ001 : public Device, public PwmPin
   public:
 
     BUZ001(byte pin) : Device(BUZZER) { _pwmPin = pin; }
+
     // interfaces
     bool    init();
     bool    sleep();
     bool    wake();
     bool    check();
     bool    update();
+
     // sound api
     void    beep();
     void    notice();

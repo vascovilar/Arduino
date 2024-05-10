@@ -1,16 +1,16 @@
 #include "Arduino.h"
 
-#include "ESP32X.h"
 #include "BUZ001.h"
 #include "ST7789SD.h"
-#include "EMF001.h"
-#include "LTR390.h"
-#include "SEN0487.h"
-#include "BME680.h"
-#include "PA1010D.h"
-#include "AH49E.h"
 #include "PIM447.h"
+#include "BME680.h"
+#include "LTR390.h"
+#include "EMF001.h"
+#include "SEN0487.h"
+#include "PA1010D.h"
 #include "BMI160X.h"
+#include "AH49E.h"
+#include "ESP32X.h"
 
 #include "Container.h"
 #include "run/Sequencer.h"
@@ -18,30 +18,31 @@
 #include "data/Buffer.h"
 #include "data/Html.h"
 
-ESP32X        esp(2);
+
 BUZ001        buzzer(4);
 ST7789SD      tft(5, 25, 33, 32);
-EMF001        emf(36);
-LTR390        light(0x53);
-SEN0487       ear(34);
+PIM447        pointer(0x0A);
 BME680        air(0x77);
+LTR390        light(0x53);
+EMF001        emf(36);
+SEN0487       ear(34);
 PA1010D       gps(0x10);
-AH49E         hall(35);
-PIM447        trackball(0x0A);
 BMI160X       imu(0x68);
+AH49E         hall(35);
+ESP32X        esp(2);
 
 // TODO vasco in container
-Sequencer     deviceESP(esp);
 Sequencer     deviceBUZ(buzzer);
 Sequencer     deviceTFT(tft);
+Sequencer     devicePointer(pointer);
+Sequencer     deviceAir(air);
 Sequencer     deviceEMF(emf);
 Sequencer     deviceLight(light);
 Sequencer     deviceEar(ear);
-Sequencer     deviceAir(air);
 Sequencer     deviceGPS(gps);
-Sequencer     deviceHall(hall);
-Sequencer     devicePointer(trackball);
 Sequencer     deviceIMU(imu);
+Sequencer     deviceHall(hall);
+Sequencer     deviceESP(esp);
 Buffer        graph[VSENSOR_COUNT];
 
 Webserver     server;
@@ -84,18 +85,18 @@ void setup()
 
   // TODO vasco in container
   bool error = false;
-  if (!deviceESP.begin(LOW_REFRESH)) error = true;
   if (!deviceBUZ.begin(LOW_REFRESH)) error = true;
   if (!deviceTFT.begin(LOW_REFRESH)) error = true;
+  if (!devicePointer.begin(CONTINUOUS)) error = true;
+  if (!deviceAir.begin(LOW_REFRESH)) error = true;
   if (!deviceEMF.begin(LOW_REFRESH)) error = true;
   if (!deviceLight.begin(LOW_REFRESH)) error = true;
   if (!deviceEar.begin(LOW_REFRESH)) error = true;
-  if (!deviceAir.begin(LOW_REFRESH)) error = true;
   if (!deviceGPS.begin(LOW_REFRESH)) error = true;
-  if (!deviceHall.begin(LOW_REFRESH)) error = true;
-  if (!devicePointer.begin(CONTINUOUS)) error = true;
   if (!deviceIMU.begin(LOW_REFRESH)) error = true;
-
+  if (!deviceHall.begin(LOW_REFRESH)) error = true;
+  if (!deviceESP.begin(LOW_REFRESH)) error = true;
+  
   Serial.print("Devices initialization..."); 
   if (!error) {
     Serial.println("OK");
@@ -133,7 +134,7 @@ void setup()
   // -----------------------------------------------------
 
   Serial.print("Initializing webserver..."); 
-  server.onHtml("/", [](){ return html.handleHomePage(10000); }); // TODO vasco get delay from container
+  server.onHtml("/", [](){ return html.handleHomePage(3000); }); // TODO vasco get delay from container
   for (int field = 0; field < VSENSOR_COUNT; field++) {
     server.onHtml("/sensor/" + String(field) + ".svg", [field](){ return html.handleHistorySvgGraph(getSensor((vsensor) field), graph[field]); });
   }
@@ -147,7 +148,7 @@ void setup()
     Serial.println("failed");
   }
   delay(500);
-/*
+
   // -----------------------------------------------------
   // Test: Led
   // -----------------------------------------------------
@@ -159,18 +160,18 @@ void setup()
   }
 
   // -----------------------------------------------------
-  // Test: Trackball
+  // Test: Pointer
   // -----------------------------------------------------
 
   if (devicePointer.isEnabled()) {
-    Serial.println("Trackball: check led colors and screen cursor");
-    trackball.setBoundary(240, 135);
-    trackball.led(COLOR_GREEN, 0); Serial.print("- green"); delay(1000);
-    trackball.led(COLOR_YELLOW, 0); Serial.print(" yellow"); delay(1000);
-    trackball.led(COLOR_ORANGE, 0); Serial.print(" orange"); delay(1000);
-    trackball.led(COLOR_RED, 0); Serial.print(" red"); delay(1000);
-    trackball.led(COLOR_VIOLET, 0); Serial.println(" violet"); delay(1000);
-    trackball.led(COLOR_BLACK, 0);
+    Serial.println("Pointer: check led colors and screen cursor");
+    pointer.setBoundary(240, 135);
+    pointer.led(COLOR_GREEN, 0); Serial.print("- green"); delay(1000);
+    pointer.led(COLOR_YELLOW, 0); Serial.print(" yellow"); delay(1000);
+    pointer.led(COLOR_ORANGE, 0); Serial.print(" orange"); delay(1000);
+    pointer.led(COLOR_RED, 0); Serial.print(" red"); delay(1000);
+    pointer.led(COLOR_VIOLET, 0); Serial.println(" violet"); delay(1000);
+    pointer.led(COLOR_BLACK, 0);
     delay(500);
   }
 
@@ -183,7 +184,7 @@ void setup()
     tft.clear();
     tft.led(4095);
     tft.title("IOT #3", 0, 0, COLOR_GREY);
-    tft.text("http://" + esp.getIP(), 0, 17, COLOR_WHITE);
+    tft.text("http://" + esp.getIP(), 3, 17, COLOR_WHITE);
     tft.text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat.", 0, 30, COLOR_GREY);
     delay(500);
   }
@@ -213,10 +214,8 @@ void setup()
   calibrate(GAUSS_LEVEL);
   Serial.print("- Sound zero: ");
   calibrate(EAR_LEVEL);
-  Serial.print("- Light zero: ");
-  calibrate(VISIBLE);
   delay(500);
-*/
+
   // -----------------------------------------------------
   // Test: buzzer
   // -----------------------------------------------------
@@ -252,11 +251,20 @@ void loop()
 
   if (devicePointer.run()) {
     // write pixel in screen
-    vpointer pointer = trackball.getPointer();
-    tft.point(pointer.x, pointer.y, COLOR_WHITE);
+    vmouse mouse = pointer.getMouse();
+    tft.point(mouse.x, mouse.y, COLOR_WHITE);
     // screen saver
     tft.led(4095, 0, 20000);
-    //Serial.println("+Trackball: " + String(devicePointer.getProcessedTime()) + "ms (" + String(devicePointer.getProcessedChecks()) + ")");
+    //Serial.println("+Pointer: " + String(devicePointer.getProcessedTime()) + "ms (" + String(devicePointer.getProcessedChecks()) + ")");
+  }
+
+  if (deviceAir.run()) {
+    setBuffer(TEMPERATURE);
+    setBuffer(PRESSURE);
+    setBuffer(HUMIDITY);
+    setBuffer(AIR_QUALITY);
+    setBuffer(GAS_PERCENTAGE);
+    //Serial.println("+Air: " + String(deviceAir.getProcessedTime()) + "ms (" + String(deviceAir.getProcessedChecks()) + ")");
   }
 
   if (deviceEMF.run()) {
@@ -276,15 +284,6 @@ void loop()
     //Serial.println("+Ear: " + String(deviceEar.getProcessedTime()) + "ms (" + String(deviceEar.getProcessedChecks()) + ")");
   }
 
-  if (deviceAir.run()) {
-    setBuffer(TEMPERATURE);
-    setBuffer(PRESSURE);
-    setBuffer(HUMIDITY);
-    setBuffer(AIR_QUALITY);
-    setBuffer(GAS_PERCENTAGE);
-    //Serial.println("+Air: " + String(deviceAir.getProcessedTime()) + "ms (" + String(deviceAir.getProcessedChecks()) + ")");
-  }
-
   if (deviceGPS.run()) {
     setBuffer(ALTITUDE);
     /*
@@ -299,17 +298,25 @@ void loop()
     //Serial.println("+GPS: " + String(deviceGPS.getProcessedTime()) + "ms (" + String(deviceGPS.getProcessedChecks()) + ")");
   }
 
+  if (deviceIMU.run()) {
+    setBuffer(MOVEMENT);
+    if (imu.getMaxValue().value > 0.1) {
+      // screen saver
+      tft.led(4095, 0, 20000);    
+    }
+    /*
+    vcoord coord = imu.getGyroscope();
+    Serial.print(String(coord.x) + ", " + String(coord.y) + ", " + String(coord.z) + " °   ");
+    coord = imu.getAccelerometer();
+    Serial.print(String(coord.x) + ", " + String(coord.y) + ", " + String(coord.z) + " g   ");
+    Serial.print(String(imu.getTemperature()) + "°C    ");
+    */
+    //Serial.println("+IMU: " + String(deviceIMU.getProcessedTime()) + "ms (" + String(deviceIMU.getProcessedChecks()) + ")");
+  }
+
   if (deviceHall.run()) {
     setBuffer(GAUSS_LEVEL);
     //Serial.println("+Hall: " + String(deviceHall.getProcessedTime()) + "ms (" + String(deviceHall.getProcessedChecks()) + ")");
-  }
-
-  if (deviceIMU.run()) {
-    /*
-    vcoord coord = imu.getGyroscope();
-    Serial.print(String(coord.x) + ", " + String(coord.y) + ", " + String(coord.z) + "    ");
-    */
-    //Serial.println("+IMU: " + String(deviceIMU.getProcessedTime()) + "ms (" + String(deviceIMU.getProcessedChecks()) + ")");
   }
 
   if (deviceESP.run()) {
@@ -318,16 +325,16 @@ void loop()
     //Serial.println("+ESP: " + String(deviceESP.getProcessedTime()) + "ms (" + String(deviceESP.getProcessedChecks()) + ")");
 
     /*
-    // EVENT manager to do: set color on trackball if one status > JAUNE
+    // EVENT manager to do: set color on pointer if one status > JAUNE
     vstatus limit = GRIS;
     for (int i = 0; i < VSENSOR_COUNT; i++) {
       vfield value = getSensor((vsensor) i);
       if ((int) value.status > limit) limit = value.status;
     }
     if (limit > JAUNE) {
-      trackball.led(limit);
+      pointer.led(limit);
     } else {
-      trackball.led(0, 0);
+      pointer.led(0, 0);
     }
     */
   }
@@ -373,15 +380,18 @@ vfield getSensor(vsensor code)
     case ALTITUDE:
       data = gps.getAltitude();
       break;
+    case MOVEMENT:
+      data = imu.getMaxValue();
+      break;
+    case GAUSS_LEVEL:
+      data = hall.getMaxValue();
+      break;
     case MEMORY_USED:
       data = esp.getMemoryUsed();
       break;
     case RUN_CYCLES:
       // TODO vasco get data from global Container
       data = (vfield) {"Cycles programme", "/s", 10.0, (float)deviceESP.getProcessedChecks() / (float)(deviceESP.getCurrentDelay() / 1000), VERT};
-      break;
-    case GAUSS_LEVEL:
-      data = hall.getMaxValue();
       break;
   }
 
@@ -416,9 +426,6 @@ void calibrate(vsensor code)
         break;
       case EAR_LEVEL:
         value = ear.read();
-        break;
-      case VISIBLE:
-        value = light.read();
         break;
       default:
 

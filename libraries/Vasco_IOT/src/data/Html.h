@@ -4,10 +4,11 @@
 #include "Arduino.h"
 #include "../interface/Data.h"
 #include "../interface/Sensor.h"
+#include "../plugin/Rtc.h"
 #include "Buffer.h"
 
 
-class Html : public Data
+class Html : public Data, Rtc
 {
   public:
 

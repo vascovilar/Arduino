@@ -33,6 +33,7 @@ class BME680 : public Device, public Sensor, public I2cPins
   public:
 
     BME680(byte addr) : Device(METEO_SENSOR), Sensor(false) { _i2cAddress = addr; }
+
     // interfaces
     bool    init();
     bool    sleep();
@@ -40,6 +41,7 @@ class BME680 : public Device, public Sensor, public I2cPins
     bool    check();
     bool    update();
     float   read();
+
     // data updated
     vfield  getTemperature() { return _data.temperature; }
     vfield  getPressure() { return _data.pressure; }

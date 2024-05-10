@@ -43,20 +43,23 @@ class PIM447 : public Device, public I2cPins
   public:
 
     PIM447(byte addr) : Device(POINTER) { _i2cAddress = addr; }
+
     // interface
     bool     init();
     bool     sleep();
     bool     wake();
     bool     check();
     bool     update();
+
     // data updated
-    vpointer getPointer() { return vpointer {_x, _y, _focus, _click, _left, _right, _up, _down}; }
+    vmouse getMouse() { return vmouse {_x, _y, _focus, _click, _left, _right, _up, _down}; }
+
     // api
     void     led(int hex, byte brightness);
     void     led(vstatus code);
     void     setBoundary(int width, int height);
-    void     setPointer(int x, int y);
-    void     resetPointer();
+    void     setMouse(int x, int y);
+    void     resetMouse();
 
   private:
 

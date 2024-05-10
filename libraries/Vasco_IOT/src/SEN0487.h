@@ -25,17 +25,18 @@
 #include "interface/Device.h"
 #include "interface/Sensor.h"
 #include "plugin/Pins.h"
-#include "data/Filter.h"
 
-class SEN0487 : public Device, public Sensor, public AdcPin, public Filter
+class SEN0487 : public Device, public Sensor, public AdcPin
 {
   static const int  _ADC_MAX_VALUE = 4000;
-  static const int  _ADC_ZERO_VALUE = 1723;
-  static const int  _NOISE_THRESOLD_VALUE = 0.38;
+  static const int  _ADC_ZERO_VALUE = 1710;
+  const float       _ADC_ZERO_THRESOLD = 1.0;
+  const float       _EVENT_THRESOLD_VALUE = 0.38;
 
   public:
 
     SEN0487(byte pin) : Device(MICROPHONE_SENSOR), Sensor(true) { _analogPin = pin; }
+
     // interfaces
     bool    init();
     bool    sleep();
@@ -43,6 +44,7 @@ class SEN0487 : public Device, public Sensor, public AdcPin, public Filter
     bool    check();
     bool    update();
     float   read();
+
     // data updated
     vfield  getMaxValue() { return _data.maxValue; }
 

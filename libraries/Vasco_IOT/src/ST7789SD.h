@@ -46,12 +46,14 @@ class ST7789SD : public Device, public SpiPins, public PwmPin
       _sdcdPin = sdcsPin;
       _litPin = litPin;
     }
+
     // interfaces
     bool    init();
     bool    sleep();
     bool    wake();
     bool    check();
     bool    update();
+
     // tft api
     void    clear(); // clear screen
     void    led(int magnitude); // tft backligth 0: off, 4095: intensity max
@@ -61,6 +63,7 @@ class ST7789SD : public Device, public SpiPins, public PwmPin
     void    point(int x, int y, int colorCode);
     int     convert(int hexadecimal); // color code like 0x00FF00
     int     convert(String html); // color code like "#00FF00"
+
     // sd card api
     void    listFiles();
 

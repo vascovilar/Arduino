@@ -31,7 +31,7 @@ String Html::handleHistorySvgGraph(vfield data, Buffer buffer)
   // upper right: value and unit
   if (data.status != GRIS) {
     text += _getHtmlSvgBig(50, data.value);
-    text += _getHtmlSvgText(390, 23, 14, COLOR_GREY_DARK, data.unit);
+    text += _getHtmlSvgText(390, 23, 14, COLOR_GREY, data.unit);
     if (buffer.trend == 2) trend += "▼";
     if (buffer.trend == 1) trend += "▲";
     text += _getHtmlSvgText(390, 45, 18, COLOR_GREY_DARK, trend);
@@ -61,7 +61,7 @@ String Html::handleHistorySvgGraph(vfield data, Buffer buffer)
       // draw vertical lines : timeline in minuts (first value is bold line)
       if (i % 20 == 0) {
         grid += _getHtmlSvgLine(x1 , 60, x1, 165, COLOR_GREY_DARK, i == 0 ? 1.0: 0.5);
-        text += _getHtmlSvgText(x1 - 3, 173, 8, COLOR_GREY, String(relativeTime / 60));
+        text += _getHtmlSvgText(x1 - 5, 173, 8, COLOR_GREY, _convertUpTimeToDateTimeRTC(relativeTime, true));
       }
     }
 
@@ -199,8 +199,8 @@ String Html::_getHtmlBlocSvgCartouche(String text, String grid, String graph)
       <stop offset='100%' style='stop-color:#151515;stop-opacity:1' />\
     </radialGradient>\
     <linearGradient id='shaded' x1='0' x2='0' y1='0' y2='1'>\
-      <stop offset='0%' stop-color='#333333' />\
-      <stop offset='100%' stop-color='#999999' />\
+      <stop offset='0%' stop-color='#999999' />\
+      <stop offset='100%' stop-color='#333333' />\
     </linearGradient>\
   </defs>\
   <rect width='440' height='190' fill='url(#gradient)' rx='20' ry='20' />\

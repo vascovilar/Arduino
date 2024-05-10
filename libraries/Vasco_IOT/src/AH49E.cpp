@@ -37,17 +37,29 @@ bool AH49E::wake()
 
 bool AH49E::check()
 {
+  // must read continuously to listen for the slightest change in value
   float value = _readADC();
+
+  // noise reduction
+  if (value < _ADC_ZERO_THRESOLD) {
+    value = 0.0;
+  }
+
+  // store max
   if (value > _maxValueBuffer) {
     _maxValueBuffer = value;
   }
+
   // detecting anything
   return _maxValueBuffer > 0;
 }
 
 bool AH49E::update()
 {
+  // sensor class values
   _feed(_data.maxValue, _maxValueBuffer, _maxValues, 5);
+
+  // reset max value buffer for another round
   _maxValueBuffer = 0;
 
   return true;

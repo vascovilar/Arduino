@@ -19,8 +19,8 @@
 
 
 // instanciations come here
-SEN0487       ear(34);
-
+//SEN0487       ear(34);
+BMI160X       imu(0x68);
 
 
 // arduino init
@@ -33,13 +33,14 @@ void setup()
   delay(1000);
   Serial.println("***********************************************************************************");  
 
-  //Wire.begin(21, 22);
+  Wire.begin(21, 22); // for IMU
   
   // -----------------------------------------------------
   // TODO
   // -----------------------------------------------------
 
-  ear.init();
+  //ear.init();
+  imu.init();
 
   // -----------------------------------------------------
 }
@@ -54,14 +55,14 @@ void loop()
   // TODO
   // -----------------------------------------------------
   
+  /*
   ear.update();
   Serial.println(String("1700," + String(ear.read()) + ",1740"));
-
-  /*
-  imu.update();
-  vcoord coord = imu.getGyroscope();
-  Serial.println(String(coord.x) + "," + String(coord.y) + "," + String(coord.z));
   */
+
+  imu.update();
+  vcoord coord = imu.getTest();
+  Serial.println(String(coord.x) + "," + String(coord.y) + "," + String(coord.z));
 
   // -----------------------------------------------------
   //Serial.print(String((millis() - timer)) + "ms");
