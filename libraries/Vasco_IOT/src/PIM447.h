@@ -30,10 +30,9 @@
 #define PIM447_h
 
 #include "Arduino.h"
+#include "interface/Data.h"
 #include "interface/Device.h"
 #include "plugin/Pins.h"
-#include "interface/Data.h"
-#include "interface/Sensor.h"
 #include "Wire.h"
 #include "pimoroniTrackball.h"
 

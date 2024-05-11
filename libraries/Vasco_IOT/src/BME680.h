@@ -21,18 +21,18 @@
 #define BME680_h
 
 #include "Arduino.h"
-#include "interface/Device.h"
+#include "interface/Data.h"
 #include "interface/Sensor.h"
 #include "plugin/Pins.h"
 #include "bsec.h"
 #include "Wire.h"
 
 
-class BME680 : public Device, public Sensor, public I2cPins
+class BME680 : public Sensor, public I2cPins
 {
   public:
 
-    BME680(byte addr) : Device(METEO_SENSOR), Sensor(false) { _i2cAddress = addr; }
+    BME680(byte addr) : Sensor(METEO_SENSOR, false) { _i2cAddress = addr; }
 
     // interfaces
     bool    init();
@@ -41,39 +41,47 @@ class BME680 : public Device, public Sensor, public I2cPins
     bool    check();
     bool    update();
     float   read();
+    vfield  get(vsensor code)
+    {
+      switch(code) {
+        case TEMPERATURE:
+          return _temperature;
+        case PRESSURE:
+          return _pressure;
+        case HUMIDITY:
+          return _humidity;
+        case AIR_QUALITY:
+          return _airQuality;
+        case GAS_PERCENTAGE:
+          return _gasPercentage;
+      }
 
-    // data updated
-    vfield  getTemperature() { return _data.temperature; }
-    vfield  getPressure() { return _data.pressure; }
-    vfield  getHumidity() { return _data.humidity; }
-    vfield  getGasResistance() { return _data.gasResistance; }
-    vfield  getAirQuality() { return _data.airQuality; }
-    vfield  getCo2Equivalent() { return _data.co2Equivalent; }
-    vfield  getVocEquivalent() { return _data.vocEquivalent; }
-    vfield  getGasPercentage() { return _data.gasPercentage; }
-    vfield  getIaqAccuracy() { return _data.iaqAccuracy; }
+      return {};
+    }
+
+    // other data updated
+    vfield  getGasResistance() { return _gasResistance; }
+    vfield  getCo2Equivalent() { return _co2Equivalent; }
+    vfield  getVocEquivalent() { return _vocEquivalent; }
+    vfield  getIaqAccuracy() { return _iaqAccuracy; }
 
   private:
 
     Bsec    _iaq = Bsec();
     byte    _i2cAddress;
+    vfield  _temperature = {"Température", "°C", 1.0};
+    vfield  _pressure = {"Pression", "mBar", 1.0};
+    vfield  _humidity = {"Humidité", "%", 5.0};
+    vfield  _gasResistance = {"Resistivité air", "kOhm", 10000.0};
+    vfield  _airQuality = {"Qualité air", "", 10.0};
+    vfield  _co2Equivalent = {"Equivalent CO2", "ppm", 50.0};
+    vfield  _vocEquivalent = {"Equivalent VOC", "ppm", 0.5};
+    vfield  _gasPercentage = {"Particules air", "%", 5.0};
+    vfield  _iaqAccuracy = {"Précision air", "", 1.0};
+
     void    _checkIaqSensorStatus();
     float   _convertToMilliBar(float pressure);
     float   _convertToKiloOhm(float resistance);
-
-    // human readable buffer. Updated by udpate function
-    struct fields {
-      vfield   temperature = {"Température", "°C", 1.0};
-      vfield   pressure = {"Pression", "mBar", 1.0};
-      vfield   humidity = {"Humidité", "%", 5.0};
-      vfield   gasResistance = {"Resistivité air", "kOhm", 10000.0};
-      vfield   airQuality = {"Qualité air", "", 10.0};
-      vfield   co2Equivalent = {"Equivalent CO2", "ppm", 50.0};
-      vfield   vocEquivalent = {"Equivalent VOC", "ppm", 0.5};
-      vfield   gasPercentage = {"Particules air", "%", 5.0};
-      vfield   iaqAccuracy = {"Précision air", "", 1.0};
-    };
-    fields _data;
 
     vlegend _temperatures[6] = {
       {0, ORANGE, "glacé"},

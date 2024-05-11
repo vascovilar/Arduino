@@ -22,11 +22,11 @@
 #define SEN0487_h
 
 #include "Arduino.h"
-#include "interface/Device.h"
+#include "interface/Data.h"
 #include "interface/Sensor.h"
 #include "plugin/Pins.h"
 
-class SEN0487 : public Device, public Sensor, public AdcPin
+class SEN0487 : public Sensor, public AdcPin
 {
   static const int  _ADC_MAX_VALUE = 4000;
   static const int  _ADC_ZERO_VALUE = 1710;
@@ -35,7 +35,7 @@ class SEN0487 : public Device, public Sensor, public AdcPin
 
   public:
 
-    SEN0487(byte pin) : Device(MICROPHONE_SENSOR), Sensor(true) { _analogPin = pin; }
+    SEN0487(byte pin) : Sensor(MICROPHONE_SENSOR, true) { _analogPin = pin; }
 
     // interfaces
     bool    init();
@@ -44,20 +44,21 @@ class SEN0487 : public Device, public Sensor, public AdcPin
     bool    check();
     bool    update();
     float   read();
+    vfield  get(vsensor code)
+    {
+      switch(code) {
+        case EAR_LEVEL:
+          return _maxValue;
+      }
 
-    // data updated
-    vfield  getMaxValue() { return _data.maxValue; }
+      return {};
+    }
 
   private:
 
     byte     _analogPin;
     float    _maxValueBuffer = 0;
-
-    // human readable buffer. Updated by udpate function
-    struct fields {
-      vfield   maxValue = {"Intensité Sonore", "%", 1.0};
-    };
-    fields _data;
+    vfield   _maxValue = {"Intensité Sonore", "%", 1.0};
 
     vlegend _maxValues[6] = {
       {0, VERT, "silence"},

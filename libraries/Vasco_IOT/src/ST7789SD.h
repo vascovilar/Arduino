@@ -24,9 +24,9 @@
 #define ARDUINO 100
 
 #include "Arduino.h"
+#include "interface/Data.h"
 #include "interface/Device.h"
 #include "plugin/Pins.h"
-#include "interface/Data.h"
 #include "SPI.h"             // works with SPI bus
 #include "Adafruit_GFX.h"    // Core graphics library
 #include "Adafruit_ST7789.h" // Hardware-specific library for ST7789

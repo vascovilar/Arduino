@@ -3,8 +3,20 @@
 
 #include "Arduino.h"
 
-static const int  VHISTORY_PUSH_DELAY = 90000; // 180000 = 3 min means 240 mesures = 12h
+static const int  VHISTORY_PUSH_DELAY = 60000; // 180000 = 3 min means 240 mesures = 12h
 static const int  VHISTORY_MAX_SIZE = 240;
+
+
+static const byte VSTATUS_COUNT = 6;
+
+enum vstatus {
+  GRIS = 0,   // inactif
+  VERT = 1,   // confort
+  JAUNE = 2,  // perturbé
+  ORANGE = 3, // gêne
+  ROUGE = 4,  // mauvais
+  VIOLET = 5, // danger
+};
 
 static const byte VCOLOR_COUNT = 9;
 
@@ -19,6 +31,22 @@ enum vcolor {
   COLOR_RED = 0xFF0000,
   COLOR_VIOLET = 0x6B49C8,
   COLOR_TURQUOISE = 0x018387,
+};
+
+
+struct vfield {
+  String    label;
+  String    unit;
+  float     tolerance;
+  float     value;
+  vstatus   status;
+  String    text;
+};
+
+struct vlegend {
+  float     limit;
+  vstatus   status;
+  String    text;
 };
 
 struct vmouse {

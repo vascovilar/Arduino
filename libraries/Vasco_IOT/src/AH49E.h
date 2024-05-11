@@ -22,12 +22,12 @@
 #define AH49E_h
 
 #include "Arduino.h"
-#include "interface/Device.h"
+#include "interface/Data.h"
 #include "interface/Sensor.h"
 #include "plugin/Pins.h"
 
 
-class AH49E : public Device, public Sensor, public AdcPin
+class AH49E : public Sensor, public AdcPin
 {
   static const int  _ADC_MAX_VALUE = 4095;
   static const int  _ADC_ZERO_VALUE = 1652;
@@ -35,7 +35,7 @@ class AH49E : public Device, public Sensor, public AdcPin
 
   public:
 
-    AH49E(byte pin) : Device(GAUSS_SENSOR), Sensor(true) { _analogPin = pin; }
+    AH49E(byte pin) : Sensor(GAUSS_SENSOR, true) { _analogPin = pin; }
 
     // interfaces
     bool    init();
@@ -44,20 +44,21 @@ class AH49E : public Device, public Sensor, public AdcPin
     bool    check();
     bool    update();
     float   read();
+    vfield  get(vsensor code)
+    {
+      switch(code) {
+        case GAUSS_LEVEL:
+          return _maxValue;
+      }
 
-    // data updated
-    vfield  getMaxValue() { return _data.maxValue; }
+      return {};
+    }
 
   private:
 
     byte    _analogPin;
     float   _maxValueBuffer = 0;
-
-    // human readable buffer. Updated by udpate function
-    struct fields {
-      vfield   maxValue = {"Champ magnétique", "%", 1.0};
-    };
-    fields _data;
+    vfield  _maxValue = {"Champ magnétique", "%", 1.0};
 
     vlegend _maxValues[5] = {
       {0, VERT, "aucun champ"},

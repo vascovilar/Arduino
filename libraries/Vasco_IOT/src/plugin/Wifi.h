@@ -11,17 +11,17 @@ class Wifi
   static const long _GMT_OFFSET = 3600;
   static const int  _DAYLIGHT_OFFSET = 3600; // for France : winter 0, spring 3600
   static const int  _CREDENTIAL_COUNT = 2;
-    
+
   protected:
 
     bool    _connectWIFI();
     bool    _disconnectWIFI();
-    int     _getAccessPointsWIFI();
-    String  _getAccessPointInfoWIFI(int index);
+    int     _getAccessPointsFromWIFI();
+    String  _getAccessPointInfoFromWIFI(int index);
     String  _getIpWIFI();
 
   private:
-  
+
     // TODO vasco move real credentials data in secure area
     struct vcredential {
       const char*   user;

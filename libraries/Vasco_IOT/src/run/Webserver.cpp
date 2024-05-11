@@ -16,14 +16,13 @@ bool Webserver::begin(vrun mode)
     }
     _server.send(404, "text/plain", out);
   });
-
   // if wifi connected
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println(F("Wifi must be connected to begin webserver"));
 
     return false;
   }
-
+  // init
   _server.begin();
   _processMode = mode;
   _enabled = true;

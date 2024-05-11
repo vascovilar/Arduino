@@ -43,8 +43,8 @@ bool EMF001::check()
 bool EMF001::update()
 {
   // sensor class values
-  _feed(_data.maxValue, _maxValueBuffer, _maxValues, 5);
-  _feed(_data.frequency, _readADCFrequency(), _frequencies, 2);
+  _feed(_maxValue, _maxValueBuffer, _maxValues, 5);
+  _feed(_frequency, _readADCFrequency(), _frequencies, 2);
 
   // reset max value buffer for another round
   _maxValueBuffer = 0;

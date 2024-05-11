@@ -23,10 +23,14 @@ String Html::handleHistorySvgGraph(vfield data, Buffer buffer)
   float bottom = buffer.minimum - data.tolerance / 2;
   float totalTime = VHISTORY_MAX_SIZE * VHISTORY_PUSH_DELAY / 1000.0;
 
-  // upper left: title and text
+  // upper left: rounded status
   text += _getHtmlSvgCircle(25, 20, data.status);
-  text += _getHtmlSvgText(40, 25, 14, COLOR_WHITE, data.label);
-  text += _getHtmlSvgText(40, 43, 12, COLOR_GREY, data.text + " +/-" + String(buffer.delta) + " (" + String(data.tolerance) + ")");
+
+  // upper left: title and text
+  if (data.label != "") {
+    text += _getHtmlSvgText(40, 25, 14, COLOR_WHITE, data.label);
+    text += _getHtmlSvgText(40, 43, 12, COLOR_GREY, data.text + " +/-" + String(buffer.delta) + " (" + String(data.tolerance) + ")");
+  }
 
   // upper right: value and unit
   if (data.status != GRIS) {

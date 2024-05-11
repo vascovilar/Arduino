@@ -57,7 +57,7 @@ bool AH49E::check()
 bool AH49E::update()
 {
   // sensor class values
-  _feed(_data.maxValue, _maxValueBuffer, _maxValues, 5);
+  _feed(_maxValue, _maxValueBuffer, _maxValues, 5);
 
   // reset max value buffer for another round
   _maxValueBuffer = 0;

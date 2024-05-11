@@ -28,14 +28,13 @@
 #define BMI160X_h
 
 #include "Arduino.h"
-#include "interface/Device.h"
+#include "interface/Data.h"
 #include "interface/Sensor.h"
 #include "plugin/Pins.h"
-#include "interface/Data.h"
 #include "CurieIMU.h"
 #include "Wire.h"
 
-class BMI160X : public Device,  public Sensor, public I2cPins, public CurieIMUClass
+class BMI160X : public Sensor, public I2cPins, public CurieIMUClass
 {
   public:
 
@@ -44,7 +43,7 @@ class BMI160X : public Device,  public Sensor, public I2cPins, public CurieIMUCl
     static const int _ACCELEROMETER_RATE = 100; // values: 12.5, 25, 50, 100, 200, 400, 800, 1600 (Hz)
     static const int _ACCELEROMETER_RANGE = 2; // values: 2, 4, 8, 16 (G)
 
-    BMI160X(byte addr) : Device(INERTIAL_UNIT), Sensor(true) { _i2cAddress = addr; }
+    BMI160X(byte addr) : Sensor(INERTIAL_UNIT, true) { _i2cAddress = addr; }
 
     // interfaces
     bool    init();
@@ -53,18 +52,24 @@ class BMI160X : public Device,  public Sensor, public I2cPins, public CurieIMUCl
     bool    check();
     bool    update();
     float   read();
+    vfield  get(vsensor code)
+    {
+      switch(code) {
+        case MOVEMENT:
+          return _maxValue;
+      }
 
-    // data updated
-    vfield  getMaxValue() { return _data.maxValue; }
+      return {};
+    }
+
+    // other data updated
+    vcoord  getGyroscope() { return vcoord {_gx, _gy, _gz}; } // in degree
+    vcoord  getAccelerometer() { return vcoord {_ax, _ay, _az}; } // in G
+    float   getTemperature() { return _temperature; }
 
     // curie class serial transport override
     void    ss_init(); // called in CurieIMUClass::begin() function
     int     ss_xfer(uint8_t *buf, unsigned tx_cnt, unsigned rx_cnt); // called for transport
-
-    // data updated
-    vcoord  getGyroscope() { return vcoord {_gx, _gy, _gz}; } // in degree
-    vcoord  getAccelerometer() { return vcoord {_ax, _ay, _az}; } // in G
-    float   getTemperature() { return _temperature; }
 
     /*
     // TODO vasco: continue implemting CurieIMU
@@ -77,8 +82,9 @@ class BMI160X : public Device,  public Sensor, public I2cPins, public CurieIMUCl
   private:
 
     byte    _i2cAddress;
-    float   _maxValueBuffer = 0;
     long    _timer = 0;
+    float   _maxValueBuffer = 0;
+    vfield  _maxValue = {"Quantité mouvement", "g", 0.1};
     float   _gx;
     float   _gy;
     float   _gz;
@@ -86,20 +92,14 @@ class BMI160X : public Device,  public Sensor, public I2cPins, public CurieIMUCl
     float   _ay;
     float   _az;
     float   _temperature;
+
     float   _convertRawGyro(int gRaw); // convert to °
     float   _convertRawAcceleration(int aRaw); // convert to G
     float   _convertToCelcius(int raw);
 
-    // human readable buffer. Updated by udpate function
-    struct fields {
-      vfield   maxValue = {"Quantité mouvement", "g", 0.1};
-    };
-    fields _data;
-
     vlegend _maxValues[1] = {
       {0, VERT, "ok"},
     };
-
 };
 
 #endif

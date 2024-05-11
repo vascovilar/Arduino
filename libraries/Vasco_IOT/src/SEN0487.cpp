@@ -57,7 +57,7 @@ bool SEN0487::check()
 bool SEN0487::update()
 {
   // sensor class values
-  _feed(_data.maxValue, _maxValueBuffer, _maxValues, 6);
+  _feed(_maxValue, _maxValueBuffer, _maxValues, 6);
 
   // reset max value buffer for another round
   _maxValueBuffer = 0;

@@ -22,7 +22,7 @@
 #define ESP32X_h
 
 #include "Arduino.h"
-#include "interface/Device.h"
+#include "interface/Data.h"
 #include "interface/Sensor.h"
 #include "plugin/Pins.h"
 #include "plugin/Psram.h"
@@ -31,13 +31,13 @@
 #include "plugin/Wifi.h"
 
 
-class ESP32X : public Device, public Sensor, public PwmPin, public Psram, public Eeprom, public Rtc, public Wifi
+class ESP32X : public Sensor, public PwmPin, public Psram, public Eeprom, public Rtc, public Wifi
 {
   static const byte _PWM_CHANNEL = 3;
 
   public:
 
-    ESP32X(byte pin) : Device(MICRO_CONTROLLER), Sensor(false) { _ledPin = pin; }
+    ESP32X(byte pin) : Sensor(MICRO_CONTROLLER, false) { _ledPin = pin; }
 
     // interfaces
     bool    init();
@@ -46,10 +46,18 @@ class ESP32X : public Device, public Sensor, public PwmPin, public Psram, public
     bool    check();
     bool    update();
     float   read();
+    vfield  get(vsensor code)
+    {
+      switch(code) {
+        case MEMORY_USED:
+          return _memoryUsed;
+      }
 
-    // data updated
-    vfield  getMemoryUsed() { return _data.memoryUsed; }
-    float   getPsRamUsed() { return _data.psRamUsed; }
+      return {};
+    }
+
+    // other data updated
+    float   getPsRamUsed() { return _psRamUsed; }
 
     // api
     void    led(bool status); // build-in blue led. 0 or 1
@@ -57,8 +65,8 @@ class ESP32X : public Device, public Sensor, public PwmPin, public Psram, public
     void    led(int from, int to, int duration); // from magnitude to magnitude in milli-seconds duration
     bool    connectWifi() { return _connectWIFI(); }
     bool    disconnectWifi() { return _disconnectWIFI(); }
-    int     getWifiAccessPoints() { return _getAccessPointsWIFI(); }
-    String  getWifiAccessPointInfo(int index) { return _getAccessPointInfoWIFI(index); }
+    int     getWifiAccessPoints() { return _getAccessPointsFromWIFI(); }
+    String  getWifiAccessPointInfo(int index) { return _getAccessPointInfoFromWIFI(index); }
     String  getIP() { return _getIpWIFI(); }
     long    getTimeStamp() { return _getTimeStampRTC(); }
     String  getDateTime() { return _getDateTimeRTC(); }
@@ -72,13 +80,12 @@ class ESP32X : public Device, public Sensor, public PwmPin, public Psram, public
   private:
 
     byte     _ledPin;
+    vfield   _memoryUsed = {"Mémoire utilisée", "%", 5.0};
+    float    _psRamUsed = 0;
 
-    // human readable buffer. Updated by udpate function
-    struct fields {
-      vfield   memoryUsed = {"Mémoire utilisée", "%", 5.0};
-      float    psRamUsed = 0;
-    };
-    fields _data;
+    float _convertToUsedMemoryPercentage(int freeMemory);
+    float _convertToUsedPsRamPercentage(int freeMemory);
+
 
     vlegend _memories[2] = {
       {80, VERT, ""},

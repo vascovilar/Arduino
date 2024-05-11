@@ -21,18 +21,18 @@
 #define PA1010D_h
 
 #include "Arduino.h"
-#include "interface/Device.h"
+#include "interface/Data.h"
 #include "interface/Sensor.h"
 #include "plugin/Pins.h"
 #include "Adafruit_GPS.h"
 #include "Wire.h"
 
 
-class PA1010D : public Device, public Sensor, public I2cPins
+class PA1010D : public Sensor, public I2cPins
 {
   public:
 
-    PA1010D(byte addr) : Device(GPS_NAVIGATOR), Sensor(false) { _i2cAddress = addr; }
+    PA1010D(byte addr) : Sensor(GPS_NAVIGATOR, false) { _i2cAddress = addr; }
 
     // interfaces
     bool    init();
@@ -41,44 +41,50 @@ class PA1010D : public Device, public Sensor, public I2cPins
     bool    check();
     bool    update();
     float   read();
+    vfield  get(vsensor code)
+    {
+      switch(code) {
+        case ALTITUDE:
+          return _altitude;
+      }
 
-    // data updated
-    vfield  getSatellite() { return _data.satellite; }
-    vfield  getFixQuality() { return _data.fixQuality; }
-    vfield  getAltitude() { return _data.altitude; }
-    vfield  getSpeed() { return _data.speed; }
-    float   getLatitude() { return _data.latitude; }
-    float   getLongitude() { return _data.longitude; }
-    float   getDirectionAngle() { return _data.directionAngle; }
-    float   getCompassAngle() { return _data.compassAngle; }
-    String  getDateTime() { return _data.dateTime; }
-    String  getLatCardinal() { return _data.latCardinal; }
-    String  getLongCardinal() { return _data.longCardinal; }
-    String  getIsoDecimalLabel() { return _data.isoLabel; }
+      return {};
+    }
+
+    // other data updated
+    vfield  getSatellite() { return _satellite; }
+    vfield  getFixQuality() { return _fixQuality; }
+    vfield  getSpeed() { return _speed; }
+    float   getLatitude() { return _latitude; }
+    float   getLongitude() { return _longitude; }
+    float   getDirectionAngle() { return _directionAngle; }
+    float   getCompassAngle() { return _compassAngle; }
+    String  getDateTime() { return _dateTime; }
+    String  getLatCardinal() { return _latCardinal; }
+    String  getLongCardinal() { return _longCardinal; }
+    String  getIsoDecimalLabel() { return _isoLabel; }
 
   private:
 
     Adafruit_GPS _gps = Adafruit_GPS(&Wire);
     byte    _i2cAddress;
+    vfield  _satellite = {"Satelites connectés", "", 1.0};
+    vfield  _fixQuality = {"Qualité du réseau", "", 1.0};
+    vfield  _altitude = {"Altitude", "m", 10.0};
+    vfield  _speed = {"Vitesse", "km/h", 3.0};
+    float   _latitude; // 7 decimals
+    float   _longitude; // 7 decimals
+    float   _directionAngle; // North = 0
+    float   _compassAngle; // North = 0
+    String  _dateTime;      // timestamp like '1970-01-29 00:00:00'
+    String  _latCardinal;   // N or S
+    String  _longCardinal;  // W or E
+    String  _isoLabel; // iso like '0.0000001,0.0000001 NE'
+
     String  _convertToDateTime(int year, int month, int day, int hour, int minute, int second);
     float   _convertToKmH(float knot);
+    String  _convertToIsoLabel(float latitude, float longitude, String latCardinal, String longCardinal);
 
-    // human readable buffer. Updated by udpate function
-    struct fields {
-      vfield   satellite = {"Satelites connectés", "", 1.0};
-      vfield   fixQuality = {"Qualité du réseau", "", 1.0};
-      vfield   altitude = {"Altitude", "m", 10.0};
-      vfield   speed = {"Vitesse", "km/h", 3.0};
-      float    latitude; // 7 decimals
-      float    longitude; // 7 decimals
-      float    directionAngle; // North = 0
-      float    compassAngle; // North = 0
-      String   dateTime;      // timestamp like '1970-01-29 00:00:00'
-      String   latCardinal;   // N or S
-      String   longCardinal;  // W or E
-      String   isoLabel; // iso like '0.0000001,0.0000001 NE'
-    };
-    fields _data;
 
     vlegend _satellites[5] = {
       {0, ROUGE, "aucun"},

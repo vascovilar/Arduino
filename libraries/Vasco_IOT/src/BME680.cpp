@@ -48,7 +48,8 @@ bool BME680::wake()
 
 bool BME680::check()
 {
-  // run every 3s or less (run already includes delay condition), else air mesure takes 5 min to be available. BSEC_SAMPLE_RATE_LP is 3s. BSEC_SAMPLE_RATE_ULP is 300s
+  // run every 3s or less (run function already includes delay condition), air mesure takes 5 min to be available.
+  // BSEC_SAMPLE_RATE_LP is 3s. BSEC_SAMPLE_RATE_ULP is 300s
   _iaq.run();
 
   return false;
@@ -57,18 +58,18 @@ bool BME680::check()
 bool BME680::update()
 {
   // sensor class values
-  _feed(_data.temperature, _iaq.temperature, _temperatures, 6);
-  _feed(_data.pressure, _convertToMilliBar(_iaq.pressure), _pressures, 10);
-  _feed(_data.humidity, _iaq.humidity, _humidities, 6);
-  _feed(_data.iaqAccuracy, _iaq.staticIaqAccuracy, _iaqAccuracies, 4);
+  _feed(_temperature, _iaq.temperature, _temperatures, 6);
+  _feed(_pressure, _convertToMilliBar(_iaq.pressure), _pressures, 10);
+  _feed(_humidity, _iaq.humidity, _humidities, 6);
+  _feed(_iaqAccuracy, _iaq.staticIaqAccuracy, _iaqAccuracies, 4);
 
   // if data available (air sensor need 5 min to start)
   if (_iaq.stabStatus == 1 && _iaq.staticIaqAccuracy > 0) {
-    _feed(_data.gasResistance, _convertToKiloOhm(_iaq.gasResistance), _gasResistances, 1);
-    _feed(_data.airQuality, _iaq.staticIaq, _airQualities, 8);
-    _feed(_data.co2Equivalent, _iaq.co2Equivalent, _co2Equivalents, 1);
-    _feed(_data.vocEquivalent, _iaq.breathVocEquivalent, _vocEquivalents, 1);
-    _feed(_data.gasPercentage, _iaq.gasPercentage, _gasPercentages, 5);
+    _feed(_gasResistance, _convertToKiloOhm(_iaq.gasResistance), _gasResistances, 1);
+    _feed(_airQuality, _iaq.staticIaq, _airQualities, 8);
+    _feed(_co2Equivalent, _iaq.co2Equivalent, _co2Equivalents, 1);
+    _feed(_vocEquivalent, _iaq.breathVocEquivalent, _vocEquivalents, 1);
+    _feed(_gasPercentage, _iaq.gasPercentage, _gasPercentages, 5);
   }
 
   return true;

@@ -47,11 +47,11 @@ bool LTR390::update()
   _ltr.setMode(LTR390_MODE_UVS);
   delay(200); // need time delay to works
   while (!_ltr.newDataAvailable());
-  _feed(_data.uvIndex, _convertToIndexUV(_ltr.readUVS()), _uvIndexes, 5);
+  _feed(_uvIndex, _convertToIndexUV(_ltr.readUVS()), _uvIndexes, 5);
   _ltr.setMode(LTR390_MODE_ALS); // end with ALS to be ready in case of read function call
   delay(50);
   while (!_ltr.newDataAvailable());
-  _feed(_data.visible, _convertToLux(_ltr.readALS()), _visibles, 10);
+  _feed(_visible, _convertToLux(_ltr.readALS()), _visibles, 10);
 
   return true;
 }

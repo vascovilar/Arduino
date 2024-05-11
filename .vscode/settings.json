@@ -17,5 +17,6 @@
         "*.tcc": "cpp",
         "memory": "cpp",
         "random": "cpp"
-    }
+    },
+    "C_Cpp.default.compilerPath": ""
 }

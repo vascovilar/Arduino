@@ -59,7 +59,7 @@ bool BMI160X::check()
 bool BMI160X::update()
 {
   // sensor class values
-  _feed(_data.maxValue, _maxValueBuffer, _maxValues, 1);
+  _feed(_maxValue, _maxValueBuffer, _maxValues, 1);
 
   // reset max value buffer for another round
   _maxValueBuffer = 0;

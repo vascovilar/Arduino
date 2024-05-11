@@ -22,18 +22,18 @@
 #define LTR390_h
 
 #include "Arduino.h"
-#include "interface/Device.h"
+#include "interface/Data.h"
 #include "interface/Sensor.h"
 #include "plugin/Pins.h"
 #include "Adafruit_LTR390.h"
 #include "Wire.h"
 
 
-class LTR390 : public Device, public Sensor, public I2cPins
+class LTR390 : public Sensor, public I2cPins
 {
   public:
 
-    LTR390(byte addr) : Device(LIGHT_SENSOR), Sensor(false) { _i2cAddress = addr; }
+    LTR390(byte addr) : Sensor(LIGHT_SENSOR, false) { _i2cAddress = addr; }
 
     // interfaces
     bool    init();
@@ -42,24 +42,27 @@ class LTR390 : public Device, public Sensor, public I2cPins
     bool    check();
     bool    update();
     float   read();
+    vfield  get(vsensor code)
+    {
+      switch(code) {
+        case UV_INDEX:
+          return _uvIndex;
+        case VISIBLE:
+          return _visible;
+      }
 
-    // data updated
-    vfield  getUvIndex() { return _data.uvIndex; }
-    vfield  getVisible() { return _data.visible; }
+      return {};
+    }
 
   private:
 
     Adafruit_LTR390 _ltr = Adafruit_LTR390();
     byte    _i2cAddress;
+    vfield  _uvIndex = {"Index UV", "", 1.0};
+    vfield  _visible = {"Lumière ambiante", "lux", 10.0};
+
     float   _convertToLux(float visible);
     float   _convertToIndexUV(float(uvs));
-
-    // human readable buffer. Updated by udpate function
-    struct fields {
-      vfield   uvIndex = {"Index UV", "", 1.0};
-      vfield   visible = {"Lumière ambiante", "lux", 10.0};
-    };
-    fields _data;
 
     vlegend _uvIndexes[5] = {
       {2, VERT, "risque faible"},

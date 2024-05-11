@@ -20,12 +20,12 @@
 #define EMF001_h
 
 #include "Arduino.h"
-#include "interface/Device.h"
+#include "interface/Data.h"
 #include "interface/Sensor.h"
 #include "plugin/Pins.h"
 
 
-class EMF001 : public Device, public Sensor, public AdcPin
+class EMF001 : public Sensor, public AdcPin
 {
   static const int  _ADC_MAX_VALUE = 4095;
   static const int  _ADC_ZERO_VALUE = 0;
@@ -33,7 +33,7 @@ class EMF001 : public Device, public Sensor, public AdcPin
 
   public:
 
-    EMF001(byte pin) : Device(EMF_SENSOR), Sensor(true) { _analogPin = pin; }
+    EMF001(byte pin) : Sensor(EMF_SENSOR, true) { _analogPin = pin; }
 
     // interfaces
     bool    init();
@@ -42,22 +42,22 @@ class EMF001 : public Device, public Sensor, public AdcPin
     bool    check();
     bool    update();
     float   read();
+    vfield  get(vsensor code)
+    {
+      switch(code) {
+        case EMF_LEVEL:
+          return _maxValue;
+      }
 
-    // data updated
-    vfield  getMaxValue() { return _data.maxValue; }
-    vfield  getFrequency() { return _data.frequency; }
+      return {};
+    }
 
   private:
 
     byte    _analogPin;
     float   _maxValueBuffer = 0;
-
-    // human readable buffer. Updated by udpate function
-    struct fields {
-      vfield   maxValue = {"Intensité EMF", "%", 2.0};
-      vfield   frequency = {"Fréquence EMF", "Hz", 10.0};
-    };
-    fields _data;
+    vfield  _maxValue = {"Intensité EMF", "%", 2.0};
+    vfield  _frequency = {"Fréquence EMF", "Hz", 10.0};
 
     vlegend _maxValues[5] = {
       {0, VERT, "aucun champ"},

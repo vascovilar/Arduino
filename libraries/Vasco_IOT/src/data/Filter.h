@@ -12,9 +12,9 @@ class Filter : public Data
   protected:
 
     // iterators to smooth graphs
-    float   _smooth(float value, int factor);
-    float   _maximum(float value, int factor);
-    float   _inertia(float value, int factor);
+    float   _smoothFilter(float value, int factor);
+    float   _maximumFilter(float value, int factor);
+    float   _inertiaFilter(float value, int factor);
 
   private:
 

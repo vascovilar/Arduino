@@ -3,14 +3,14 @@
 
 #include "Arduino.h"
 #include "../interface/Run.h"
-#include "../interface/Device.h"
+#include "../interface/Chipset.h"
 
 
 class Sequencer : public Run
 {
   public:
 
-    Sequencer(Device &obj) : child(obj) {};
+    Sequencer(Chipset &obj) : child(obj) {};
 
     // interface
     bool    begin(vrun mode);
@@ -23,7 +23,7 @@ class Sequencer : public Run
 
   private:
 
-    Device  &child;
+    Chipset  &child;
     int     _processedChecks = 0;
     int     _processedUpdates = 0;
     int     _currentDelay = 0;

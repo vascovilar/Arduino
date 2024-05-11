@@ -28,10 +28,10 @@ class Eeprom
   protected:
 
     bool    _initEEPROM();
-    bool    _getEepromFlag(vmemory_index index, int boolSlot); // 8 booleans in one octet, slots from 1 to 8
-    void    _setEepromFlag(vmemory_index index, bool* boolSlots); // send 8 values in array for one octet
-    char*   _getPassword(byte index);
-    void    _setPassword(byte index, char* password);
+    bool    _getFlagInEEPROM(vmemory_index index, int boolSlot); // 8 booleans in one octet, slots from 1 to 8
+    void    _setFlagInEEPROM(vmemory_index index, bool* boolSlots); // send 8 values in array for one octet
+    char*   _getPasswordInEEPROM(byte index);
+    void    _setPasswordInEEPROM(byte index, char* password);
 
     template<typename T>
     void    _readEEPROM(int index, T &value)

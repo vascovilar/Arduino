@@ -19,8 +19,10 @@
 
 
 // instanciations come here
+
 //SEN0487       ear(34);
-BMI160X       imu(0x68);
+//BMI160X       imu(0x68);
+EMF001        emf(36);
 
 
 // arduino init
@@ -33,14 +35,15 @@ void setup()
   delay(1000);
   Serial.println("***********************************************************************************");  
 
-  Wire.begin(21, 22); // for IMU
+  //Wire.begin(21, 22); // for IMU
   
   // -----------------------------------------------------
   // TODO
   // -----------------------------------------------------
 
   //ear.init();
-  imu.init();
+  //imu.init();
+  emf.init();
 
   // -----------------------------------------------------
 }
@@ -60,9 +63,15 @@ void loop()
   Serial.println(String("1700," + String(ear.read()) + ",1740"));
   */
 
+  /*
   imu.update();
   vcoord coord = imu.getTest();
   Serial.println(String(coord.x) + "," + String(coord.y) + "," + String(coord.z));
+  */
+
+  emf.update();
+  Serial.println(String("0," + String(emf.getMaxValue().value) + ",100"));
+
 
   // -----------------------------------------------------
   //Serial.print(String((millis() - timer)) + "ms");

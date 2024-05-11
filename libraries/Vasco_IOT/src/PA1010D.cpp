@@ -86,20 +86,20 @@ bool PA1010D::check()
 bool PA1010D::update()
 {
   // sensor class values
-  _feed(_data.satellite, _gps.satellites, _satellites, 5);
-  _feed(_data.fixQuality, _gps.fixquality, _fixQualities, 3);
-  _feed(_data.altitude, _gps.altitude, _altitudes, 1);
-  _feed(_data.speed, _convertToKmH(_gps.speed), _speeds, 1);
+  _feed(_satellite, _gps.satellites, _satellites, 5);
+  _feed(_fixQuality, _gps.fixquality, _fixQualities, 3);
+  _feed(_altitude, _gps.altitude, _altitudes, 1);
+  _feed(_speed, _convertToKmH(_gps.speed), _speeds, 1);
 
   // update local variables
-  _data.latitude = _gps.latitude;
-  _data.longitude = _gps.longitude;
-  _data.dateTime = _convertToDateTime(_gps.year, _gps.month, _gps.day, _gps.hour, _gps.minute, _gps.seconds);
-  _data.latCardinal = _gps.lat;
-  _data.longCardinal = _gps.lon;
-  _data.isoLabel = String(_data.latitude, 7) + " " + _data.latCardinal + "," + String(_data.longitude, 7) + " " + _data.longCardinal;
-  _data.compassAngle = _gps.magvariation;
-  _data.directionAngle = _gps.angle;
+  _latitude = _gps.latitude;
+  _longitude = _gps.longitude;
+  _dateTime = _convertToDateTime(_gps.year, _gps.month, _gps.day, _gps.hour, _gps.minute, _gps.seconds);
+  _latCardinal = _gps.lat;
+  _longCardinal = _gps.lon;
+  _isoLabel = _convertToIsoLabel(_latitude, _longitude, _latCardinal, _longCardinal);
+  _compassAngle = _gps.magvariation;
+  _directionAngle = _gps.angle;
 
   return true;
 }
@@ -132,4 +132,9 @@ String PA1010D::_convertToDateTime(int year, int month, int day, int hour, int m
 float PA1010D::_convertToKmH(float knot)
 {
   return knot * 1.852; // one knot is 1.852 km/h
+}
+
+String PA1010D::_convertToIsoLabel(float latitude, float longitude, String latCardinal, String longCardinal)
+{
+  return String(latitude, 7) + " " + latCardinal + "," + String(longitude, 7) + " " + longCardinal;
 }

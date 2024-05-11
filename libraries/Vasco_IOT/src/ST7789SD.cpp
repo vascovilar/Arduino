@@ -6,7 +6,6 @@ bool ST7789SD::init()
   _tft.init(135, 240);
   _tft.setRotation(3); // set to 3 when device will be finally assembled
   _tft.fillScreen(convert(COLOR_BLACK));
-  delay(1000);
 
   // TODO vasco: fix SD card ? or device dead ?
   /*
@@ -22,6 +21,9 @@ bool ST7789SD::init()
 
     return false;
   }
+
+  // avoid screen backlight always on
+  led(0); // TODO vasco why do not works
 
   return true;
 }
@@ -46,7 +48,7 @@ bool ST7789SD::check()
 
 bool ST7789SD::update()
 {
-  return true;
+  return false;
 }
 
 void ST7789SD::clear()

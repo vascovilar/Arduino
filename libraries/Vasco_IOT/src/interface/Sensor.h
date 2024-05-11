@@ -2,6 +2,8 @@
 #define Sensor_h
 
 #include "Arduino.h"
+#include "Data.h"
+#include "Chipset.h"
 
 static const byte VSENSOR_COUNT = 14;
 
@@ -22,40 +24,14 @@ enum vsensor {
   RUN_CYCLES = 13,
 };
 
-static const byte VSTATUS_COUNT = 6;
-
-enum vstatus {
-  GRIS = 0,   // inactif
-  VERT = 1,   // confort
-  JAUNE = 2,  // perturbé
-  ORANGE = 3, // gêne
-  ROUGE = 4,  // mauvais
-  VIOLET = 5, // danger
-};
-
-struct vfield {
-  String    label;
-  String    unit;
-  float     tolerance;
-  float     value;
-  vstatus   status;
-  String    text;
-};
-
-struct vlegend {
-  float     limit;
-  vstatus   status;
-  String    text;
-};
-
-
-class Sensor
+class Sensor : public Chipset
 {
   public:
 
-    Sensor(bool isRealtime) { _isRealtime = isRealtime; }
+    Sensor(vchipset code, bool isRealtime) : Chipset(code, true) { _isRealtime = isRealtime; }
 
     virtual float   read(); // read instant sensor raw value out of processtime incretementation, or return 0 if non applicable
+    virtual vfield  get(vsensor code); // get buffered value, update with update method
 
     bool            isRealTime() { return _isRealtime; } // if so get access to read() realtime raw data
 
@@ -73,11 +49,6 @@ class Sensor
         }
       }
     }
-
-  private:
-
-    struct    fields {}; // override these fields by inheritance in child class
-    fields    _data; // override too
 };
 
 #endif

@@ -13,13 +13,14 @@ class Buffer : public Data
 
     float   history[VHISTORY_MAX_SIZE];   // last values stored
     long    timeline[VHISTORY_MAX_SIZE];  // last dates
-    int     length;                              // real size of history
+    int     length;                       // real size of history
     int     delay = VHISTORY_PUSH_DELAY;
     float   minimum;
     float   maximum;
     float   average;
     float   delta;
     byte    trend;
+
     bool    push(float value, long timeStamp);
 
   private:
@@ -28,6 +29,7 @@ class Buffer : public Data
     int     _bufferIndex = 0;
     int     _bufferLength = 0;
     long    _timer = 0;
+
     void    _pushHistory(float value, long timeStamp);
     void    _pushBuffer(float value);
     float   _popBufferAverageValue();
