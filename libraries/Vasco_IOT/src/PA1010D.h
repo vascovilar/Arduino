@@ -2,19 +2,6 @@
  * Read data on Adafruit PA1010D for GPS navigation
  * Ref: https://learn.adafruit.com/adafruit-mini-gps-pa1010d-module/overview
  * Doc: https://cdn-learn.adafruit.com/assets/assets/000/084/295/original/CD_PA1010D_Datasheet_v.03.pdf?1573833002
- *
- * Implementation:
- *
- *   #include <PA1010D.h>
- *
- *   PA1010D gps(0x10);
- *
- *   void setup() {
- *     gps.init();
- *   }
- *   void loop() {
- *     float altitude = gps.getAltitude().value;
- *   }
  */
 
 #ifndef PA1010D_h
@@ -23,7 +10,7 @@
 #include "Arduino.h"
 #include "interface/Data.h"
 #include "interface/Sensor.h"
-#include "plugin/Pins.h"
+#include "inherit/Pins.h"
 #include "Adafruit_GPS.h"
 #include "Wire.h"
 
@@ -48,7 +35,7 @@ class PA1010D : public Sensor, public I2cPins
           return _altitude;
       }
 
-      return {};
+      return (vfield){};
     }
 
     // other data updated
@@ -68,10 +55,10 @@ class PA1010D : public Sensor, public I2cPins
 
     Adafruit_GPS _gps = Adafruit_GPS(&Wire);
     byte    _i2cAddress;
-    vfield  _satellite = {"Satelites connectés", "", 1.0};
-    vfield  _fixQuality = {"Qualité du réseau", "", 1.0};
-    vfield  _altitude = {"Altitude", "m", 10.0};
-    vfield  _speed = {"Vitesse", "km/h", 3.0};
+    vfield  _satellite = {"Satelites connectés", "", 1};
+    vfield  _fixQuality = {"Qualité du réseau", "", 1};
+    vfield  _altitude = {"Altitude", "m", 10};
+    vfield  _speed = {"Vitesse", "km/h", 3};
     float   _latitude; // 7 decimals
     float   _longitude; // 7 decimals
     float   _directionAngle; // North = 0

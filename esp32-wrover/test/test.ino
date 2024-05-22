@@ -32,6 +32,7 @@ BMI160X       imu(0x68);
 AH49E         hall(35);
 ESP32X        esp(2);
 
+
 void setup()
 {
   Serial.begin(115200);
@@ -42,6 +43,12 @@ void setup()
   // NEEDED runtime setup
   // *****************************************************
 
+  /*
+  container.bind(tft);
+  tft.clear();
+  tft.led(4095);
+  tft.text("init", 228, 119, CHAR_6x8, COLOR_GREY_DARK);  
+  */
   // -----------------------------------------------------
   // Init: devices
   // -----------------------------------------------------
@@ -49,16 +56,16 @@ void setup()
   Serial.print("Devices initialization... ");
   container.bind(buzzer);
   container.bind(tft);
-  container.bind(pointer, CONTINUOUS);
+  container.bind(pointer, CONTINUOUS); // to draw points on screen
   container.bind(air);
-  container.bind(emf, HIGH_REFRESH);
+  container.bind(emf, HIGH_REFRESH); // realtime sensors
   container.bind(light);
   container.bind(ear, HIGH_REFRESH);
   container.bind(gps);
   container.bind(imu, HIGH_REFRESH);
   container.bind(hall);
   container.bind(esp);
-  if (container.begin(LOW_REFRESH)) {
+  if (container.begin(MEDIUM_REFRESH)) { // for all but already configured
     Serial.println("OK");
   }
   delay(500);
@@ -88,9 +95,9 @@ void setup()
 
   Serial.print("Initializing webserver...");
   server.onHtml("/", [](){ return html.handleHomePage(3000); });
-  for (int field = 0; field < VSENSOR_COUNT; field++) {
-    server.onHtml("/sensor/" + String(field) + ".svg", [field](){
-      return html.handleHistorySvgGraph(container.getField((vsensor)field), container.getBuffer((vsensor)field));
+  for (int i = 0; i < VSENSOR_COUNT; i++) {
+    server.onHtml("/sensor/" + String(i) + ".svg", [i](){
+      return html.handleHistorySvgGraph(container.getField((vsensor)i), container.getBuffer((vsensor)i));
     });
   }
   //server.onHtml("/sensors", [](){ return getAllSensorsTable(); });
@@ -124,11 +131,16 @@ void setup()
   if (container.isEnabled(POINTER)) {
     Serial.println("Pointer: check led colors and screen cursor");
     pointer.setBoundary(240, 135);
-    pointer.led(COLOR_GREEN, 0); Serial.print("- green"); delay(1000);
-    pointer.led(COLOR_YELLOW, 0); Serial.print(" yellow"); delay(1000);
-    pointer.led(COLOR_ORANGE, 0); Serial.print(" orange"); delay(1000);
-    pointer.led(COLOR_RED, 0); Serial.print(" red"); delay(1000);
-    pointer.led(COLOR_VIOLET, 0); Serial.println(" violet"); delay(1000);
+    pointer.led(COLOR_GREEN, 0); Serial.print("- green"); 
+    delay(500);
+    pointer.led(COLOR_YELLOW, 0); Serial.print(" yellow"); 
+    delay(500);
+    pointer.led(COLOR_ORANGE, 0); Serial.print(" orange"); 
+    delay(500);
+    pointer.led(COLOR_RED, 0); Serial.print(" red"); 
+    delay(500);
+    pointer.led(COLOR_VIOLET, 0); Serial.println(" violet"); 
+    delay(500);
     pointer.led(COLOR_BLACK, 0);
     delay(500);
   }
@@ -136,14 +148,17 @@ void setup()
   // -----------------------------------------------------
   // TFT
   // -----------------------------------------------------
-
   if (container.isEnabled(TFT_SD_SCREEN)) {
     Serial.println("Screen: check diplay, fade out when program loops");
     tft.clear();
-    tft.led(4095);
-    tft.title("IOT #3", 0, 0, COLOR_GREY);
-    tft.text("http://" + esp.getIP(), 3, 17, COLOR_WHITE);
-    tft.text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat.", 0, 30, COLOR_GREY);
+    tft.led(true);
+    tft.rect(0, 0, 20, 135, COLOR_BLUE, 10);
+    tft.rect(10, 0, 20, 135, COLOR_BLACK);
+    tft.text("IOT#3", 12, 0, CHAR_12x16, COLOR_BLUE);
+    tft.text("http://" + esp.getIP(), 15, 25, CHAR_6x8, COLOR_WHITE);
+    tft.text("Pour voir les indicateurs a partir", 15, 35, CHAR_6x8, COLOR_GREY);
+    tft.text("d'un apareil connecte au wifi", 15, 45, CHAR_6x8, COLOR_GREY);
+    tft.text("Bougez la souris", 15, 63, CHAR_6x8, COLOR_WHITE);
     delay(500);
   }
 
@@ -160,9 +175,11 @@ void setup()
   // EEPROM & PSRAM
   // -----------------------------------------------------
 
-  //esp.getEepromTest(); // warning destroys rom in using it, keep commented
-  esp.getPsramTest();
-  delay(500);
+  if (container.isEnabled(MICRO_CONTROLLER)) {
+    //esp.getEepromTest(); // warning destroys rom in using it, keep commented
+    esp.getPsramTest();
+    delay(500);
+  }
 
   // -----------------------------------------------------
   // Realtime sensors calibration
@@ -181,9 +198,11 @@ void setup()
   // Buzzer
   // -----------------------------------------------------
 
-  Serial.println("Buzzer: beep once");
-  buzzer.warning();
-  delay(500);
+  if (container.isEnabled(TFT_SD_SCREEN)) {
+    Serial.println("Buzzer: beep once");
+    buzzer.warning();
+    delay(500);
+  }
 
   // *****************************************************
   // TESTS >>>>>end
@@ -206,8 +225,23 @@ void loop()
   }
 
   if (container.run()) {
-    for (int i = 0; i < container.length; i++) {
-      switch(container.updated[i]) {
+    // event manager 
+    vstatus limit = VERT;
+    vstatus max = GRIS;
+    for (int i = 0; i < VSENSOR_COUNT; i++) {
+      vfield value = container.getField((vsensor)i);
+      if (value.status > max) {
+        max = value.status;
+      }
+    }
+    if (max > limit) {
+      pointer.led(max);
+    } else {
+      pointer.led(false);
+    }
+    // sensor manager
+    for (int i = 0; i < container.updatedLength; i++) {
+      switch(container.updatedChipsets[i]) {
         case POINTER:
           {
             // write pixel in screen
@@ -238,31 +272,12 @@ void loop()
               tft.led(4095, 0, 20000);
             }
             /*
-            // show data from inertial device
+            // show some data from inertial device
             vcoord coord = imu.getGyroscope();
             Serial.print(String(coord.x) + ", " + String(coord.y) + ", " + String(coord.z) + " °   ");
             coord = imu.getAccelerometer();
             Serial.print(String(coord.x) + ", " + String(coord.y) + ", " + String(coord.z) + " g   ");
             Serial.print(String(imu.getTemperature()) + "°C    ");
-            */
-          }
-          break;
-        case MICRO_CONTROLLER:
-          {
-            // count rounds as a sensor
-            container.setField(RUN_CYCLES, (vfield) {"Check cycles ", "/s", 10.0, container.getProcessedChecksPerSecond(), VERT});
-            /*
-            // EVENT manager to do: set color on pointer if one status > JAUNE
-            vstatus limit = GRIS;
-            for (int i = 0; i < VSENSOR_COUNT; i++) {
-              vfield value = getSensor((vsensor) i);
-              if ((int) value.status > limit) limit = value.status;
-            }
-            if (limit > JAUNE) {
-              pointer.led(limit);
-            } else {
-              pointer.led(0, 0);
-            }
             */
           }
           break;
@@ -274,28 +289,28 @@ void loop()
 
 void calibrate(vsensor code)
 {
-  long value = 0;
-  long total = 0;
+  int  value = 0;
+  int  total = 0;
   int  length = 100;
 
   for (int i = 0; i < length; i++) {
     switch (code) {
       case EMF_LEVEL:
-        value = emf.read();
+        value = emf.raw();
         break;
       case GAUSS_LEVEL:
-        value = hall.read();
+        value = hall.raw();
         break;
       case EAR_LEVEL:
-        value = ear.read();
+        value = ear.raw();
         break;
       default:
 
         return;
     }
     total += value;
-    delay(10);
+    delay(1);
   }
 
-  Serial.println(String(total / length));
+  Serial.println(String(total / (float)length));
 }

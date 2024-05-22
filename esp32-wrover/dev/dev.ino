@@ -12,18 +12,17 @@
 #include "PIM447.h"
 #include "BMI160X.h"
 //#include "Wire.h"
-
-// put your include files here:
-
-
+#include "SPI.h"
+#include "data/Bitmap.h"
 
 
 // instanciations come here
 
-//SEN0487       ear(34);
 //BMI160X       imu(0x68);
-EMF001        emf(36);
-
+SEN0487         ear(34);
+EMF001          emf(36);
+ST7789SD        tft(5, 25, 33, 32);
+Bitmap          bitmap;
 
 // arduino init
 
@@ -38,13 +37,20 @@ void setup()
   //Wire.begin(21, 22); // for IMU
   
   // -----------------------------------------------------
-  // TODO
+  // INIT
   // -----------------------------------------------------
 
-  //ear.init();
   //imu.init();
+  ear.init();
   emf.init();
+  tft.init();
 
+  tft.led(true);
+  tft.clear();
+
+  //bitmap.handleStaticGraphPage(tft, 0, "EMF", COLOR_BLUE);
+  bitmap.handleStaticGraphPage(tft, 0, "EAR", COLOR_BLUE);
+  
   // -----------------------------------------------------
 }
 
@@ -55,7 +61,7 @@ void loop()
   // put your main code here, to run repeatedly:
 
   // -----------------------------------------------------
-  // TODO
+  // LOOP
   // -----------------------------------------------------
   
   /*
@@ -69,9 +75,13 @@ void loop()
   Serial.println(String(coord.x) + "," + String(coord.y) + "," + String(coord.z));
   */
 
+  /*
   emf.update();
   Serial.println(String("0," + String(emf.getMaxValue().value) + ",100"));
+  */
 
+  //bitmap.handleRealtimeGraph(tft, emf, 240);
+  bitmap.handleRealtimeGraphUpdate(tft, 25, ear, 240);
 
   // -----------------------------------------------------
   //Serial.print(String((millis() - timer)) + "ms");

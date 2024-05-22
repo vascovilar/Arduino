@@ -7,7 +7,7 @@
 #include "interface/Device.h"
 #include "data/Buffer.h"
 #include "run/Sequencer.h"
-#include "plugin/Rtc.h"
+#include "inherit/Rtc.h"
 
 
 class Container : public Run, public Rtc
@@ -15,21 +15,21 @@ class Container : public Run, public Rtc
   public:
 
     // interface
-    bool    begin(vrun mode);
-    bool    run();
+    bool      begin(vrun mode);
+    bool      run();
 
     // api
-    void    bind(Device &device, vrun mode = INIT_ERROR); // to call before begin function
-    void    bind(Sensor &device, vrun mode = INIT_ERROR); // to call before begin function
-    vfield  getField(vsensor code);
-    void    setField(vsensor code, vfield field);
-    Buffer  getBuffer(vsensor code);
-    bool    isEnabled(vchipset code);
-    float   getProcessedChecksPerSecond() { return _processedChecksPerSecond; };
+    void      bind(Device &device, vrun mode = INIT_ERROR); // to call before begin function
+    void      bind(Sensor &device, vrun mode = INIT_ERROR); // to call before begin function
+    vfield    getField(vsensor code);
+    void      setField(vsensor code, vfield field);
+    Buffer    getBuffer(vsensor code);
+    bool      isEnabled(vchipset code);
+    //bool      isReady(vchipset code); // TODO vasco add to chipset interface. To not graph when chipset not functional
 
     // attributes
-    vchipset updated[VCHIPSET_COUNT];
-    int     length = 0;
+    vchipset  updatedChipsets[VCHIPSET_COUNT];
+    int       updatedLength = 0;
 
   private:
 
@@ -38,9 +38,6 @@ class Container : public Run, public Rtc
     vrun        _mode[VCHIPSET_COUNT];
     vfield      _field[VSENSOR_COUNT];
     Buffer      _buffer[VSENSOR_COUNT];
-    int         _processedChecks = 0;
-    int         _processedTimer = millis();
-    float       _processedChecksPerSecond = 0;
 
     void _updateChipsetSensors(vchipset code);
 

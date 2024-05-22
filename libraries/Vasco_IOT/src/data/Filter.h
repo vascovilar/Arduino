@@ -9,12 +9,12 @@ class Filter : public Data
 {
   static const byte _BUFFER_MAX_SIZE = 100;
 
-  protected:
+  public:
 
     // iterators to smooth graphs
-    float   _smoothFilter(float value, int factor);
-    float   _maximumFilter(float value, int factor);
-    float   _inertiaFilter(float value, int factor);
+    float   smoothFilter(float value, int factor);
+    float   maximumFilter(float value, int factor);
+    float   inertiaFilter(float value, int factor);
 
   private:
 

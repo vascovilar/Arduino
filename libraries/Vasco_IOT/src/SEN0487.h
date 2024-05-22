@@ -2,20 +2,6 @@
  * Read ambiant sound level with DFRobot SEN0487
  * Ref: https://wiki.dfrobot.com/Fermion_MEMS_Microphone_Sensor_SKU_SEN0487
  * Doc: https://dfimg.dfrobot.com/nobody/wiki/5160bfe4d49deff484e1bd66a44d743a.pdf
- *
- * Implementation:
- *
- *   #include <SEN0487.h>
- *
- *   SEN0487 ear(39);
- *
- *   void setup() {
- *     ear.init();
- *   }
- *
- *   void loop() {
- *     Serial.println(ear.getMaxValue().value);
- *   }
  */
 
 #ifndef SEN0487_h
@@ -24,14 +10,14 @@
 #include "Arduino.h"
 #include "interface/Data.h"
 #include "interface/Sensor.h"
-#include "plugin/Pins.h"
+#include "inherit/Pins.h"
 
 class SEN0487 : public Sensor, public AdcPin
 {
   static const int  _ADC_MAX_VALUE = 4000;
   static const int  _ADC_ZERO_VALUE = 1710;
   const float       _ADC_ZERO_THRESOLD = 1.0;
-  const float       _EVENT_THRESOLD_VALUE = 0.38;
+  const float       _EVENT_THRESOLD_VALUE = 10.0;
 
   public:
 
@@ -48,25 +34,29 @@ class SEN0487 : public Sensor, public AdcPin
     {
       switch(code) {
         case EAR_LEVEL:
-          return _maxValue;
+          return _volumeValue;
       }
 
-      return {};
+      return (vfield){};
     }
+
+    // api
+    int     raw();
 
   private:
 
     byte     _analogPin;
-    float    _maxValueBuffer = 0;
-    vfield   _maxValue = {"Intensité Sonore", "%", 1.0};
+    float    _volumeValueBuffer = 0;
+    int      _volumeCount = 0;
+    vfield   _volumeValue = {"Volume sonore", "%", 1};
 
-    vlegend _maxValues[6] = {
+    vlegend _volumeValues[6] = {
       {0, VERT, "silence"},
       {3, VERT, "calme"},
       {10, VERT, "moyenne"},
       {50, JAUNE, "bruit"},
       {90, ORANGE, "fort"},
-      {100, ROUGE, "maximale"},
+      {100, ORANGE, "très fort"},
     };
 };
 

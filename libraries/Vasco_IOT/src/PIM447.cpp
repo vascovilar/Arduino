@@ -16,7 +16,9 @@ bool PIM447::init()
     return false;
   }
 
+  // reset values
   resetMouse();
+  led(false);
 
   return true;
 }
@@ -67,6 +69,11 @@ bool PIM447::update()
   return false;
 }
 
+void PIM447::led(bool status)
+{
+  led(0, status ? 255: 0);
+}
+
 void PIM447::led(int hexadecimal, byte brightness)
 {
   // split RGB channels
@@ -101,7 +108,7 @@ void PIM447::led(vstatus code)
       break;
   }
 
-  led(color, 0);
+  led(color);
 }
 
 

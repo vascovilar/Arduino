@@ -37,6 +37,13 @@ bool ESP32X::check()
 {
   // led fadeout if needed
   _updateLedPMW();
+  // count checks
+  _processedChecks++;
+  // blink blue led each 10 round
+  if (_processedChecks % 10) {
+    led(_isLed);
+    _isLed = !_isLed;
+  }
 
   return false;
 }
@@ -44,8 +51,10 @@ bool ESP32X::check()
 bool ESP32X::update()
 {
   // sensor class values
-  _feed(_memoryUsed, _convertToUsedMemoryPercentage(ESP.getFreeHeap()), _memories, 3);
-
+  feed(_memoryUsed, _convertToUsedMemoryPercentage(ESP.getFreeHeap()), _memories, 3);
+  feed(_checkPerSecond, _processedChecks / ((millis() - _processedTime) / 1000.0), _checks, 3);
+  _processedChecks = 0;
+  _processedTime = millis(); // reset timer
   // udpate local variables
   _psRamUsed = _convertToUsedPsRamPercentage(ESP.getFreePsram()); // readed on SPI channel 3, or use new esp_psram_get_size()
 

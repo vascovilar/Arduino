@@ -86,10 +86,10 @@ bool PA1010D::check()
 bool PA1010D::update()
 {
   // sensor class values
-  _feed(_satellite, _gps.satellites, _satellites, 5);
-  _feed(_fixQuality, _gps.fixquality, _fixQualities, 3);
-  _feed(_altitude, _gps.altitude, _altitudes, 1);
-  _feed(_speed, _convertToKmH(_gps.speed), _speeds, 1);
+  feed(_satellite, _gps.satellites, _satellites, 5);
+  feed(_fixQuality, _gps.fixquality, _fixQualities, 3);
+  feed(_altitude, _gps.altitude, _altitudes, 1);
+  feed(_speed, _convertToKmH(_gps.speed), _speeds, 1);
 
   // update local variables
   _latitude = _gps.latitude;

@@ -3,25 +3,6 @@
  * Ref: https://github.com/EmotiBit/EmotiBit_BMI160/tree/master
  * Pin: https://github.com/hanyazou/BMI160-Arduino/issues/2
  * Doc: https://docs.arduino.cc/retired/archived-libraries/CurieIMU/
- *
- * Implementation:
- *
- *   #include <BMI160X.h>
- *   #include <interface/data.h>
- *
- *   BMI160X imu(0x68);
- *   int gxRaw, gyRaw, gzRaw;
- *
- *   void setup() {
- *     imu.init();
- *   }
- *
- *   void loop() {
- *     if (imu.update()) {
- *       vcoord coord = imu.getGyroscope();
- *       Serial.print(String(coord.x) + ", " + String(coord.y) + ", " + String(coord.z) + " °   ");
- *     }
- *   }
  */
 
 #ifndef BMI160X_h
@@ -30,7 +11,7 @@
 #include "Arduino.h"
 #include "interface/Data.h"
 #include "interface/Sensor.h"
-#include "plugin/Pins.h"
+#include "inherit/Pins.h"
 #include "CurieIMU.h"
 #include "Wire.h"
 
@@ -59,7 +40,7 @@ class BMI160X : public Sensor, public I2cPins, public CurieIMUClass
           return _maxValue;
       }
 
-      return {};
+      return (vfield){};
     }
 
     // other data updated
@@ -84,7 +65,7 @@ class BMI160X : public Sensor, public I2cPins, public CurieIMUClass
     byte    _i2cAddress;
     long    _timer = 0;
     float   _maxValueBuffer = 0;
-    vfield  _maxValue = {"Quantité mouvement", "g", 0.1};
+    vfield  _maxValue = {"Quantité mouvement", "g", 1};
     float   _gx;
     float   _gy;
     float   _gz;

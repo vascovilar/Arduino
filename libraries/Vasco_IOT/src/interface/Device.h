@@ -2,7 +2,7 @@
 #define Device_h
 
 #include "Arduino.h"
-#include "Chipset.h"
+#include "../interface/Chipset.h"
 
 
 class Device : public Chipset

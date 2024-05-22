@@ -7,14 +7,16 @@
 
 class Buffer : public Data
 {
-  static const byte _TMP_BUFFER_MAX_SIZE = 60;
+  static const int    _HISTORY_PUSH_DELAY = 10000; // 180000 = 3 min means 240 mesures = 12h
+  static const int    _HISTORY_MAX_SIZE = 240;
+  static const byte   _TMP_BUFFER_MAX_SIZE = 60;
 
   public:
 
-    float   history[VHISTORY_MAX_SIZE];   // last values stored
-    long    timeline[VHISTORY_MAX_SIZE];  // last dates
+    float   history[_HISTORY_MAX_SIZE];   // last values stored
+    long    timeline[_HISTORY_MAX_SIZE];  // last dates
     int     length;                       // real size of history
-    int     delay = VHISTORY_PUSH_DELAY;
+    int     delay = _HISTORY_PUSH_DELAY;
     float   minimum;
     float   maximum;
     float   average;
@@ -22,6 +24,8 @@ class Buffer : public Data
     byte    trend;
 
     bool    push(float value, long timeStamp);
+    int     getHistoryPushDelay() { return _HISTORY_PUSH_DELAY; }
+    int     getHistoryMaxSize() { return _HISTORY_MAX_SIZE; }
 
   private:
 

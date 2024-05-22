@@ -2,20 +2,6 @@
  * Read data on AH49E hall sensor
  * Ref: https://www.gotronic.fr/pj2-sen-ky035-manual-1934.pdf
  * Doc: https://www.diodes.com/assets/Datasheets/AH49E.pdf
- *
- * Implementation:
- *
- *   #include <AH49E.h>
- *
- *   AH49E gauss(35);
- *
- *   void setup() {
- *     gauss.init();
- *   }
- *
- *   void loop() {
- *     Serial.println(gauss.getMaxValue().value);
- *   }
  */
 
 #ifndef AH49E_h
@@ -24,7 +10,7 @@
 #include "Arduino.h"
 #include "interface/Data.h"
 #include "interface/Sensor.h"
-#include "plugin/Pins.h"
+#include "inherit/Pins.h"
 
 
 class AH49E : public Sensor, public AdcPin
@@ -51,21 +37,24 @@ class AH49E : public Sensor, public AdcPin
           return _maxValue;
       }
 
-      return {};
+      return (vfield){};
     }
+
+    // api
+    int     raw();
 
   private:
 
     byte    _analogPin;
     float   _maxValueBuffer = 0;
-    vfield  _maxValue = {"Champ magnétique", "%", 1.0};
+    vfield  _maxValue = {"Champ magnétique", "%", 1};
 
     vlegend _maxValues[5] = {
       {0, VERT, "aucun champ"},
       {20, VERT, "champ faible"},
       {40, JAUNE, "champ moyen"},
-      {80, ORANGE, "champ fort"},
-      {100, ROUGE, "champ maximum"},
+      {80, JAUNE, "champ fort"},
+      {100, ORANGE, "champ maximum"},
     };
 };
 

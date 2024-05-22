@@ -30,6 +30,9 @@ bool Sequencer::run()
     case LOW_REFRESH:
       _currentDelay = VDELAY_LONG_UPDATE;
       break;
+    case MEDIUM_REFRESH:
+      _currentDelay = VDELAY_MEDIUM_UPDATE;
+      break;
     case HIGH_REFRESH:
     case SLEEPING:
       _currentDelay = VDELAY_SHORT_UPDATE;

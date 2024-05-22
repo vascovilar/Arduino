@@ -21,8 +21,8 @@ void Buffer::_pushHistory(float value, long timeStamp)
   float lastValuesAverage = 0;
 
   length++;
-  if (length > VHISTORY_MAX_SIZE) {
-    length = VHISTORY_MAX_SIZE;
+  if (length > _HISTORY_MAX_SIZE) {
+    length = _HISTORY_MAX_SIZE;
   }
 
   minimum = 9999999;

@@ -1,6 +1,6 @@
 #include "Filter.h"
 
-float Filter::_smoothFilter(float value, int factor)
+float Filter::smoothFilter(float value, int factor)
 {
   if (factor >= _BUFFER_MAX_SIZE) {
     Serial.print(F("Can't smmoth, factor must be < "));
@@ -22,7 +22,7 @@ float Filter::_smoothFilter(float value, int factor)
   return _smoothTotal / (float)factor;
 }
 
-float Filter::_maximumFilter(float value, int factor)
+float Filter::maximumFilter(float value, int factor)
 {
   if (factor >= _BUFFER_MAX_SIZE) {
     Serial.print(F("Can't smmoth, factor must be < "));
@@ -48,7 +48,7 @@ float Filter::_maximumFilter(float value, int factor)
   return maximum;
 }
 
-float Filter::_inertiaFilter(float value, int factor)
+float Filter::inertiaFilter(float value, int factor)
 {
   if (factor >= _BUFFER_MAX_SIZE) {
     Serial.print(F("Can't smmoth, factor must be < "));

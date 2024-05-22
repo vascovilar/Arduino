@@ -2,19 +2,6 @@
  * Read data on BME680 meteo device from Adafruit
  * Ref: https://learn.adafruit.com/adafruit-bme680-humidity-temperature-barometic-pressure-voc-gas
  * Doc: https://cdn-shop.adafruit.com/product-files/3660/BME680.pdf
- *
- * Implementation:
- *
- *   #include <BME680.h>
- *
- *   Air meteo(0);
- *
- *   void setup() {
- *     meteo.init();
- *   }
- *   void loop() {
- *     Serial.println(meteo.getTemperature().value);
- *   }
  */
 
 #ifndef BME680_h
@@ -23,7 +10,7 @@
 #include "Arduino.h"
 #include "interface/Data.h"
 #include "interface/Sensor.h"
-#include "plugin/Pins.h"
+#include "inherit/Pins.h"
 #include "bsec.h"
 #include "Wire.h"
 
@@ -56,7 +43,7 @@ class BME680 : public Sensor, public I2cPins
           return _gasPercentage;
       }
 
-      return {};
+      return (vfield){};
     }
 
     // other data updated
@@ -69,15 +56,15 @@ class BME680 : public Sensor, public I2cPins
 
     Bsec    _iaq = Bsec();
     byte    _i2cAddress;
-    vfield  _temperature = {"Température", "°C", 1.0};
-    vfield  _pressure = {"Pression", "mBar", 1.0};
-    vfield  _humidity = {"Humidité", "%", 5.0};
-    vfield  _gasResistance = {"Resistivité air", "kOhm", 10000.0};
-    vfield  _airQuality = {"Qualité air", "", 10.0};
-    vfield  _co2Equivalent = {"Equivalent CO2", "ppm", 50.0};
-    vfield  _vocEquivalent = {"Equivalent VOC", "ppm", 0.5};
-    vfield  _gasPercentage = {"Particules air", "%", 5.0};
-    vfield  _iaqAccuracy = {"Précision air", "", 1.0};
+    vfield  _temperature = {"Température", "°C", 1};
+    vfield  _pressure = {"Pression", "mBar", 1};
+    vfield  _humidity = {"Humidité", "%", 5};
+    vfield  _gasResistance = {"Resistivité air", "kOhm", 10000};
+    vfield  _airQuality = {"Qualité air", "", 10};
+    vfield  _co2Equivalent = {"Equivalent CO2", "ppm", 50};
+    vfield  _vocEquivalent = {"Equivalent VOC", "ppm", 1};
+    vfield  _gasPercentage = {"Particules air", "%", 5};
+    vfield  _iaqAccuracy = {"Précision air", "", 1};
 
     void    _checkIaqSensorStatus();
     float   _convertToMilliBar(float pressure);
@@ -86,17 +73,17 @@ class BME680 : public Sensor, public I2cPins
     vlegend _temperatures[6] = {
       {0, ORANGE, "glacé"},
       {18, JAUNE, "froid"},
-      {25, VERT, "confortable"},
-      {30, JAUNE, "chaud"},
-      {35, ORANGE, "très chaud"},
-      {85, ROUGE, "trop chaud"},
+      {30, VERT, "confortable"},
+      {35, JAUNE, "chaud"},
+      {45, ORANGE, "très chaud"},
+      {85, ROUGE, "danger"},
     };
 
     vlegend _pressures[10] = {
-      {920, VIOLET, "ouragan classe 5"},
-      {944, VIOLET, "ouragan classe 4"},
+      {920, ROUGE, "ouragan classe 5"},
+      {944, ROUGE, "ouragan classe 4"},
       {964, ROUGE, "ouragan classe 3"},
-      {980, ROUGE, "ouragan classe 2"},
+      {980, ORANGE, "ouragan classe 2"},
       {985, ORANGE, "tempête"},
       {1000, JAUNE, "pluie ou vent"},
       {1020, VERT, "variable"},
@@ -106,12 +93,12 @@ class BME680 : public Sensor, public I2cPins
     };
 
     vlegend _humidities[6] = {
-      {10, VIOLET, "dangereux"},
-      {20, ROUGE, "sec"},
+      {10, ROUGE, "dangereux"},
+      {20, ORANGE, "sec"},
       {50, VERT, "confortable"},
       {60, JAUNE, "humide"},
       {90, ORANGE, "très humide"},
-      {100, ROUGE, "tropical"},
+      {100, ORANGE, "tropical"},
     };
 
     vlegend _gasResistances[1] = {
@@ -121,12 +108,12 @@ class BME680 : public Sensor, public I2cPins
     vlegend _airQualities[8] = {
       {20, VERT, "excellente"},
       {60, VERT, "bonne"},
-      {100, JAUNE, "moyenne"},
-      {150, ORANGE, "passable"},
+      {100, VERT, "moyenne"},
+      {150, JAUNE, "passable"},
       {200, ORANGE, "mauvaise"},
-      {300, ROUGE, "très mauvaise"},
-      {400, ROUGE, "pire"},
-      {1000, VIOLET, "toxique"},
+      {300, ORANGE, "très mauvaise"},
+      {400, ROUGE, "danger"},
+      {1000, ROUGE, "toxique"},
     };
 
     vlegend _co2Equivalents[1] = {
@@ -137,19 +124,20 @@ class BME680 : public Sensor, public I2cPins
       {0, VERT, "ok"},
     };
 
-    vlegend _gasPercentages[5] = {
+    vlegend _gasPercentages[6] = {
       {5, VERT, "air pur"},
-      {20, JAUNE, "aérer"},
-      {40, ORANGE, "ventiler"},
-      {80, ROUGE, "attention"},
-      {100, VIOLET, "maximum"},
+      {15, VERT, "air bon"},
+      {30, JAUNE, "aérer"},
+      {50, JAUNE, "ventiler"},
+      {80, ORANGE, "attention"},
+      {100, ROUGE, "maximum"},
     };
 
     vlegend _iaqAccuracies[4] = {
-      {0, VERT, "non fiable"},
-      {1, JAUNE, "faible"},
-      {2, ORANGE, "moyenne"},
-      {3, ROUGE, "haute"},
+      {0, ROUGE, "non fiable"},
+      {1, ORANGE, "faible"},
+      {2, JAUNE, "moyenne"},
+      {3, VERT, "haute"},
     };
 };
 

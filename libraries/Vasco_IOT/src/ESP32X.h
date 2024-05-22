@@ -3,19 +3,6 @@
  * Ref: https://www.espressif.com/sites/default/files/documentation/esp32_technical_reference_manual_en.pdf
  * Doc: https://www.upesy.fr/blogs/tutorials/upesy-esp32-wrover-devkit-board-documentation-version-latest
  *      https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/
- *
- * Implementation:
- *
- *   #include <ESP32X.h>
- *
- *   ESP32X esp;modified
- *
- *   void setup() {
- *     esp.init();
- *   }
- *   void loop() {
-       Serial.println(esp.getTimeStamp());
- *   }
  */
 
 #ifndef ESP32X_h
@@ -24,11 +11,12 @@
 #include "Arduino.h"
 #include "interface/Data.h"
 #include "interface/Sensor.h"
-#include "plugin/Pins.h"
-#include "plugin/Psram.h"
-#include "plugin/Eeprom.h"
-#include "plugin/Rtc.h"
-#include "plugin/Wifi.h"
+#include "interface/Run.h"
+#include "inherit/Pins.h"
+#include "inherit/Psram.h"
+#include "inherit/Eeprom.h"
+#include "inherit/Rtc.h"
+#include "inherit/Wifi.h"
 
 
 class ESP32X : public Sensor, public PwmPin, public Psram, public Eeprom, public Rtc, public Wifi
@@ -37,7 +25,7 @@ class ESP32X : public Sensor, public PwmPin, public Psram, public Eeprom, public
 
   public:
 
-    ESP32X(byte pin) : Sensor(MICRO_CONTROLLER, false) { _ledPin = pin; }
+    ESP32X(byte pin) : Sensor(MICRO_CONTROLLER, true) { _ledPin = pin; }
 
     // interfaces
     bool    init();
@@ -51,9 +39,11 @@ class ESP32X : public Sensor, public PwmPin, public Psram, public Eeprom, public
       switch(code) {
         case MEMORY_USED:
           return _memoryUsed;
+        case RUN_CYCLES:
+          return _checkPerSecond;
       }
 
-      return {};
+      return (vfield){};
     }
 
     // other data updated
@@ -80,8 +70,13 @@ class ESP32X : public Sensor, public PwmPin, public Psram, public Eeprom, public
   private:
 
     byte     _ledPin;
-    vfield   _memoryUsed = {"Mémoire utilisée", "%", 5.0};
+    vfield   _memoryUsed = {"Mémoire utilisée", "%", 5};
+    vfield   _checkPerSecond = {"Cycles prog", "/s", 10};
     float    _psRamUsed = 0;
+    int      _processedChecks = 0;
+    int      _processedTime = millis();
+    bool     _isLed = false;
+
 
     float _convertToUsedMemoryPercentage(int freeMemory);
     float _convertToUsedPsRamPercentage(int freeMemory);
@@ -95,6 +90,13 @@ class ESP32X : public Sensor, public PwmPin, public Psram, public Eeprom, public
     vlegend _psrams[1] = {
       {10000000, VERT, ""},
     };
+
+    vlegend _checks[3] = {
+      {10, ROUGE, "analog sensors fail"},
+      {100, ORANGE, "warning"},
+      {10000, VERT, "ok"},
+    };
+
 };
 
 #endif

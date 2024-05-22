@@ -26,17 +26,10 @@ bool Container::run()
     if (_instance[i]) {
       if (_sequencer[i]->run()) {
         _updateChipsetSensors((vchipset)i);
-        updated[length++] = (vchipset)i;
+        updatedChipsets[updatedLength++] = (vchipset)i;
         isUpdated = true;
       }
     }
-  }
-  _processedChecks++;
-
-  if (millis() - _processedTimer > 1000) {
-    _processedChecksPerSecond = _processedChecks / ((millis() - _processedTimer) / 1000.0);
-    _processedChecks = 0;
-    _processedTimer = millis(); // reset timer
   }
 
   return isUpdated;
@@ -58,9 +51,11 @@ void Container::bind(Sensor &sensor, vrun mode)
   _mode[code] = mode;
 
   for (int i = 0; i < VSENSOR_COUNT; i++) {
-    if (sensor.get((vsensor)i).label != "") {
+    vfield field = sensor.get((vsensor)i);
+    if (field.label != "") {
       // init buffer for each sensor of a chipset
       _buffer[i] = Buffer();
+      _field[i] = field;
     }
   }
 }
@@ -93,7 +88,7 @@ void Container::_updateChipsetSensors(vchipset code)
     Sensor* sensor = (Sensor*)_instance[code];
     for (int i = 0; i < VSENSOR_COUNT; i++) {
       vfield field = sensor->get((vsensor)i);
-      if (field.label != "") {
+      if (field.label != "" && field.status > GRIS) {
         setField((vsensor)i, field);
       }
     }

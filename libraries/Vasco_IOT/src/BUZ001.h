@@ -1,19 +1,5 @@
 /*
  * Simple custom piezo disk driver
- *
- * Implementation:
- *
- *   #include <BUZ001.h>
- *
- *   BUZ001 sound;
- *
- *   void setup() {
- *     sound.begin(2);
- *   }
- *   void loop() {
- *     sound.beep(440, 10);
- *     delay(1000);
- *   }
  */
 
 #ifndef BUZ001_h
@@ -21,7 +7,7 @@
 
 #include "Arduino.h"
 #include "interface/Device.h"
-#include "plugin/Pins.h"
+#include "inherit/Pins.h"
 
 
 class BUZ001 : public Device, public PwmPin

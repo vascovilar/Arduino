@@ -1,35 +1,18 @@
 /*
-* Icon data lib
-*
-* resize https://www.iloveimg.com/resize-image#resize-options,pixels
-* convert http://javl.github.io/image2cpp/
-* 32x32px
-*
-* usage:
-*    _display.drawBitmap(x, y, data, 32, 32, WHITE);
-*/
+ * Graphs & Icon data lib
+ *
+ * resize https://www.iloveimg.com/resize-image#resize-options,pixels
+ * convert http://javl.github.io/image2cpp/
+ * icon size 32x32px
+ */
 
-#ifndef Icon_h
-#define Icon_h
+#ifndef Bitmap_h
+#define Bitmap_h
 
 #include "Arduino.h"
+#include "../interface/Screen.h"
 #include "../interface/Data.h"
-
-
-class Icon : public Data
-{
-  public:
-
-    const unsigned char* sun() { return VICON_Sun; }
-    const unsigned char* sunAndCloud() { return VICON_SunAndCloud; }
-    const unsigned char* rainAndCloud() { return VICON_RainAndCloud; }
-    const unsigned char* lightningAndCloud() { return VICON_LightningAndCloud; }
-    const unsigned char* snow() { return VICON_Snow; }
-    const unsigned char* night() { return VICON_Night; }
-    const unsigned char* dryDesert() { return VICON_DryDesert; }
-
-    // _display.drawBitmap(x, y, data, 32, 32, WHITE);
-};
+#include "../interface/Sensor.h"
 
 
 const unsigned char VICON_Sun[] PROGMEM = {
@@ -108,6 +91,25 @@ const unsigned char VICON_DryDesert[] PROGMEM = {
   0x00, 0x46, 0x62, 0x00, 0x00, 0x37, 0xec, 0x00, 0x00, 0x0c, 0xf0, 0x00, 0x00, 0x07, 0x20, 0x00,
   0x00, 0x0f, 0xf0, 0x00, 0x00, 0x0c, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
+};
+
+
+class Bitmap : public Data
+{
+  public:
+
+    void handleAbsoluteValueBar(Screen &screen, int offset, float value, float maximum, float minimum, bool isInBuffer = false);
+    void handleStaticGraphPage(Screen &screen, int offset, String name, vcolor code, bool isInBuffer = false);
+    void handleRealtimeGraphUpdate(Screen &screen, int offset, Sensor &sensor, int length, bool isInBuffer = false);
+    void handlePillTitle(Screen &screen, int offset, String content, String content2, vcolor code, bool isInBuffer = false);
+
+    const unsigned char* sun() { return VICON_Sun; }
+    const unsigned char* sunAndCloud() { return VICON_SunAndCloud; }
+    const unsigned char* rainAndCloud() { return VICON_RainAndCloud; }
+    const unsigned char* lightningAndCloud() { return VICON_LightningAndCloud; }
+    const unsigned char* snow() { return VICON_Snow; }
+    const unsigned char* night() { return VICON_Night; }
+    const unsigned char* dryDesert() { return VICON_DryDesert; }
 };
 
 #endif

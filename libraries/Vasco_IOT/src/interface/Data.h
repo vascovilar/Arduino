@@ -3,22 +3,6 @@
 
 #include "Arduino.h"
 
-static const int  VHISTORY_PUSH_DELAY = 60000; // 180000 = 3 min means 240 mesures = 12h
-static const int  VHISTORY_MAX_SIZE = 240;
-
-
-static const byte VSTATUS_COUNT = 6;
-
-enum vstatus {
-  GRIS = 0,   // inactif
-  VERT = 1,   // confort
-  JAUNE = 2,  // perturbé
-  ORANGE = 3, // gêne
-  ROUGE = 4,  // mauvais
-  VIOLET = 5, // danger
-};
-
-static const byte VCOLOR_COUNT = 9;
 
 enum vcolor {
   COLOR_BLACK = 0x000000,
@@ -31,13 +15,26 @@ enum vcolor {
   COLOR_RED = 0xFF0000,
   COLOR_VIOLET = 0x6B49C8,
   COLOR_TURQUOISE = 0x018387,
+  COLOR_BLUE = 0x0000FF,
 };
 
+enum vstatus {
+  GRIS = 0,   // inactif
+  VERT = 1,   // confort
+  JAUNE = 2,  // perturbé
+  ORANGE = 3, // gêne
+  ROUGE = 4,  // danger
+  VIOLET = 5, // maximum
+};
+
+// *********************************
+// Data structures
+// *********************************
 
 struct vfield {
   String    label;
   String    unit;
-  float     tolerance;
+  int       tolerance;
   float     value;
   vstatus   status;
   String    text;
@@ -50,28 +47,38 @@ struct vlegend {
 };
 
 struct vmouse {
-  int     x;
-  int     y;
-  bool    focus;
-  bool    click;
-  bool    left;
-  bool    right;
-  bool    up;
-  bool    down;
+  int       x;
+  int       y;
+  bool      focus;
+  bool      click;
+  bool      left;
+  bool      right;
+  bool      up;
+  bool      down;
 };
 
 struct vcoord {
-  float   x;
-  float   y;
-  float   z;
+  float     x;
+  float     y;
+  float     z;
 };
 
-// TODO vasco add graphic structures text, lines, circles, arrow, big ..
-
+struct vsnap {
+  float*    buffer;
+  int       length;
+  float     maximum;
+  int       time;
+};
 
 class Data
 {
+  protected:
 
+    // Tool: needed for precision, map function use integers only
+    float _isometric(float value, float maximum, float minimum, int height, int offset)
+    {
+      return (1 - ((value - minimum) / (float)(maximum - minimum))) * height + offset;
+    }
 };
 
 #endif

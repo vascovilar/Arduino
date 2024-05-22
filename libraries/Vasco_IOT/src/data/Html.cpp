@@ -3,42 +3,38 @@
 // Affiche la home
 String Html::handleHomePage(int delay)
 {
-  String bloc = _getHtmlBlocEnvironment(
-    COLOR_GREY,
-    delay
-  );
-  return _getPageWrapper(
-    bloc,
-    COLOR_BLACK,
-    COLOR_GREY
-  );
+  String bloc = _getHtmlBlocEnvironment(delay);
+
+  return _getPageWrapper(bloc);
 }
 
-// affiche un graphe svg de suivi
+// affiche un graphe svg de suivi (width='440' height='190')
 String Html::handleHistorySvgGraph(vfield data, Buffer buffer)
 {
   String text, grid, graph, trend;
 
-  float top = buffer.maximum + data.tolerance / 2;
-  float bottom = buffer.minimum - data.tolerance / 2;
-  float totalTime = VHISTORY_MAX_SIZE * VHISTORY_PUSH_DELAY / 1000.0;
+  float top = buffer.maximum + data.tolerance;
+  float bottom = buffer.minimum - data.tolerance;
+  float totalTime = buffer.getHistoryPushDelay() * buffer.getHistoryMaxSize() / 1000.0;
 
   // upper left: rounded status
   text += _getHtmlSvgCircle(25, 20, data.status);
 
-  // upper left: title and text
+  // upper left: title and textmaximum
   if (data.label != "") {
     text += _getHtmlSvgText(40, 25, 14, COLOR_WHITE, data.label);
-    text += _getHtmlSvgText(40, 43, 12, COLOR_GREY, data.text + " +/-" + String(buffer.delta) + " (" + String(data.tolerance) + ")");
   }
 
   // upper right: value and unit
   if (data.status != GRIS) {
-    text += _getHtmlSvgBig(50, data.value);
+    text += _getHtmlSvgText(40, 43, 12, COLOR_GREY, data.text + " ±" + String(buffer.delta) + "(" + String(data.tolerance) + ")");
+    text += _getHtmlSvgTitle(50, data.value);
     text += _getHtmlSvgText(390, 23, 14, COLOR_GREY, data.unit);
     if (buffer.trend == 2) trend += "▼";
     if (buffer.trend == 1) trend += "▲";
     text += _getHtmlSvgText(390, 45, 18, COLOR_GREY_DARK, trend);
+  } else if (data.label != "") {
+    text += _getHtmlSvgText(40, 43, 12, COLOR_GREY, "En attente de données...");
   }
 
   if (buffer.length > 0) {
@@ -46,7 +42,7 @@ String Html::handleHistorySvgGraph(vfield data, Buffer buffer)
     for (int i = 0; i < buffer.length; i++)
     {
       int relativeTime = buffer.timeline[0] - buffer.timeline[i];
-      // do not show more than total time window
+      // do not show topmore than total time window
       if (relativeTime > totalTime) {
         break;
       }
@@ -77,21 +73,42 @@ String Html::handleHistorySvgGraph(vfield data, Buffer buffer)
     float limits[3] = {buffer.maximum, buffer.minimum, buffer.average};
     for (int i = 0; i < 3; i++) {
       float y = _isometric(limits[i], top, bottom, 100, 60);
-      bool isAverageLine = limits[i] == buffer.average;
-      grid += _getHtmlSvgLine(50, y, 410, y, COLOR_GREY_DARK, isAverageLine ? 1: 0.5);
-      text += _getHtmlSvgText(15, y + 3, 10, isAverageLine ? COLOR_GREY: COLOR_GREY_DARK, String(limits[i]));
+      grid += _getHtmlSvgLine(50, y, 410, y, COLOR_GREY_DARK, limits[i] == buffer.average ? 1: 0.5);
+      text += _getHtmlSvgText(15, y + 3, 10, COLOR_GREY, String(limits[i]));
     }
   }
 
-  return _getHtmlBlocSvgCartouche(
-    text,
-    grid,
-    graph
-  );
+  return _getHtmlBlocSvgCartouche(text, grid, graph);
+}
+
+// Affiche un tableau de données
+String Html::handleDataTable(vfield* sensors, int length)
+{
+  String output = "<tr><th>Statut</th><th>Titre</th><th>Valeur</th><th>Commentaire</th>";
+
+  for (int i = 0; i < length; i++) {
+    output += "<tr><td><b style='color:" + _getHtmlColor(sensors[i].status) + "'>█</b></td><td>" + sensors[i].label +"</td><td>" + sensors[i].value + sensors[i].unit + "</td><td>" + sensors[i].text + "</td></tr>";
+  }
+
+  return _getPageWrapper("<table>" + output + "</table>");
+}
+
+// Met a jour la map
+String Html::handleOsmPoint(float latitude, float longitude, float angle) {
+  return "go(" + String(latitude, 7) + ", " + String(longitude, 7) + ", " + String(360 - angle, 0) + ");";
+}
+
+// Affiche les infos GPS
+String Html::handleGpsInfo(int satellites, String quality, float altitude, float speed) {
+  return "Sat:<b style='font-size:16px; color:" + _getHtmlColor(COLOR_GREY) + "'>" + String(satellites) + " " + quality + "</b> | Altitude: " + String(altitude, 2) + " m | Speed: " + String(speed, 2) + " km/h";
+}
+
+String Html::handleNotification(String text) {
+  return "<span class='material-symbols-outlined' style='font-size:12px; color:red;'>warning</span>&nbsp;" + text + "<br>";
 }
 
 // affiche la page html content le header avec CSS et JS
-String Html::_getPageWrapper(String content, vcolor backgroundColor, vcolor fontColor)
+String Html::_getPageWrapper(String content)
 {
   return "\
 <!DOCTYPE html>\
@@ -103,7 +120,7 @@ String Html::_getPageWrapper(String content, vcolor backgroundColor, vcolor font
     <link href='https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap' rel='stylesheet'>\
     <link href='https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined' rel='stylesheet'>\
     <style>\
-      body{padding:10px;background:" + _getHtmlColor(backgroundColor) + ";font-family:Arial,Helvetica,Sans-Serif;font-size:12px;color:" + _getHtmlColor(fontColor) + ";}\
+      body{padding:10px;background:#000000;font-family:Arial,Helvetica,Sans-Serif;font-size:12px;color:#999999;}\
       h1{font-family:'Bebas Neue';font-size:42px;margin:0px;padding-right:20px;color:#333333;}\
       h1 .material-symbols-outlined{font-size:40px;}\
       td{padding-right:10px;}\
@@ -153,7 +170,7 @@ String Html::_getPageWrapper(String content, vcolor backgroundColor, vcolor font
 }
 
 // affiche le bloc de divs a mettre a jour par ajax
-String Html::_getHtmlBlocEnvironment(vcolor titleColor, int reloadDelay)
+String Html::_getHtmlBlocEnvironment(int reloadDelay)
 {
   String div = "";
   String js = "";
@@ -165,7 +182,7 @@ String Html::_getHtmlBlocEnvironment(vcolor titleColor, int reloadDelay)
 
   return "\
 <h1>\
-  <span style='color:" + _getHtmlColor(titleColor) + "'> \
+  <span style='color:#999999'> \
     <span class='material-symbols-outlined'>guardian</span> ESP32 \
   </span> environnement \
 </h1>\
@@ -214,32 +231,6 @@ String Html::_getHtmlBlocSvgCartouche(String text, String grid, String graph)
 </svg>";
 }
 
-// Affiche un tableau de données
-String Html::handleDataTable(vfield* sensors, int length)
-{
-  String output = "<tr><th>Statut</th><th>Titre</th><th>Valeur</th><th>Commentaire</th>";
-
-  for (int i = 0; i < length; i++) {
-    output += "<tr><td><b style='color:" + _getHtmlColor(sensors[i].status) + "'>█</b></td><td>" + sensors[i].label +"</td><td>" + sensors[i].value + sensors[i].unit + "</td><td>" + sensors[i].text + "</td></tr>";
-  }
-
-  return _getPageWrapper("<table>" + output + "</table>", COLOR_BLACK, COLOR_GREY);
-}
-
-// Met a jour la map
-String Html::handleOsmPoint(float latitude, float longitude, float angle) {
-  return "go(" + String(latitude, 7) + ", " + String(longitude, 7) + ", " + String(360 - angle, 0) + ");";
-}
-
-// Affiche les infos GPS
-String Html::handleGpsInfo(int satellites, String quality, float altitude, float speed) {
-  return "Sat:<b style='font-size:16px; color:" + _getHtmlColor(COLOR_GREY) + "'>" + String(satellites) + " " + quality + "</b> | Altitude: " + String(altitude, 2) + " m | Speed: " + String(speed, 2) + " km/h";
-}
-
-String Html::handleNotification(String text) {
-  return "<span class='material-symbols-outlined' style='font-size:12px; color:red;'>warning</span>&nbsp;" + text + "<br>";
-}
-
 String Html::_getHtmlColor(vcolor code)
 {
   String value = String(code, HEX);
@@ -247,6 +238,7 @@ String Html::_getHtmlColor(vcolor code)
     value = "0" + value;
   }
 
+  // example "#999999"
   return "#" + value;
 }
 
@@ -270,9 +262,9 @@ String Html::_getHtmlColor(vstatus code)
   return "";
 }
 
-String Html::_getHtmlSvgLine(float x1, float y1, float x2, float y2, vcolor color, float size)
+String Html::_getHtmlSvgTitle(int offset, float value)
 {
-  return "<line x1='" + String(x1) + "' y1='" + String(y1) + "' x2='" + String(x2) + "' y2='" + String(y2) + "' stroke='" + _getHtmlColor(color) + "' stroke-width='" + String(size) + "' />";
+  return "<text x='" + String((810 - offset) - (String(value).length()) * 24) + "' y='44' font-size='48px' font-weight='bold' fill='url(#shaded)' letter-spacing='-3' transform='scale(0.5, 1)'>" + String(value) + "</text>";
 }
 
 String Html::_getHtmlSvgText(float x, float y, int size, vcolor color, String text)
@@ -280,14 +272,14 @@ String Html::_getHtmlSvgText(float x, float y, int size, vcolor color, String te
   return "<text x='" + String(x) + "' y='" + String(y) + "' font-size='" + String(size) + "px' fill='" + _getHtmlColor(color) + "'>" + text + "</text>";
 }
 
-String Html::_getHtmlSvgBig(int offset, float value)
+String Html::_getHtmlSvgLine(float x1, float y1, float x2, float y2, vcolor color, float size)
 {
-  return "<text x='" + String((810 - offset) - (String(value).length()) * 24) + "' y='44' font-size='48px' font-weight='bold' fill='url(#shaded)' letter-spacing='-3' transform='scale(0.5, 1)'>" + String(value) + "</text>";
+  return "<line x1='" + String(x1) + "' y1='" + String(y1) + "' x2='" + String(x2) + "' y2='" + String(y2) + "' stroke='" + _getHtmlColor(color) + "' stroke-width='" + String(size) + "' />";
 }
 
-String Html::_getHtmlSvgRect(float x, float y, int w, int h, vcolor color)
+String Html::_getHtmlSvgRect(float x, float y, int width, int height, vcolor color)
 {
-  return "<rect x='" + String(x) + "' y='" + String(y) + "' width='" + String(w) + "' height='" + String(h) + "' fill='" + _getHtmlColor(color) + "' />";;
+  return "<rect x='" + String(x) + "' y='" + String(y) + "' width='" + String(width) + "' height='" + String(height) + "' fill='" + _getHtmlColor(color) + "' />";;
 }
 
 String Html::_getHtmlSvgArrow(float x, float y, vcolor color)
@@ -303,9 +295,4 @@ String Html::_getHtmlSvgCircle(float x, float y, vstatus color)
 String Html::_getHtmlLink(String href, String text)
 {
   return "<a href='" + href + "'>" + text + "</a>";
-}
-
-float Html::_isometric(float value, float maximum, float minimum, int height, int offset)
-{
-  return (1 - ((value - minimum) / (float)(maximum - minimum))) * height + offset;
 }

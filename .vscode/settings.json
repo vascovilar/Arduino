@@ -16,7 +16,15 @@
         "unordered_set": "cpp",
         "*.tcc": "cpp",
         "memory": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "*.def": "cpp",
+        "functional": "cpp",
+        "iomanip": "cpp",
+        "limits": "cpp",
+        "numeric": "cpp",
+        "streambuf": "cpp",
+        "tuple": "cpp",
+        "typeinfo": "cpp"
     },
     "C_Cpp.default.compilerPath": ""
 }
