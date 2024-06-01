@@ -12,11 +12,11 @@
 #include "interface/Data.h"
 #include "interface/Sensor.h"
 #include "interface/Run.h"
-#include "inherit/Pins.h"
-#include "inherit/Psram.h"
-#include "inherit/Eeprom.h"
-#include "inherit/Rtc.h"
-#include "inherit/Wifi.h"
+#include "component/Pins.h"
+#include "component/Psram.h"
+#include "component/Eeprom.h"
+#include "component/Rtc.h"
+#include "component/Wifi.h"
 
 
 class ESP32X : public Sensor, public PwmPin, public Psram, public Eeprom, public Rtc, public Wifi
@@ -38,7 +38,7 @@ class ESP32X : public Sensor, public PwmPin, public Psram, public Eeprom, public
     {
       switch(code) {
         case MEMORY_USED:
-          return _memoryUsed;
+          return _memoryAvailable;
         case RUN_CYCLES:
           return _checkPerSecond;
       }
@@ -47,53 +47,44 @@ class ESP32X : public Sensor, public PwmPin, public Psram, public Eeprom, public
     }
 
     // other data updated
-    float   getPsRamUsed() { return _psRamUsed; }
-
-    // api
-    void    led(bool status); // build-in blue led. 0 or 1
-    void    led(int magnitude); // magnitude: 0 to 4095
-    void    led(int from, int to, int duration); // from magnitude to magnitude in milli-seconds duration
-    bool    connectWifi() { return _connectWIFI(); }
-    bool    disconnectWifi() { return _disconnectWIFI(); }
-    int     getWifiAccessPoints() { return _getAccessPointsFromWIFI(); }
-    String  getWifiAccessPointInfo(int index) { return _getAccessPointInfoFromWIFI(index); }
-    String  getIP() { return _getIpWIFI(); }
-    long    getTimeStamp() { return _getTimeStampRTC(); }
-    String  getDateTime() { return _getDateTimeRTC(); }
+    float   getPsRamUsed() { return _psRamAvailable; } // 0 -> 100 %
+    String  getClockWatch() { return _clockWatch; }  // string format "19:34:55"
 
     // TODO vasco tmp testing proxy
     void    getPsramTest();
     void    getEepromTest();
 
-    // TODO vasco add http calls here and scraping tool
+    // TODO vasco add http calls here and scraping tool,  here ?
 
   private:
 
     byte     _ledPin;
-    vfield   _memoryUsed = {"Mémoire utilisée", "%", 5};
-    vfield   _checkPerSecond = {"Cycles prog", "/s", 10};
-    float    _psRamUsed = 0;
+    vfield   _memoryAvailable = {"Mémoire disponible", "Ko", 20};
+    vfield   _checkPerSecond = {"Programme", "fps", 100};
+    float    _psRamAvailable = 0;
+    String   _clockWatch = "";
     int      _processedChecks = 0;
     int      _processedTime = millis();
     bool     _isLed = false;
 
-
     float _convertToUsedMemoryPercentage(int freeMemory);
     float _convertToUsedPsRamPercentage(int freeMemory);
+    float _convertToKiloByte(int freeMemory);
 
 
-    vlegend _memories[2] = {
-      {80, VERT, ""},
-      {100, ORANGE, "chargé"},
+    vlegend _memories[3] = {
+      {10, ROUGE, "plus de mémoire"},
+      {50, ORANGE, "peu de mémoire"},
+      {10000, VERT, "ok"},
     };
 
     vlegend _psrams[1] = {
-      {10000000, VERT, ""},
+      {0, VERT, ""},
     };
 
     vlegend _checks[3] = {
-      {10, ROUGE, "analog sensors fail"},
-      {100, ORANGE, "warning"},
+      {10, ROUGE, "mesures faussées"},
+      {100, ORANGE, "interface ralentie"},
       {10000, VERT, "ok"},
     };
 

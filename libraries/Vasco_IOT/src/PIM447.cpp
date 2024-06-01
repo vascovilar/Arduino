@@ -17,8 +17,8 @@ bool PIM447::init()
   }
 
   // reset values
-  resetMouse();
-  led(false);
+  reset();
+  led(0, 0);
 
   return true;
 }
@@ -42,26 +42,26 @@ bool PIM447::check()
 bool PIM447::update()
 {
   // update local variables
-  if (_trackBall.changed()) {
-    int left = _trackBall.left();
-    int right = _trackBall.right();
-    int up = _trackBall.up();
-    int down = _trackBall.down();
-    // i.e. screen referential
-    _x = _x + (right - left);
+  if (_trackBall.changed()) { // TODO vasco do same thing for other classes update functions (if new data)
+    int leftDelta = pow(_trackBall.left(), 2) / 2;
+    int rightDelta = pow(_trackBall.right(), 2) / 2;
+    int upDelta = pow(_trackBall.up(), 2) / 2;
+    int downDelta = pow(_trackBall.down(), 2) / 2;
+    // apply to screen referentialtrack.
+    _x = _x + (rightDelta - leftDelta);
     if (_x < 0) _x = 0;
-    if (_x > _width) _x = _width;
-    _y = _y + (down - up);
+    if (_x >= _width - 1) _x = _width - 1;
+    _y = _y + (downDelta - upDelta);
     if (_y < 0) _y = 0;
-    if (_y > _height) _y = _height;
+    if (_y > _height - 1) _y = _height - 1;
     // consider clicked when button released
     _focus = _trackBall.click();
     _click = _trackBall.release();
     // direction for menu navigation
-    _left = left > right;
-    _right = right > left;
-    _up = up > down;
-    _down = down > up;
+    _left = leftDelta > rightDelta;
+    _right = rightDelta > leftDelta;
+    _up = upDelta > downDelta;
+    _down = downDelta > upDelta;
 
     return true;
   }
@@ -69,14 +69,47 @@ bool PIM447::update()
   return false;
 }
 
-void PIM447::led(bool status)
+vpointer PIM447::get()
 {
-  led(0, status ? 255: 0);
+  return (vpointer){
+    _x,
+    _y,
+    _focus,
+    _click,
+    _left,
+    _right,
+    _up,
+    _down
+  };
 }
 
-void PIM447::led(int hexadecimal, byte brightness)
+void PIM447::set(vpointer pointer)
 {
-  // split RGB channels
+  _x = pointer.x;
+  _y = pointer.y;
+  _focus = pointer.focus;
+  _click = pointer.click;
+  _left = pointer.left;
+  _right = pointer.right;
+  _up = pointer.up;
+  _down = pointer.down;
+}
+
+void PIM447::reset()
+{
+  _x = _width / 2.0;
+  _y = _height / 2.0;
+  _focus = false;
+  _click = false;
+  _left = false;
+  _right = false;
+  _up = false;
+  _down = false;
+  }
+
+  void PIM447::led(int hexadecimal, byte brightness)
+  {
+    // split RGB channels
   _trackBall.setRed(hexadecimal >> 16);
   _trackBall.setGreen(hexadecimal >> 8 & 0xFF);
   _trackBall.setBlue(hexadecimal & 0xFF);
@@ -85,55 +118,6 @@ void PIM447::led(int hexadecimal, byte brightness)
 
 void PIM447::led(vstatus code)
 {
-  vcolor color = COLOR_BLACK;
-
-  switch (code) {
-    case GRIS:
-      color = COLOR_GREY_DARK;
-      break;
-    case VERT:
-      color = COLOR_GREEN;
-      break;
-    case JAUNE:
-      color = COLOR_YELLOW;
-      break;
-    case ORANGE:
-      color = COLOR_ORANGE;
-      break;
-    case ROUGE:
-      color = COLOR_RED;
-      break;
-    case VIOLET:
-      color = COLOR_VIOLET;
-      break;
-  }
-
+  vcolor color = _convert(code);
   led(color);
-}
-
-
-void PIM447::setBoundary(int width, int height)
-{
-  _width = width;
-  _height = height;
-
-  resetMouse();
-}
-
-void PIM447::setMouse(int x, int y)
-{
-  _x = x;
-  _y = y;
-}
-
-void PIM447::resetMouse()
-{
-  _x = _width / 2;
-  _y = _height / 2;
-  _focus = false;
-  _click = false;
-  _left = false;
-  _right = false;
-  _up = false;
-  _down = false;
 }

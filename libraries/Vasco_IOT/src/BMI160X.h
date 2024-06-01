@@ -1,5 +1,5 @@
 /*
- * Read BMI160 6DoF inertial sensor with I2C transport. Inherit from the Intel's CurieIMU driver
+ * Read BMI160 6DoF inertial sensor with I2C transport. component from the Intel's CurieIMU driver
  * Ref: https://github.com/EmotiBit/EmotiBit_BMI160/tree/master
  * Pin: https://github.com/hanyazou/BMI160-Arduino/issues/2
  * Doc: https://docs.arduino.cc/retired/archived-libraries/CurieIMU/
@@ -11,7 +11,7 @@
 #include "Arduino.h"
 #include "interface/Data.h"
 #include "interface/Sensor.h"
-#include "inherit/Pins.h"
+#include "component/Pins.h"
 #include "CurieIMU.h"
 #include "Wire.h"
 
@@ -66,13 +66,13 @@ class BMI160X : public Sensor, public I2cPins, public CurieIMUClass
     long    _timer = 0;
     float   _maxValueBuffer = 0;
     vfield  _maxValue = {"Quantité mouvement", "g", 1};
-    float   _gx;
-    float   _gy;
-    float   _gz;
-    float   _ax;
-    float   _ay;
-    float   _az;
-    float   _temperature;
+    float   _gx = 0;
+    float   _gy = 0;
+    float   _gz = 0;
+    float   _ax = 0;
+    float   _ay = 0;
+    float   _az = 0;
+    float   _temperature = 0;
 
     float   _convertRawGyro(int gRaw); // convert to °
     float   _convertRawAcceleration(int aRaw); // convert to G

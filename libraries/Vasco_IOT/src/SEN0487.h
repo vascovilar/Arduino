@@ -10,13 +10,12 @@
 #include "Arduino.h"
 #include "interface/Data.h"
 #include "interface/Sensor.h"
-#include "inherit/Pins.h"
+#include "component/Pins.h"
 
 class SEN0487 : public Sensor, public AdcPin
 {
   static const int  _ADC_MAX_VALUE = 4000;
   static const int  _ADC_ZERO_VALUE = 1710;
-  const float       _ADC_ZERO_THRESOLD = 1.0;
   const float       _EVENT_THRESOLD_VALUE = 10.0;
 
   public:
@@ -34,7 +33,7 @@ class SEN0487 : public Sensor, public AdcPin
     {
       switch(code) {
         case EAR_LEVEL:
-          return _volumeValue;
+          return _maxValue;
       }
 
       return (vfield){};
@@ -46,17 +45,16 @@ class SEN0487 : public Sensor, public AdcPin
   private:
 
     byte     _analogPin;
-    float    _volumeValueBuffer = 0;
-    int      _volumeCount = 0;
-    vfield   _volumeValue = {"Volume sonore", "%", 1};
+    float    _maxValueBuffer = 0;
+    vfield   _maxValue = {"Vibration air", "%", 1};
 
-    vlegend _volumeValues[6] = {
+    vlegend _maxValues[6] = {
       {0, VERT, "silence"},
       {3, VERT, "calme"},
       {10, VERT, "moyenne"},
       {50, JAUNE, "bruit"},
-      {90, ORANGE, "fort"},
-      {100, ORANGE, "très fort"},
+      {70, ORANGE, "fort"},
+      {100, ROUGE, "très fort"},
     };
 };
 

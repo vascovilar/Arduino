@@ -4,7 +4,6 @@
 #include "Arduino.h"
 #include "EEPROM.h"
 
-
 enum vmemory_index {
   ROM_BYTE_1 = 0, // 1 byte long
   ROM_BYTE_2 = 1,
@@ -25,13 +24,16 @@ class Eeprom
 {
   static const int _EEPROM_SIZE = 512; // ESP32 all version
 
+  public:
+
+    bool    getFlagInEeprom(vmemory_index index, int boolSlot); // 8 booleans in one octet, slots from 1 to 8
+    void    setFlagInEeprom(vmemory_index index, bool* boolSlots); // send 8 values in array for one octet
+    char*   getPasswordInEeprom(byte index);
+    void    setPasswordInEeprom(byte index, char* password);
+
   protected:
 
     bool    _initEEPROM();
-    bool    _getFlagInEEPROM(vmemory_index index, int boolSlot); // 8 booleans in one octet, slots from 1 to 8
-    void    _setFlagInEEPROM(vmemory_index index, bool* boolSlots); // send 8 values in array for one octet
-    char*   _getPasswordInEEPROM(byte index);
-    void    _setPasswordInEEPROM(byte index, char* password);
 
     template<typename T>
     void    _readEEPROM(int index, T &value)

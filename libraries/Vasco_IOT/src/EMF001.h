@@ -8,7 +8,7 @@
 #include "Arduino.h"
 #include "interface/Data.h"
 #include "interface/Sensor.h"
-#include "inherit/Pins.h"
+#include "component/Pins.h"
 
 
 class EMF001 : public Sensor, public AdcPin
@@ -42,7 +42,6 @@ class EMF001 : public Sensor, public AdcPin
     int     raw();
     float   frequency();
 
-
   private:
 
     byte    _analogPin;
@@ -59,9 +58,9 @@ class EMF001 : public Sensor, public AdcPin
     };
 
     vlegend _frequencies[2] = {
-        {0, VERT, "non detectée"},
-        {40000, VERT, ""},
-      };
+      {0, VERT, "non detectée"},
+      {40000, VERT, ""},
+    };
 
 };
 

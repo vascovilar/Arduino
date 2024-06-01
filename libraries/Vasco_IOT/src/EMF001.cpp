@@ -24,7 +24,7 @@ bool EMF001::wake()
 bool EMF001::check()
 {
   // must read continuously to listen for the slightest change in value
-  float value = read();
+  float value = abs(read());
 
   // noise reduction
   if (value < _ADC_ZERO_THRESOLD) {
@@ -37,14 +37,14 @@ bool EMF001::check()
   }
 
   // detecting anything
-  return _maxValueBuffer > 0;
+  return value > 0;
 }
 
 bool EMF001::update()
 {
   // sensor class values
   feed(_maxValue, _maxValueBuffer, _maxValues, 5);
-  feed(_frequency, _readADCFrequency(), _frequencies, 2);
+  feed(_frequency, readAnalogFrequency(), _frequencies, 2);
 
   // reset max value buffer for another round
   _maxValueBuffer = 0;
@@ -54,15 +54,15 @@ bool EMF001::update()
 
 float EMF001::read()
 {
-  return _readADC();
+  return readAnalogPercentage();
 }
 
 int EMF001::raw()
 {
-  return _rawADC();
+  return readAnalogRawValue();
 }
 
 float EMF001::frequency()
 {
-  return _readADCFrequency();
+  return readAnalogFrequency();
 }

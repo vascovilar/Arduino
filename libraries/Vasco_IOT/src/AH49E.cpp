@@ -12,7 +12,7 @@ bool AH49E::init()
   digitalWrite(26, HIGH);
 
   delay(500);
-  if (_rawADC() == 0) {
+  if (readAnalogRawValue() == 0) {
     Serial.println(F("Error AH49E device not responding"));
 
     return false;
@@ -38,20 +38,15 @@ bool AH49E::wake()
 bool AH49E::check()
 {
   // must read continuously to listen for the slightest change in value
-  float value = read();
-
-  // noise reduction
-  if (value < _ADC_ZERO_THRESOLD) {
-    value = 0.0;
-  }
+  float value = abs(read());
 
   // store max
   if (value > _maxValueBuffer) {
     _maxValueBuffer = value;
   }
 
-  // detecting anything
-  return _maxValueBuffer > 0;
+  // detecting anything bigger than thresold
+  return value > _EVENT_THRESOLD_VALUE;
 }
 
 bool AH49E::update()
@@ -67,10 +62,10 @@ bool AH49E::update()
 
 float AH49E::read()
 {
-  return _readADC();
+  return readAnalogPercentage();
 }
 
 int AH49E::raw()
 {
-  return _rawADC();
+  return readAnalogRawValue();
 }

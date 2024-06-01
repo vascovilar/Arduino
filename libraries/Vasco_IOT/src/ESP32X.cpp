@@ -36,9 +36,11 @@ bool ESP32X::wake()
 bool ESP32X::check()
 {
   // led fadeout if needed
-  _updateLedPMW();
+  runLedFader();
+
   // count checks
   _processedChecks++;
+
   // blink blue led each 10 round
   if (_processedChecks % 10) {
     led(_isLed);
@@ -51,12 +53,16 @@ bool ESP32X::check()
 bool ESP32X::update()
 {
   // sensor class values
-  feed(_memoryUsed, _convertToUsedMemoryPercentage(ESP.getFreeHeap()), _memories, 3);
+  feed(_memoryAvailable, _convertToKiloByte(ESP.getFreeHeap()), _memories, 3);
   feed(_checkPerSecond, _processedChecks / ((millis() - _processedTime) / 1000.0), _checks, 3);
+
+  // udpate other local variables
+  _psRamAvailable = _convertToKiloByte(ESP.getFreePsram()); // readed on SPI channel 3, or use new esp_psram_get_size()
+  _clockWatch = getDateTime().substring(11, 19);
+
+  // reset counters
   _processedChecks = 0;
   _processedTime = millis(); // reset timer
-  // udpate local variables
-  _psRamUsed = _convertToUsedPsRamPercentage(ESP.getFreePsram()); // readed on SPI channel 3, or use new esp_psram_get_size()
 
   return true;
 }
@@ -64,21 +70,6 @@ bool ESP32X::update()
 float ESP32X::read()
 {
   return 0.0;
-}
-
-void ESP32X::led(bool status)
-{
-  _ledPWM(status);
-}
-
-void ESP32X::led(int magnitude)
-{
-  _ledPWM(magnitude);
-}
-
-void ESP32X::led(int from, int to, int duration)
-{
-  _ledPWM(from, to, duration);
 }
 
 void ESP32X::getPsramTest()
@@ -113,8 +104,8 @@ void ESP32X::getEepromTest()
     false,
     false,
   };
-  _setFlagInEEPROM(ROM_BYTE_1, variable2);
-  bool status = _getFlagInEEPROM(ROM_BYTE_1, 1);
+  setFlagInEeprom(ROM_BYTE_1, variable2);
+  bool status = getFlagInEeprom(ROM_BYTE_1, 1);
   Serial.print("- value must be true, " + String(status ? "true": "false") + " found\n");
 }
 
@@ -125,5 +116,10 @@ float ESP32X::_convertToUsedMemoryPercentage(int freeMemory)
 
 float ESP32X::_convertToUsedPsRamPercentage(int freeMemory)
 {
-  return (1 - (ESP.getFreePsram() / 4194304.0)) * 100; // supposed to be 4Mo
+  return (1 - (freeMemory / 4194304.0)) * 100; // supposed to be 4Mo
+}
+
+float ESP32X::_convertToKiloByte(int freeMemory)
+{
+  return freeMemory / 1024.0;
 }

@@ -24,7 +24,12 @@
         "numeric": "cpp",
         "streambuf": "cpp",
         "tuple": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "optional": "cpp",
+        "ratio": "cpp",
+        "system_error": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp"
     },
     "C_Cpp.default.compilerPath": ""
 }

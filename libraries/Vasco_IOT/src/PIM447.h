@@ -10,49 +10,47 @@
 #include "Arduino.h"
 #include "interface/Data.h"
 #include "interface/Device.h"
-#include "inherit/Pins.h"
+#include "interface/Pointer.h"
+#include "interface/Screen.h"
+#include "component/Pins.h"
 #include "Wire.h"
 #include "pimoroniTrackball.h"
 
 
-class PIM447 : public Device, public I2cPins
+class PIM447 : public Device, public Pointer, public I2cPins, public Data
 {
   public:
 
     PIM447(byte addr) : Device(POINTER) { _i2cAddress = addr; }
 
     // interface
-    bool     init();
-    bool     sleep();
-    bool     wake();
-    bool     check();
-    bool     update();
-
-    // data updated
-    vmouse getMouse() { return vmouse {_x, _y, _focus, _click, _left, _right, _up, _down}; }
+    bool      init();
+    bool      sleep();
+    bool      wake();
+    bool      check();
+    bool      update();
+    vpointer  get();
+    void      set(vpointer pointer);
+    void      reset();
 
     // api
-    void     led(bool status);
-    void     led(int hex, byte brightness);
-    void     led(vstatus code);
-    void     setBoundary(int width, int height);
-    void     setMouse(int x, int y);
-    void     resetMouse();
+    void      led(int hex, byte brightness = 0); // this led dont use PWM, it's a 3 color onboarded led
+    void      led(vstatus code);
 
   private:
 
     pimoroniTrackball _trackBall = pimoroniTrackball();
     byte              _i2cAddress;
-    int               _width;
-    int               _height;
-    int               _x;
-    int               _y;
-    bool              _focus;
-    bool              _click;
-    bool              _left;
-    bool              _right;
-    bool              _up;
-    bool              _down;
+    int               _width = VSCREEN_WIDTH;
+    int               _height = VSCREEN_HEIGHT;
+    int               _x = 0;
+    int               _y = 0;
+    bool              _focus = false;
+    bool              _click = false;
+    bool              _left = false;
+    bool              _right = false;
+    bool              _up = false;
+    bool              _down = false;
 };
 
 #endif

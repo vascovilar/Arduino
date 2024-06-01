@@ -6,6 +6,10 @@ bool ST7789SD::init()
   _tft.init(VSCREEN_HEIGHT, VSCREEN_WIDTH);
   _tft.setRotation(3); // set to 3 when device will be finally assembled
   _tft.fillScreen(0);
+  //_tft.setFont(); // system font
+  _tft.setFont(&muMatrix8ptRegular); // custom font included
+  _tft.setTextWrap(false);
+
 
   // TODO vasco: fix SD card ? or device dead ?
   /*
@@ -24,7 +28,7 @@ bool ST7789SD::init()
 
   // avoid screen backlight always on
   clear();
-  led(false); // TODO vasco why do not works
+  led(false);
 
   return true;
 }
@@ -42,7 +46,7 @@ bool ST7789SD::wake()
 bool ST7789SD::check()
 {
   // led fadeout if needed
-  _updateLedPMW();
+  runLedFader();
 
   return false;
 }
@@ -52,43 +56,129 @@ bool ST7789SD::update()
   return false;
 }
 
-void ST7789SD::text(String text, int x, int y, vtextsize size, vcolor code, vcolor bg, bool isInBuffer)
+void ST7789SD::text(float x, float y, String content, vtextsize size, vcolor color, vcolor bgColor, bool isFixedWidthFont, bool isInBuffer)
 {
-  Adafruit_GFX *object = _getDisplayPointer(isInBuffer);
-  object->setTextSize(size);
-  object->setCursor(x, y);
-  object->setTextColor(_convertToRGB565(code), _convertToRGB565(bg));
-  object->setTextWrap(false);
-  object->print(text);
+  Adafruit_GFX *display = _getDisplayPointer(isInBuffer);
+
+//bgColor = COLOR_RED; // debug
+
+  // none font supports latin chars
+  _removeLatinChar(content);
+
+  // switch to fixed size fonts
+  if (isFixedWidthFont) {
+    display->setFont();
+  }
+
+  // With custom font setted in init()
+  display->setTextSize(_convertToSize(size));
+  if (isFixedWidthFont) {
+    display->setCursor(x, y);
+    if (bgColor != COLOR_TRANSPARENT) {
+      display->setTextColor(_convertToRGB565(color), _convertToRGB565(bgColor));
+    } else {
+      display->setTextColor(_convertToRGB565(color));
+    }
+  } else {
+    // Adafruit convention custom fonts draw up from baseline so move cursor
+    display->setCursor(x, y + VSCREEN_CHAR_HEIGHT * _convertToSize(size));
+    // custom font dont use background parameter in setTextColor function
+    display->setTextColor(_convertToRGB565(color));
+    // COLOR_WHITE is defined as transparent for backgrounds in custom font mode
+    if (bgColor != COLOR_TRANSPARENT) {
+      short int xo, yo;
+      short unsigned int width, height;
+      display->getTextBounds(content, x, y, &xo, &yo, &width, &height);
+      // draw missing backgorund
+      display->fillRect(xo, yo + VSCREEN_CHAR_HEIGHT * _convertToSize(size), width, height, _convertToRGB565(bgColor));
+    }
+  }
+
+  // draw text
+  display->print(content);
+
+  // switch to custom fonts right after printing
+  if (isFixedWidthFont) {
+    display->setFont(&muMatrix8ptRegular);
+  }
 }
 
-void ST7789SD::point(int x, int y, vcolor code, bool isInBuffer)
+void ST7789SD::point(float x, float y, vcolor color, bool isInBuffer)
 {
-  Adafruit_GFX *object = _getDisplayPointer(isInBuffer);
-  object->drawPixel(x, y, _convertToRGB565(code));
+  Adafruit_GFX *display = _getDisplayPointer(isInBuffer);
+  display->drawPixel(x, y, _convertToRGB565(color));
 }
 
-void ST7789SD::line(int x1, int y1, int x2, int y2, vcolor code, bool isInBuffer)
+void ST7789SD::line(float x1, float y1, float x2, float y2, vcolor color, bool isInBuffer)
 {
-  Adafruit_GFX *object = _getDisplayPointer(isInBuffer);
-  object->drawLine(x1, y1, x2, y2, _convertToRGB565(code));
+  Adafruit_GFX *display = _getDisplayPointer(isInBuffer);
+  display->drawLine(x1, y1, x2, y2, _convertToRGB565(color));
 }
-void ST7789SD::rect(int x, int y, int width, int height, vcolor code, int radius, bool isInBuffer)
+void ST7789SD::rect(float x, float y, int width, int height, vcolor color, int radius, bool isFilled, bool isInBuffer)
 {
-  Adafruit_GFX *object = _getDisplayPointer(isInBuffer);
-  object->fillRoundRect(x, y, width, height, radius, _convertToRGB565(code));
-}
-
-void ST7789SD::arrow(int x, int y, int width, int height, vcolor code, bool isInBuffer)
-{
-  Adafruit_GFX *object = _getDisplayPointer(isInBuffer);
-
+  Adafruit_GFX *display = _getDisplayPointer(isInBuffer);
+  if (isFilled) {
+    display->fillRoundRect(x, y, width, height, radius, _convertToRGB565(color));
+  } else {
+    display->drawRoundRect(x, y, width, height, radius, _convertToRGB565(color));
+  }
 }
 
-void ST7789SD::circle(int x, int y, int radius, vcolor code, bool isInBuffer)
+void ST7789SD::arrow(float x, float y, int width, int height, vcolor color, bool isInBuffer)
 {
-  Adafruit_GFX *object = _getDisplayPointer(isInBuffer);
-  object->fillCircle(x, y, radius, _convertToRGB565(code));
+  Adafruit_GFX *display = _getDisplayPointer(isInBuffer);
+  display->fillTriangle(x, y, x + width, y + height / 2, x + width, y - height / 2, _convertToRGB565(color));
+}
+
+void ST7789SD::circle(float x, float y, int radius, vcolor color, bool isInBuffer)
+{
+  Adafruit_GFX *display = _getDisplayPointer(isInBuffer);
+  display->fillCircle(x + radius, y + radius, radius, _convertToRGB565(color));
+}
+
+void ST7789SD::bitmap(float x, float y, const unsigned char* data, int width, int height, vcolor color, vcolor bgColor, bool isInBuffer)
+{
+  Adafruit_GFX *display = _getDisplayPointer(isInBuffer);
+
+  if (bgColor != COLOR_TRANSPARENT) {
+    rect(x, y, width, height, bgColor, isInBuffer);
+  }
+
+  display->drawBitmap(x, y, data, width, height, _convertToRGB565(color));
+}
+
+float ST7789SD::width(String content, vtextsize size, bool isFixedWidthFont)
+{
+  short unsigned int width = 0;
+
+  if (content == "") {
+
+    return 0;
+  }
+
+  // none font supports latin chars
+  _removeLatinChar(content);
+
+  if (isFixedWidthFont) {
+    width = content.length() * VSCREEN_CHAR_WIDTH * _convertToSize(size);
+  } else {
+    short int xo, yo;
+    short unsigned int height;
+    _tft.setTextSize(_convertToSize(size));
+    _tft.getTextBounds(content, 0, 0, &xo, &yo, &width, &height); // get text zone by reference
+  }
+
+  return width;
+}
+
+float ST7789SD::height(String content, vtextsize size)
+{
+  if (content == "") {
+
+    return 0;
+  }
+
+  return VSCREEN_CHAR_HEIGHT * _convertToSize(size); // ever 1 line height
 }
 
 void ST7789SD::swap()
@@ -104,19 +194,12 @@ void ST7789SD::clear()
   _tft.fillScreen(0);
 }
 
-void ST7789SD::led(bool status)
+void ST7789SD::print(String content)
 {
-  _ledPWM(status ? 4095: 0);
-}
+  float paddingToCenter = VSCREEN_WIDTH / 2.0 - width(content, SIZE_TEXT) / 2.0;
+  float offset = VSCREEN_HEIGHT / 2.0;
 
-void ST7789SD::led(int magnitude)
-{
-  _ledPWM(magnitude);
-}
-
-void ST7789SD::led(int from, int to, int duration)
-{
-  _ledPWM(from, to, duration);
+  text(paddingToCenter, offset, content, SIZE_TEXT, COLOR_WHITE, COLOR_BLACK);
 }
 
 void ST7789SD::listFiles()
@@ -141,14 +224,15 @@ void ST7789SD::listFiles()
 
 Adafruit_GFX* ST7789SD::_getDisplayPointer(bool isInBuffer)
 {
-  Adafruit_GFX *object;
+  Adafruit_GFX *display;
+
   if (isInBuffer) {
-    object = &_canvas;
+    display = &_canvas;
   } else {
-    object = &_tft;
+    display = &_tft;
   }
 
-  return object;
+  return display;
 }
 
 int ST7789SD::_convertToRGB565(int hexadecimal)
@@ -171,4 +255,20 @@ int ST7789SD::_convertToRGB565(String html)
   int value = strtoul(str, &ptr, 16);
 
   return _convertToRGB565(value);
+}
+
+int ST7789SD::_convertToSize(vtextsize size)
+{
+  switch(size) {
+    case SIZE_SMALL:
+      return 1;       // 6x8 px
+    case SIZE_TEXT:
+      return 1;       // 6x8 px
+    case SIZE_TITLE:
+      return 2;       // 12x16 px
+    case SIZE_BIG:
+      return 2;       // 12x16 px
+  }
+
+  return 0;
 }

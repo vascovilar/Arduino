@@ -3,38 +3,63 @@
 
 #include "Arduino.h"
 #include "interface/Data.h"
+#include "interface/Sensor.h"
+#include "data/Buffer.h"
+#include "../component/Rtc.h"
 
-static const int  VSCREEN_WIDTH = 240;
+
+static const int  VSCREEN_WIDTH = 240; // TODO vasco dispatch these in another classes
 static const int  VSCREEN_HEIGHT = 135;
+static const int  VSCREEN_WIDTH_WEB = 420;
+static const int  VSCREEN_HEIGHT_WEB = 110;
+static const int  VSCREEN_CHAR_WIDTH = 6;
+static const int  VSCREEN_CHAR_HEIGHT = 7;
+static const int  VSCREEN_PADDING_X = 8;
+static const int  VSCREEN_PADDING_Y = 2;
+static const int  VSCREEN_RADIUS = 7;
+static const int  VSCREEN_LINESPACING = 9;
+static const int  VSCREEN_COL_MARGIN = 5;
+static const int  VSCREEN_COL_BAR = 68;
+static const int  VSCREEN_COL_BACK = 95;
+static const int  VSCREEN_OFFSET_HEADER = 2 * VSCREEN_RADIUS + 2 * VSCREEN_PADDING_Y + 5;
+static const int  VSCREEN_OFFSET_FOOTER = VSCREEN_HEIGHT - VSCREEN_CHAR_HEIGHT - 5;
+static const int  VSCREEN_OFFSET_EVENT = 74;
+
 
 enum vtextsize {
-  CHAR_6x8 = 1,
-  CHAR_12x16 = 2,
-  CHAR_24x32 = 3,
-  CHAR_48x64 = 4,
-  CHAR_96x128 = 5,
+  SIZE_SMALL = 1,
+  SIZE_TEXT = 2,
+  SIZE_TITLE = 3,
+  SIZE_BIG = 4,
 };
 
 
-class Screen
+class Screen : public Rtc
 {
   public:
 
-    virtual void    text(String content, int x, int y, vtextsize size, vcolor code, vcolor bg = COLOR_BLACK, bool isInBuffer = false);
-    virtual void    point(int x, int y, vcolor code, bool isInBuffer = false);
-    virtual void    line(int x1, int y1, int x2, int y2, vcolor code, bool isInBuffer = false);
-    virtual void    rect(int x, int y, int width, int height, vcolor code, int radius = 0, bool isInBuffer = false);
-    virtual void    arrow(int x, int y, int width, int height, vcolor code, bool isInBuffer = false);
-    virtual void    circle(int x, int y, int radius, vcolor code, bool isInBuffer = false);
-    virtual void    swap(); // swap double buffer: _canvas -> display
-    virtual void    clear(); // clear screen
+    virtual void    text(float x, float y, String content, vtextsize size, vcolor color, vcolor bgColor = COLOR_TRANSPARENT, bool isFixedWidthFont = false, bool isInBuffer = false) = 0;
+    virtual void    point(float x, float y, vcolor color, bool isInBuffer = false) = 0;
+    virtual void    line(float x1, float y1, float x2, float y2, vcolor color, bool isInBuffer = false) = 0;
+    virtual void    rect(float x, float y, int width, int height, vcolor color, int radius = 0, bool isFilled = true, bool isInBuffer = false) = 0;
+    virtual void    arrow(float x, float y, int width, int height, vcolor color, bool isInBuffer = false) = 0; // TODO vasco isFIlled or transparent
+    virtual void    circle(float x, float y, int radius, vcolor color, bool isInBuffer = false) = 0; // TODO vasco isFIlled or transparent
+    virtual void    bitmap(float x, float y, const unsigned char* data, int width, int height, vcolor color, vcolor bgColor = COLOR_TRANSPARENT, bool isInBuffer = false) = 0;
+    //virtual void    image(content, int x, int y, int width, int height) = 0 // TODO vasco continue with 16 bit color image
+    virtual float   width(String content, vtextsize size, bool isFixedWidthFont = false) = 0;
+    virtual float   height(String content, vtextsize size) = 0;
+    virtual void    swap() = 0; // swap double buffer: _canvas -> display
+    virtual void    clear() = 0; // clear screen
 
-    // api
-    int             getWidth() { return VSCREEN_WIDTH; }
-    int             getHeight() { return VSCREEN_HEIGHT; }
+    // common math tools
+    void            drawValueHistory(vfield field, Buffer buffer, int offset, int width, int height, vcolor bgColor = COLOR_TRANSPARENT, bool isInBuffer = false);
+    float           drawSensorSnap(Sensor &sensor, int length, int offset, int width, int height, vcolor bgColor = COLOR_TRANSPARENT, bool isInBuffer = false);
 
+  protected:
 
-    //virtual void    image(content, int x, int y, int width, int height) // TODO vasco continue
+    void            _removeLatinChar(String &content); // tft screen does not support latin chars, return by reference
+    float           _isometric(float value, float minimum, float maximum, int width, int offset); // needed for precision, map function use integers only
+
 };
 
 #endif

@@ -12,13 +12,14 @@ class Wifi
   static const int  _DAYLIGHT_OFFSET = 3600; // for France : winter 0, spring 3600
   static const int  _CREDENTIAL_COUNT = 2;
 
-  protected:
+  public:
 
-    bool    _connectWIFI();
-    bool    _disconnectWIFI();
-    int     _getAccessPointsFromWIFI();
-    String  _getAccessPointInfoFromWIFI(int index);
-    String  _getIpWIFI();
+    bool    connectWifi();
+    bool    disconnectWifi();
+    int     getAccessPointsCount();
+    String  getAccessPointInfo(int index);
+    String  getNetwork();
+    String  getIp();
 
   private:
 

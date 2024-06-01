@@ -10,7 +10,7 @@
 #include "Arduino.h"
 #include "interface/Data.h"
 #include "interface/Sensor.h"
-#include "inherit/Pins.h"
+#include "component/Pins.h"
 #include "bsec.h"
 #include "Wire.h"
 
@@ -63,7 +63,7 @@ class BME680 : public Sensor, public I2cPins
     vfield  _airQuality = {"Qualité air", "", 10};
     vfield  _co2Equivalent = {"Equivalent CO2", "ppm", 50};
     vfield  _vocEquivalent = {"Equivalent VOC", "ppm", 1};
-    vfield  _gasPercentage = {"Particules air", "%", 5};
+    vfield  _gasPercentage = {"Particules & gaz", "%", 5};
     vfield  _iaqAccuracy = {"Précision air", "", 1};
 
     void    _checkIaqSensorStatus();
@@ -92,11 +92,12 @@ class BME680 : public Sensor, public I2cPins
       {10000, ORANGE, "hyperbare"},
     };
 
-    vlegend _humidities[6] = {
+    vlegend _humidities[7] = {
       {10, ROUGE, "dangereux"},
-      {20, ORANGE, "sec"},
-      {50, VERT, "confortable"},
-      {60, JAUNE, "humide"},
+      {20, ORANGE, "très sec"},
+      {40, JAUNE, "sec"},
+      {60, VERT, "confortable"},
+      {70, JAUNE, "humide"},
       {90, ORANGE, "très humide"},
       {100, ORANGE, "tropical"},
     };
@@ -128,8 +129,8 @@ class BME680 : public Sensor, public I2cPins
       {5, VERT, "air pur"},
       {15, VERT, "air bon"},
       {30, JAUNE, "aérer"},
-      {50, JAUNE, "ventiler"},
-      {80, ORANGE, "attention"},
+      {50, ORANGE, "ventiler"},
+      {80, ROUGE, "attention"},
       {100, ROUGE, "maximum"},
     };
 

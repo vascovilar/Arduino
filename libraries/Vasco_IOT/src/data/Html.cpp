@@ -1,5 +1,75 @@
 #include "Html.h"
 
+
+void Html::text(float x, float y, String content, vtextsize size, vcolor color, vcolor bgColor, bool isFixedWidthFont, bool isInBuffer)
+{
+  if (size == SIZE_BIG) {
+    _htmlScript += "<text x='" + String((810 - x) - (String(content).length()) * 24) + "' y='44' font-size='" + _getHtmlSize(size) + "' font-weight='bold' fill='url(#shaded)' letter-spacing='-3' transform='scale(0.5, 1)'>" + content + "</text>";
+  } else {
+    _htmlScript += "<text x='" + String(x) + "' y='" + String(y) + "' font-size='" + _getHtmlSize(size) + "' fill='" + _getHtmlColor(color) + "'>" + content + "</text>";
+  }
+}
+
+void Html::point(float x, float y, vcolor color, bool isInBuffer)
+{
+  // TODO vasco use here
+}
+
+void Html::line(float x1, float y1, float x2, float y2, vcolor color, bool isInBuffer)
+{
+  _htmlScript += "<line x1='" + String(x1) + "' y1='" + String(y1) + "' x2='" + String(x2) + "' y2='" + String(y2) + "' stroke='" + _getHtmlColor(color) + "' />";
+}
+
+void Html::rect(float x, float y, int width, int height, vcolor color, int radius, bool isFilled, bool isInBuffer)
+{
+  _htmlScript += "<rect x='" + String(x) + "' y='" + String(y) + "' width='" + String(width) + "' height='" + String(height) + "' fill='" + _getHtmlColor(color) + "' />";;
+}
+
+void Html::arrow(float x, float y, int width, int height, vcolor color, bool isInBuffer)
+{
+  _htmlScript += "<polygon points='" + String(x) + " " + String(y) + ", " + String(x + 6) + " " + String(y + 3) + ", " + String(x + 6) + " " + String(y - 3) + "' fill='" + _getHtmlColor(color) + "' />";
+}
+
+void Html::circle(float x, float y, int radius, vcolor color, bool isInBuffer)
+{
+  _htmlScript += "<circle cx='" + String(x) + "' cy='" + String(y) +"' r='" + String(radius) + "' fill='" + _getHtmlColor(color) + "' />";
+}
+
+void Html::bitmap(float x, float y, const unsigned char* data, int width, int height, vcolor color, vcolor bgColor, bool isInBuffer)
+{
+  // TODO vasco use here
+}
+
+float Html::width(String content, vtextsize size, bool isFixedWidthFont)
+{
+  // not used here
+  return 0;
+}
+
+float Html::height(String content, vtextsize size)
+{
+  // not used here
+  return 0;
+}
+
+void Html::swap()
+{
+  // not used here
+}
+
+void Html::clear()
+{
+  // not used here
+}
+
+String Html::makeHtmlScript()
+{
+  String tmp = _htmlScript;
+  _htmlScript = "";
+
+  return tmp;
+}
+
 // Affiche la home
 String Html::handleHomePage(int delay)
 {
@@ -8,77 +78,38 @@ String Html::handleHomePage(int delay)
   return _getPageWrapper(bloc);
 }
 
-// affiche un graphe svg de suivi (width='440' height='190')
+// affiche un graphe svg de suivi (width='430' height='190')
 String Html::handleHistorySvgGraph(vfield data, Buffer buffer)
 {
-  String text, grid, graph, trend;
-
   float top = buffer.maximum + data.tolerance;
   float bottom = buffer.minimum - data.tolerance;
-  float totalTime = buffer.getHistoryPushDelay() * buffer.getHistoryMaxSize() / 1000.0;
+  float totalTime = VBUFFER_PUSH_DELAY * VBUFFER_MAX_SIZE / 1000.0;
 
   // upper left: rounded status
-  text += _getHtmlSvgCircle(25, 20, data.status);
+  circle(25, 20, 8, _convert(data.status));
 
-  // upper left: title and textmaximum
+  // upper left: title
   if (data.label != "") {
-    text += _getHtmlSvgText(40, 25, 14, COLOR_WHITE, data.label);
+     text(40, 25, data.label, SIZE_TITLE, COLOR_WHITE);
   }
 
   // upper right: value and unit
   if (data.status != GRIS) {
-    text += _getHtmlSvgText(40, 43, 12, COLOR_GREY, data.text + " ±" + String(buffer.delta) + "(" + String(data.tolerance) + ")");
-    text += _getHtmlSvgTitle(50, data.value);
-    text += _getHtmlSvgText(390, 23, 14, COLOR_GREY, data.unit);
-    if (buffer.trend == 2) trend += "▼";
-    if (buffer.trend == 1) trend += "▲";
-    text += _getHtmlSvgText(390, 45, 18, COLOR_GREY_DARK, trend);
+    text(40, 43, data.text + " ±" + String(buffer.delta) + "(" + String(data.tolerance) + ")", SIZE_TEXT, COLOR_GREY);
+    text(50, 0, String(data.value), SIZE_BIG, COLOR_TRANSPARENT);
+    text(390, 23, data.unit, SIZE_TEXT, COLOR_GREY);
+    String symbol = "";
+    if (buffer.trend == 2) symbol += "▼";
+    if (buffer.trend == 1) symbol += "▲";
+    text(390, 45, symbol, SIZE_TEXT, COLOR_GREY_DARK);
   } else if (data.label != "") {
-    text += _getHtmlSvgText(40, 43, 12, COLOR_GREY, "En attente de données...");
+    text(40, 43, "En attente de données...", SIZE_TEXT, COLOR_GREY);
   }
 
-  if (buffer.length > 0) {
-    // iterate values to draw graph
-    for (int i = 0; i < buffer.length; i++)
-    {
-      int relativeTime = buffer.timeline[0] - buffer.timeline[i];
-      // do not show topmore than total time window
-      if (relativeTime > totalTime) {
-        break;
-      }
+  // use Screen class function
+  drawValueHistory(data, buffer, 60, VSCREEN_WIDTH_WEB, VSCREEN_HEIGHT_WEB, COLOR_TRANSPARENT);
 
-      // calculate coords
-      float x1 = 410 - 360 * relativeTime / totalTime;
-      if (i != 0) {
-        float x2 = 410 - 360 * (buffer.timeline[0] - buffer.timeline[i - 1]) / totalTime;
-        float y1 = _isometric(buffer.history[i], top, bottom, 100, 60);
-        float y2 = _isometric(buffer.history[i - 1], top, bottom, 100, 60);
-
-        // draw all values
-        graph += _getHtmlSvgLine(x1, y1, x2, y2, COLOR_WHITE);
-      }
-
-      // draw vertical lines : timeline in minuts (first value is bold line)
-      if (i % 20 == 0) {
-        grid += _getHtmlSvgLine(x1 , 60, x1, 165, COLOR_GREY_DARK, i == 0 ? 1.0: 0.5);
-        text += _getHtmlSvgText(x1 - 5, 173, 8, COLOR_GREY, _convertUpTimeToDateTimeRTC(relativeTime, true));
-      }
-    }
-
-    // draw right arrow (current real time value)
-    float y3 = _isometric(data.value, top, bottom, 100, 60);
-    text += _getHtmlSvgArrow(410, y3, COLOR_GREY);
-
-    // draw horizontal lines : values max, min, average
-    float limits[3] = {buffer.maximum, buffer.minimum, buffer.average};
-    for (int i = 0; i < 3; i++) {
-      float y = _isometric(limits[i], top, bottom, 100, 60);
-      grid += _getHtmlSvgLine(50, y, 410, y, COLOR_GREY_DARK, limits[i] == buffer.average ? 1: 0.5);
-      text += _getHtmlSvgText(15, y + 3, 10, COLOR_GREY, String(limits[i]));
-    }
-  }
-
-  return _getHtmlBlocSvgCartouche(text, grid, graph);
+  return _getHtmlBlocSvgCartouche(makeHtmlScript());
 }
 
 // Affiche un tableau de données
@@ -107,6 +138,44 @@ String Html::handleNotification(String text) {
   return "<span class='material-symbols-outlined' style='font-size:12px; color:red;'>warning</span>&nbsp;" + text + "<br>";
 }
 
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+String Html::_getHtmlSize(vtextsize size)
+{
+  switch (size) {
+    case  SIZE_SMALL:
+      return "8px";
+    case SIZE_TEXT:
+      return "12px";
+    case SIZE_TITLE:
+      return "14px";
+    case SIZE_BIG:
+      return "48px";
+  }
+
+  return "";
+}
+
+String Html::_getHtmlColor(vcolor color)
+{
+  String value = String(color, HEX);
+  for (int i = value.length() + 1; i <= 6; i++) { // count without extra character for the null terminator
+    value = "0" + value;
+  }
+
+  // example "#999999"
+  return "#" + value;
+}
+
+String Html::_getHtmlColor(vstatus status)
+{
+  vcolor color = _convert(status);
+
+  return _getHtmlColor(color);
+}
+
 // affiche la page html content le header avec CSS et JS
 String Html::_getPageWrapper(String content)
 {
@@ -129,8 +198,8 @@ String Html::_getPageWrapper(String content)
       div{float:left;}\
       .bordered{border:1px solid #333333;border-radius:20px;margin:5px;overflow:hidden;}\
       .padded{padding:20px; padding-top:15px;}\
-      .simple{width:440px; height:190px;}\
-      .double{width:440px; height:390px;}\
+      .simple{width:430px; height:190px;}\
+      .double{width:430px; height:390px;}\
       .tile{margin:3px;padding:5px;border:1px solid #000000;border-radius:10px;background:#000000;text-align:center;}\
       .tile:hover{border-color:#366899;cursor:pointer;}\
       .button{background:#366899;color:#000000;font-size:14px;padding:10px 20px 10px 20px;margin-top:10px;border-radius:20px;font-weight:bold;}\
@@ -206,10 +275,10 @@ String Html::_getHtmlBlocEnvironment(int reloadDelay)
 }
 
 // affiche le bloc graphique
-String Html::_getHtmlBlocSvgCartouche(String text, String grid, String graph)
+String Html::_getHtmlBlocSvgCartouche(String content)
 {
   return "\
-<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='440' height='190'>\
+<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='430' height='190'>\
   <style>\
     text { font-family:'Courier'; };\
     line { stroke-width:'1'; };\
@@ -224,73 +293,15 @@ String Html::_getHtmlBlocSvgCartouche(String text, String grid, String graph)
       <stop offset='100%' stop-color='#333333' />\
     </linearGradient>\
   </defs>\
-  <rect width='440' height='190' fill='url(#gradient)' rx='20' ry='20' />\
-  <g>" + grid + "</g>\
-  <g>" + graph + "</g>\
-  " + text + "\
+  <rect width='430' height='190' fill='url(#gradient)' rx='20' ry='20' />\
+  " + content + "\
 </svg>";
 }
 
-String Html::_getHtmlColor(vcolor code)
-{
-  String value = String(code, HEX);
-  for (int i = value.length() + 1; i <= 6; i++) { // count without extra character for the null terminator
-    value = "0" + value;
-  }
-
-  // example "#999999"
-  return "#" + value;
-}
-
-String Html::_getHtmlColor(vstatus code)
-{
-  switch (code) {
-    case GRIS:
-      return _getHtmlColor(COLOR_GREY_DARK);
-    case VERT:
-      return _getHtmlColor(COLOR_GREEN);
-    case JAUNE:
-      return _getHtmlColor(COLOR_YELLOW);
-    case ORANGE:
-      return _getHtmlColor(COLOR_ORANGE);
-    case ROUGE:
-      return _getHtmlColor(COLOR_RED);
-    case VIOLET:
-      return _getHtmlColor(COLOR_VIOLET);
-  }
-
-  return "";
-}
-
-String Html::_getHtmlSvgTitle(int offset, float value)
-{
-  return "<text x='" + String((810 - offset) - (String(value).length()) * 24) + "' y='44' font-size='48px' font-weight='bold' fill='url(#shaded)' letter-spacing='-3' transform='scale(0.5, 1)'>" + String(value) + "</text>";
-}
-
-String Html::_getHtmlSvgText(float x, float y, int size, vcolor color, String text)
-{
-  return "<text x='" + String(x) + "' y='" + String(y) + "' font-size='" + String(size) + "px' fill='" + _getHtmlColor(color) + "'>" + text + "</text>";
-}
-
-String Html::_getHtmlSvgLine(float x1, float y1, float x2, float y2, vcolor color, float size)
-{
-  return "<line x1='" + String(x1) + "' y1='" + String(y1) + "' x2='" + String(x2) + "' y2='" + String(y2) + "' stroke='" + _getHtmlColor(color) + "' stroke-width='" + String(size) + "' />";
-}
-
-String Html::_getHtmlSvgRect(float x, float y, int width, int height, vcolor color)
-{
-  return "<rect x='" + String(x) + "' y='" + String(y) + "' width='" + String(width) + "' height='" + String(height) + "' fill='" + _getHtmlColor(color) + "' />";;
-}
-
-String Html::_getHtmlSvgArrow(float x, float y, vcolor color)
-{
-  return "<polygon points='" + String(x + 3) + " " + String(y) + ", " + String(x + 13) + " " + String(y + 5) + ", " + String(x + 13) + " " + String(y - 5) + "' fill='" + _getHtmlColor(color) + "' />";
-}
-
-String Html::_getHtmlSvgCircle(float x, float y, vstatus color)
-{
-  return "<circle cx='" + String(x) + "' cy='" + String(y) +"' r='8' fill='" + _getHtmlColor(color) + "' />";
-}
+/*
+  <g>" + grid + "</g>\
+  <g>" + graph + "</g>\
+*/
 
 String Html::_getHtmlLink(String href, String text)
 {

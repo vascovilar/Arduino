@@ -1,6 +1,6 @@
 #include "Rtc.h"
 
-long Rtc::_getTimeStampRTC()
+long Rtc::getTimeStamp()
 {
   time_t now;
   time(&now);
@@ -8,33 +8,33 @@ long Rtc::_getTimeStampRTC()
   return now;
 }
 
-void Rtc::_setTimeStampRTC(long timeStamp)
+void Rtc::setTimeStamp(long timeStamp)
 {
   timeval epoch = {timeStamp, 0};
   settimeofday((const timeval*)&epoch, 0);
 }
 
-String Rtc::_getDateTimeRTC()
+String Rtc::getDateTime()
 {
-  long now = _getTimeStampRTC();
+  long now = getTimeStamp();
 
-  return _convertTimeStampToDateTimeRTC(now);
+  return _convertTimeStampToDateTime(now);
 }
 
-void Rtc::_setDateTimeRTC(String dateTime)
+void Rtc::setDateTime(String dateTime)
 {
-  long timeStamp = _convertDateTimeToTimeStampRTC(dateTime);
-  _setTimeStampRTC(timeStamp);
+  long timeStamp = _convertDateTimeToTimeStamp(dateTime);
+  setTimeStamp(timeStamp);
 }
 
-String Rtc::_getUpTimeRTC()
+String Rtc::getUpTime()
 {
   long upTime = millis() / 1000;
 
-  return _convertUpTimeToDateTimeRTC(upTime);
+  return _convertUpTimeToDateTime(upTime);
 }
 
-String Rtc::_convertTimeStampToDateTimeRTC(long timeStamp)
+String Rtc::_convertTimeStampToDateTime(long timeStamp)
 {
   struct tm timeinfo;
   localtime_r(&timeStamp, &timeinfo); // convert unix timeStamp to timeinfo var containing year, mon, day, ...
@@ -52,7 +52,7 @@ String Rtc::_convertTimeStampToDateTimeRTC(long timeStamp)
   return dateTime;
 }
 
-long Rtc::_convertDateTimeToTimeStampRTC(String dateTime)
+long Rtc::_convertDateTimeToTimeStamp(String dateTime)
 {
   struct tm timeinfo;
   //struct tm timeinfo = {0, 0, 0, 0, 0, 0, 0, 0, 0}; // Initalize to all zero ?
@@ -67,7 +67,7 @@ long Rtc::_convertDateTimeToTimeStampRTC(String dateTime)
   return mktime(&timeinfo);
 }
 
-String Rtc::_convertUpTimeToDateTimeRTC(int upTime, bool isShort)
+String Rtc::_convertUpTimeToDateTime(int upTime, bool isShort)
 {
   int sec = upTime;
   int min = sec / 60;

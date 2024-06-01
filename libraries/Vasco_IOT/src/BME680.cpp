@@ -60,7 +60,7 @@ bool BME680::update()
   // sensor class values
   feed(_temperature, _iaq.temperature, _temperatures, 6);
   feed(_pressure, _convertToMilliBar(_iaq.pressure), _pressures, 10);
-  feed(_humidity, _iaq.humidity, _humidities, 6);
+  feed(_humidity, _iaq.humidity, _humidities, 7);
   feed(_iaqAccuracy, _iaq.staticIaqAccuracy, _iaqAccuracies, 4);
 
   // if data available (air sensor need 5 min to start)

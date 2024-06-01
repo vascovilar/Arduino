@@ -4,18 +4,27 @@
 #include "Arduino.h"
 
 
+// *********************************
+// Enums required for structures
+// *********************************
+
 enum vcolor {
-  COLOR_BLACK = 0x000000,
-  COLOR_WHITE = 0xFFFFFF,
-  COLOR_GREY = 0x999999,
+  COLOR_TRANSPARENT = 0xffffff, // transparent color is defined as COLOR_WHITE wich is not often used for backgrounds in a dark skin IHM
+  COLOR_RED = 0xff0000,
+  COLOR_GREEN = 0x00ff00,
+  COLOR_BLUE = 0x0000ff,
+  COLOR_CYAN = 0x00ffff,
+  COLOR_MAGENTA = 0xff00ff,
+  COLOR_YELLOW = 0xffff00,
+  COLOR_ORANGE = 0xffa500,
+  COLOR_VIOLET = 0xee82ee,
+  COLOR_VIOLET_DARK = 0x4032a8,
+  COLOR_WHITE = 0xffffff,
+  COLOR_WHITE_DARK = 0xeeeeee,
+  COLOR_GREY = 0x888888,
   COLOR_GREY_DARK = 0x444444,
-  COLOR_GREEN = 0x4EB400,
-  COLOR_YELLOW = 0xF7E400,
-  COLOR_ORANGE = 0xF85900,
-  COLOR_RED = 0xFF0000,
-  COLOR_VIOLET = 0x6B49C8,
-  COLOR_TURQUOISE = 0x018387,
-  COLOR_BLUE = 0x0000FF,
+  COLOR_GREY_DEEPDARK = 0x111111,
+  COLOR_BLACK = 0x000000,
 };
 
 enum vstatus {
@@ -27,9 +36,23 @@ enum vstatus {
   VIOLET = 5, // maximum
 };
 
+static const byte VPAGE_COUNT = 6;
+
+enum vpage { // TODO vasco ca ne devrait pas etre là
+  NONE = 0,
+  HOME_PAGE = 1,
+  BUFFER_GRAPH = 2,
+  EAR_REALTIME = 3,
+  EMF_REALTIME = 4,
+  SAT_TABLE = 5,
+};
+
+
 // *********************************
 // Data structures
 // *********************************
+
+// sensor structures
 
 struct vfield {
   String    label;
@@ -46,7 +69,9 @@ struct vlegend {
   String    text;
 };
 
-struct vmouse {
+// mouse structures
+
+struct vpointer {
   int       x;
   int       y;
   bool      focus;
@@ -57,28 +82,29 @@ struct vmouse {
   bool      down;
 };
 
+struct vzone {
+  vpage     page;
+  float     x1;
+  float     y1;
+  float     x2;
+  float     y2;
+};
+
+// imu structures
+
 struct vcoord {
   float     x;
   float     y;
   float     z;
 };
 
-struct vsnap {
-  float*    buffer;
-  int       length;
-  float     maximum;
-  int       time;
-};
 
 class Data
 {
   protected:
 
-    // Tool: needed for precision, map function use integers only
-    float _isometric(float value, float maximum, float minimum, int height, int offset)
-    {
-      return (1 - ((value - minimum) / (float)(maximum - minimum))) * height + offset;
-    }
+    vcolor  _convert(vstatus status);
+
 };
 
 #endif

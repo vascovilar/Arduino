@@ -1,6 +1,6 @@
 #include "Wifi.h"
 
-bool Wifi::_connectWIFI()
+bool Wifi::connectWifi()
 {
   int count = WiFi.scanNetworks();
 
@@ -33,22 +33,32 @@ bool Wifi::_connectWIFI()
   return false;
 }
 
-bool Wifi::_disconnectWIFI()
+bool Wifi::disconnectWifi()
 {
   return WiFi.disconnect();
 }
 
-int Wifi::_getAccessPointsFromWIFI()
+int Wifi::getAccessPointsCount()
 {
   return WiFi.scanNetworks();
 }
 
-String Wifi::_getAccessPointInfoFromWIFI(int index)
+String Wifi::getAccessPointInfo(int index)
 {
   return String(index) + "- " + String(WiFi.SSID(index)) + " (" + String(WiFi.RSSI(index)) + "db)";
 }
 
-String Wifi::_getIpWIFI()
+String Wifi::getNetwork()
+{
+  if (WiFi.status() == WL_CONNECTED) {
+
+    return WiFi.SSID();
+  }
+
+  return "";
+}
+
+String Wifi::getIp()
 {
   return WiFi.localIP().toString();
 }

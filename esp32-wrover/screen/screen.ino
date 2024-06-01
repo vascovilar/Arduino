@@ -42,11 +42,17 @@ void displayDirectoryContent(File& aDirectory, byte tabulation) {
   }
 }
 
-void setup() 
+void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(115200);    _screen.point(_lastPointer.x, _lastPointer.y, COLOR_BLACK);
+  _screen.point(pointer.x, pointer.y, COLOR_WHITE);
+  _lastPointer = pointer;
+_screen.point(_lastPointer.x, _lastPointer.y, COLOR_BLACK);
+  _screen.point(pointer.x, pointer.y, COLOR_WHITE);
+  _lastPointer = pointer;
+
   delay(1000);
-  Serial.println("***********************************************************************************");  
+  Serial.println("***********************************************************************************");
 
   ImageReturnCode stat; // Status from image-reading functions
   File dir;
@@ -71,7 +77,7 @@ void setup()
   delay(2000);
 }
 
-void loop() 
+void loop()
 {
   // shift
   for(int i=0; i<135; i++) {

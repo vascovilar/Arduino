@@ -20,11 +20,12 @@ enum vsensor {
   VISIBLE = 9,
   UV_INDEX = 10,
   GAMMA_LEVEL = 11, // TODO vasco
-  ALTITUDE = 12, // TODO vasco
+  ALTITUDE = 12,
   MOVEMENT = 13,
   MEMORY_USED = 14,
   RUN_CYCLES = 15,
 };
+
 
 class Sensor : public Chipset
 {
@@ -32,21 +33,11 @@ class Sensor : public Chipset
 
     Sensor(vchipset code, bool isRealtime) : Chipset(code, true) { _isRealtime = isRealtime; }
 
-    virtual float   read(); // read instant sensor raw value out of processtime incretementation, or return 0 if non applicable
-    virtual vfield  get(vsensor code); // get buffered value, updated with "update" method
+    virtual float   read() = 0; // read instant sensor raw value out of processtime incretementation, or return 0 if non applicable
+    virtual vfield  get(vsensor code) = 0; // get buffered value, updated with "update" method, allows to know which sensor is in a chipset
 
-    bool   isRealTime() { return _isRealtime; } // if so get access to read() realtime raw data
-    void   feed(vfield &field, float value, vlegend* data, int length)
-    {
-      field.value = value;
-      for (int i = 0; i < length; i ++) {
-        if (value <= data[i].limit || i == length - 1) {
-          field.status = data[i].status;
-          field.text = data[i].text;
-          break;
-        }
-      }
-    }
+    void            feed(vfield &field, float value, vlegend* data, int length);
+    bool            isRealTime() { return _isRealtime; } // if so get access to read() realtime raw data
 
   private:
 

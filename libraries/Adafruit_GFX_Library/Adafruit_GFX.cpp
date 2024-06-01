@@ -1880,7 +1880,7 @@ bool GFXcanvas1::getRawPixel(int16_t x, int16_t y) const {
 }
 
 /**************************************************************************/
-/*!
+/*!sired pixel's binary color value, either 0x1 (on) or 0x0 (off)
     @brief  Fill the framebuffer completely with one color
     @param  color Binary (on or off) color to fill with
 */

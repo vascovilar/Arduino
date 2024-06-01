@@ -27,12 +27,15 @@ class AdcPin
   static const int  _ADC_MAX_VALUE = 4095; // override with device value in child class
   static const int  _ADC_ZERO_VALUE = 0; // override with device value in child class
 
+  public:
+
+    int     readAnalogRawValue();
+    float   readAnalogPercentage();
+    float   readAnalogFrequency();
+
   protected:
 
     bool    _initADC(byte attachedPin, bool isAmplified, float maxAnalogValue, float zeroAnalogValue);
-    int     _rawADC();
-    float   _readADC();
-    float   _readADCFrequency();
 
   private:
 
@@ -48,21 +51,24 @@ class PwmPin
   static const byte _PWM_CHANNEL = 0; // override with device value in child class
   static const int _LED_FADEOUT_DELAY = 10;
 
+  public:
+
+    void    led(bool onOrOff);
+    void    led(int percentage); // 0~100%
+    void    led(int from, int to, int duration); // 0~100%, ms
+    void    runLedFader();
+    void    emit(int frequency);
+
   protected:
 
     bool    _initPWM(byte attachedPin, byte channel);
-    void    _ledPWM(bool onOrOff);
-    void    _ledPWM(int magnitude); // 0~4095
-    void    _ledPWM(int from, int to, int duration);
-    void    _updateLedPMW();
-    void    _tonePWM(int frequency);
 
   private:
 
     byte    _attachedPin;
     byte    _channel;
-    int     _fadeOutMagnitude = 0;
-    float   _fadeOutIncrement = 0;
+    int   _fadeOutMagnitude = 0;
+    int   _fadeOutIncrement = 0;
     long    _fadeOutTimer = 0;
 
 };

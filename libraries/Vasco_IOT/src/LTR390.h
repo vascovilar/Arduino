@@ -10,7 +10,7 @@
 #include "Arduino.h"
 #include "interface/Data.h"
 #include "interface/Sensor.h"
-#include "inherit/Pins.h"
+#include "component/Pins.h"
 #include "Adafruit_LTR390.h"
 #include "Wire.h"
 

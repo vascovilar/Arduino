@@ -20,14 +20,14 @@ bool AdcPin::_initADC(byte attachedPin, bool isAmplified, float maxAnalogValue, 
   return true;
 }
 
-int AdcPin::_rawADC()
+int AdcPin::readAnalogRawValue()
 {
   return analogRead(_attachedPin);
 }
 
-float AdcPin::_readADC()
+float AdcPin::readAnalogPercentage()
 {
-  int rawValue = _rawADC();
+  int rawValue = readAnalogRawValue();
 
   // float mapping
   if (rawValue > _maxAnalogValue) rawValue = _maxAnalogValue;
@@ -37,7 +37,7 @@ float AdcPin::_readADC()
   return (rawValue / (float)(_maxAnalogValue - _zeroAnalogValue)) * 100;
 }
 
-float AdcPin::_readADCFrequency()
+float AdcPin::readAnalogFrequency() // TODO vasco use FFT
 {
   long time = millis();
   long timer = micros();
@@ -48,7 +48,7 @@ float AdcPin::_readADCFrequency()
   while (i < 100) { // total 100ms to measure
     if (micros() - timer > 1000) {
       timer = micros();
-      buffer[i] = _rawADC();
+      buffer[i] = readAnalogRawValue();
       if (buffer[i] == 0 && buffer[i-1] > 0) {
         beat++;
       }
@@ -82,30 +82,27 @@ bool PwmPin::_initPWM(byte attachedPin, byte channel)
   return false;
 }
 
-void PwmPin::_ledPWM(bool onOrOff)
+void PwmPin::led(bool onOrOff)
 {
   pinMode(_attachedPin, OUTPUT);
   digitalWrite(_attachedPin, (int)onOrOff);
 }
 
-void PwmPin::_ledPWM(int magnitude) // 0~4096
+void PwmPin::led(int percentage) // 0~100%
 {
-  if (magnitude > 4096 || magnitude < 0) {
-    Serial.println(F("Use LED magnitude values only between 0 and 4095"));
-  }
-  analogWrite(_attachedPin, magnitude);
+  analogWrite(_attachedPin, (percentage / 100.0) * 4095);
 }
 
-void PwmPin::_ledPWM(int from, int to, int duration)
+void PwmPin::led(int from, int to, int duration)
 {
   // led fadeout start
-  _ledPWM(from);
+  led(from);
   _fadeOutMagnitude = from;
-  _fadeOutIncrement = (from - to) / (float)(duration / _LED_FADEOUT_DELAY);
+  _fadeOutIncrement = (from - to) / (float)(duration / (float)_LED_FADEOUT_DELAY); // TODO vasco try something else this sucks
   _fadeOutTimer = millis();
 }
 
-void PwmPin::_updateLedPMW()
+void PwmPin::runLedFader()
 {
   // led fadeout update
   if (_fadeOutIncrement != 0) {
@@ -116,12 +113,12 @@ void PwmPin::_updateLedPMW()
         _fadeOutMagnitude = 0;
         _fadeOutIncrement = 0;
       }
-      _ledPWM(_fadeOutMagnitude);
+      led(_fadeOutMagnitude);
     }
   }
 }
 
-void PwmPin::_tonePWM(int frequency)
+void PwmPin::emit(int frequency)
 {
   ledcWriteTone(_channel, frequency);
 }

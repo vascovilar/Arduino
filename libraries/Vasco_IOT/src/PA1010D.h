@@ -2,6 +2,7 @@
  * Read data on Adafruit PA1010D for GPS navigation
  * Ref: https://learn.adafruit.com/adafruit-mini-gps-pa1010d-module/overview
  * Doc: https://cdn-learn.adafruit.com/assets/assets/000/084/295/original/CD_PA1010D_Datasheet_v.03.pdf?1573833002
+ * 48.492744141 2.219772949 (parent)
  */
 
 #ifndef PA1010D_h
@@ -10,7 +11,7 @@
 #include "Arduino.h"
 #include "interface/Data.h"
 #include "interface/Sensor.h"
-#include "inherit/Pins.h"
+#include "component/Pins.h"
 #include "Adafruit_GPS.h"
 #include "Wire.h"
 
@@ -59,14 +60,14 @@ class PA1010D : public Sensor, public I2cPins
     vfield  _fixQuality = {"Qualité du réseau", "", 1};
     vfield  _altitude = {"Altitude", "m", 10};
     vfield  _speed = {"Vitesse", "km/h", 3};
-    float   _latitude; // 7 decimals
-    float   _longitude; // 7 decimals
-    float   _directionAngle; // North = 0
-    float   _compassAngle; // North = 0
-    String  _dateTime;      // timestamp like '1970-01-29 00:00:00'
-    String  _latCardinal;   // N or S
-    String  _longCardinal;  // W or E
-    String  _isoLabel; // iso like '0.0000001,0.0000001 NE'
+    float   _latitude = 0; // 7 decimals
+    float   _longitude = 0; // 7 decimals
+    float   _directionAngle = 0; // North = 0
+    float   _compassAngle = 0; // North = 0
+    String  _dateTime = "";      // timestamp like '1970-01-29 00:00:00'
+    String  _latCardinal = "";   // N or S
+    String  _longCardinal = "";  // W or E
+    String  _isoLabel = ""; // iso like '0.0000001,0.0000001 NE'
 
     String  _convertToDateTime(int year, int month, int day, int hour, int minute, int second);
     float   _convertToKmH(float knot);

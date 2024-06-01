@@ -21,8 +21,8 @@ void Buffer::_pushHistory(float value, long timeStamp)
   float lastValuesAverage = 0;
 
   length++;
-  if (length > _HISTORY_MAX_SIZE) {
-    length = _HISTORY_MAX_SIZE;
+  if (length > VBUFFER_MAX_SIZE) {
+    length = VBUFFER_MAX_SIZE;
   }
 
   minimum = 9999999;
@@ -67,15 +67,13 @@ void Buffer::_pushHistory(float value, long timeStamp)
 
 void Buffer::_pushBuffer(float value)
 {
-  // if there is 6 values: average on these 6 first, if 140 value: average on (buffer max size) values
+  // if there is 6 values: average on these 6 first, if 140 value: average on last (buffer max size) values
   _bufferLength++;
   if (_bufferLength >= _TMP_BUFFER_MAX_SIZE) {
     _bufferLength = _TMP_BUFFER_MAX_SIZE;
   }
 
-  _buffer[_bufferIndex] = value;
-
-  _bufferIndex++;
+  _buffer[_bufferIndex++] = value * 1000; // instead of having heavy 4 bytes float, we can store as int * 1000 (2 bytes), then retreive float by / 1000 (keep 3 decimal of original float)
   if (_bufferIndex >= _TMP_BUFFER_MAX_SIZE) {
     _bufferIndex = 0;
   }
@@ -84,14 +82,12 @@ void Buffer::_pushBuffer(float value)
 float Buffer::_popBufferAverageValue()
 {
   float bufferValuesTotal = 0;
-  float bufferValuesAverage = 0;
-
   for (int i = 0; i < _bufferLength; i++) {
     bufferValuesTotal += _buffer[i];
+  _bufferIndex = 0;
   }
 
-  bufferValuesAverage = bufferValuesTotal / (float)_bufferLength;
-
+  float bufferValuesAverage = bufferValuesTotal / (float)_bufferLength / 1000.0; // retrieve original float truncated at 3 decimals
   _bufferIndex = 0;
   _bufferLength = 0;
 

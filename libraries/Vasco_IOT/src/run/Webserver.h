@@ -27,14 +27,12 @@
 #include "WebServer.h"
 #include "FS.h"
 
-static WebServer _server(80); // need to be global because called by lambda functions
+// need to be global because called by lambda functions
+static WebServer _server(80);
 
 
 class Webserver : public Run
 {
-  static const int _AWARE_REFRESH_RATE = 10;
-  static const int _LAZY_REFRESH_RATE = 1000;
-
   public:
 
     // interface

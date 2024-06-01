@@ -10,14 +10,14 @@
 #include "Arduino.h"
 #include "interface/Data.h"
 #include "interface/Sensor.h"
-#include "inherit/Pins.h"
+#include "component/Pins.h"
 
 
 class AH49E : public Sensor, public AdcPin
 {
   static const int  _ADC_MAX_VALUE = 4095;
   static const int  _ADC_ZERO_VALUE = 1652;
-  const float       _ADC_ZERO_THRESOLD = 1.0;
+  const float       _EVENT_THRESOLD_VALUE = 10.0;
 
   public:
 

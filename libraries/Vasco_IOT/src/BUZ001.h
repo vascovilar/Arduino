@@ -7,7 +7,7 @@
 
 #include "Arduino.h"
 #include "interface/Device.h"
-#include "inherit/Pins.h"
+#include "component/Pins.h"
 
 
 class BUZ001 : public Device, public PwmPin

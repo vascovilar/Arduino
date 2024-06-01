@@ -37,12 +37,12 @@ bool Webserver::run()
 
   switch (_processMode) {
     case LOW_REFRESH:
-      delay = _LAZY_REFRESH_RATE;
+      delay = VRUN_SECOND_DELAY;
       break;
-    case HIGH_REFRESH:
+    case EACH_SECOND:
     case EVENT_TRIG:
-    case CONTINUOUS:
-      delay = _AWARE_REFRESH_RATE;
+    case AWARE:
+      delay = VRUN_CONTINUOUS_DELAY;
       break;
     default:
 

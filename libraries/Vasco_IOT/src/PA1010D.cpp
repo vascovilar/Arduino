@@ -92,8 +92,8 @@ bool PA1010D::update()
   feed(_speed, _convertToKmH(_gps.speed), _speeds, 1);
 
   // update local variables
-  _latitude = _gps.latitude;
-  _longitude = _gps.longitude;
+  _latitude = _gps.latitude; // TODO vasco convert here ddmm.mmmmm
+  _longitude = _gps.longitude; // TODO vasco convert here ddmm.mmmmm
   _dateTime = _convertToDateTime(_gps.year, _gps.month, _gps.day, _gps.hour, _gps.minute, _gps.seconds);
   _latCardinal = _gps.lat;
   _longCardinal = _gps.lon;
