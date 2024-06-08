@@ -23,7 +23,7 @@ class Wifi
 
   private:
 
-    // TODO vasco move real credentials data in secure area
+    // TODO vasco * move real credentials data in secure area
     struct vcredential {
       const char*   user;
       const char*   password;

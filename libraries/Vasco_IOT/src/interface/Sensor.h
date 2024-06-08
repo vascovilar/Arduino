@@ -2,8 +2,8 @@
 #define Sensor_h
 
 #include "Arduino.h"
-#include "../interface/Data.h"
 #include "../interface/Chipset.h"
+#include "../interface/Data.h"
 
 static const byte VSENSOR_COUNT = 16;
 
@@ -15,11 +15,11 @@ enum vsensor {
   GAS_PERCENTAGE = 4,
   EAR_LEVEL = 5,
   EMF_LEVEL = 6,
-  GAUSS_LEVEL = 7, // TODO vasco
-  INFRARED = 8, // TODO vasco
+  GAUSS_LEVEL = 7,
+  INFRARED = 8,
   VISIBLE = 9,
   UV_INDEX = 10,
-  GAMMA_LEVEL = 11, // TODO vasco
+  GAMMA_LEVEL = 11,
   ALTITUDE = 12,
   MOVEMENT = 13,
   MEMORY_USED = 14,

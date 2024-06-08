@@ -62,7 +62,7 @@ bool AH49E::update()
 
 float AH49E::read()
 {
-  return readAnalogPercentage();
+  return readAnalogPercentage() * 10; // 1000Gauss / 100%
 }
 
 int AH49E::raw()

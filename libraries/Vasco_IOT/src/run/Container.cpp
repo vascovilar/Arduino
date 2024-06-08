@@ -4,10 +4,6 @@ bool Container::begin(vrun mode)
 {
   bool isInit = true;
 
-  /*if (_initPSRAM()) {
-    _bindPSRAM(*_buffer, 30000);
-  }*/
-
   for (int i = 0; i < VCHIPSET_COUNT; i++) {
     if (_instance[i]) {
       vrun run = mode;
@@ -41,6 +37,12 @@ bool Container::run()
     }
   }
 
+  _checksBuffer++;
+  if (isTime(VRUN_SECOND_DELAY)) {
+    _processedChecks = _checksBuffer;
+    _checksBuffer = 0;
+  }
+
   return somethingUpdated;
 }
 
@@ -69,11 +71,11 @@ void Container::bind(Sensor &sensor, vrun mode)
   }
 }
 
-bool Container::changed(vchipset chipset)
+bool Container::changed(vchipset code)
 {
-  if (_instance[chipset]) {
+  if (_instance[code]) {
 
-    return _sequencer[(int)chipset]->isSomethingNew();
+    return _sequencer[(int)code]->isSomethingNew();
   }
 
   return false;
@@ -101,6 +103,23 @@ void Container::resume()
   }
 }
 
+int Container::getCurrentDelay(vsensor code)
+{
+  for (int i = 0; i < VCHIPSET_COUNT; i++) {
+    if (_instance[i]) {
+      if (_instance[i]->isSensor()) {
+        Sensor* sensor = (Sensor*)_instance[i];
+        vfield field = sensor->get(code);
+        if (field.label != "") {
+
+          return _sequencer[i]->getCurrentDelay();
+        }
+      }
+    }
+  }
+
+  return 0; // never goes here but needed for compilator :-/
+}
 
 bool Container::isEnabled(vchipset code)
 {
@@ -129,6 +148,11 @@ Buffer Container::getBuffer(vsensor code)
   return _buffer[code];
 }
 
+int Container::getProcessedChecks()
+{
+  return _processedChecks;
+}
+
 vpage Container::getCurrentPage()
 {
   return _currentPage;
@@ -139,14 +163,24 @@ void Container::setCurrentPage(vpage page)
   _currentPage = page;
 }
 
-vsensor Container::getCurrentArgument()
+vsensor Container::getCurrentEvent()
 {
-  return _currentArgument;
+  return _currentEvent;
 }
 
-void Container::setCurrentArgument(vsensor argument)
+void Container::setCurrentEvent(vsensor code)
 {
-  _currentArgument = argument;
+  _currentEvent = code;
+}
+
+vsensor Container::getCurrentSensor()
+{
+  return _currentSensor;
+}
+
+void Container::setCurrentSensor(vsensor code)
+{
+  _currentSensor = code;
 }
 
 void Container::_updateLocalSensorsValues(vchipset code)
@@ -155,7 +189,7 @@ void Container::_updateLocalSensorsValues(vchipset code)
     Sensor* sensor = (Sensor*)_instance[code];
     for (int i = 0; i < VSENSOR_COUNT; i++) {
       vfield field = sensor->get((vsensor)i);
-      if (field.label != "" && field.status > GRIS) {
+      if (field.label != "" && field.status > GRIS) { // >GRIS to avoid storing zeros
         // try get each sensor code in a sensor instance
         setField((vsensor)i, field);
       }

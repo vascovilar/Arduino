@@ -4,8 +4,7 @@ bool Buffer::push(float value, long timeStamp)
 {
   _pushBuffer(value);
 
-  if (millis() - _timer > delay) {
-    _timer = millis();
+  if (isTime(VBUFFER_PUSH_DELAY)) {
     _pushHistory(_popBufferAverageValue(), timeStamp);
 
     return true;

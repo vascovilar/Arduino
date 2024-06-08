@@ -4,8 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/home/vasco/.arduino15/packages/esp32/hardware/esp32/2.0.16/**",
-                "/home/vasco/.arduino15/packages/esp32/tools/**"
+                "/home/vasco/.arduino15/packages/esp32/**",
+                "/home/vasco/Arduino/libraries/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

@@ -2,9 +2,10 @@
 #define Mouse_h
 
 #include "Arduino.h"
-#include "../interface/Screen.h"
-#include "../interface/Pointer.h"
 #include "../interface/Data.h"
+#include "../interface/Pointer.h"
+#include "../interface/Screen.h"
+#include "../bin/iconMonoTransparent.h"
 
 
 class Mouse : public Data
@@ -23,7 +24,6 @@ class Mouse : public Data
 
     Pointer   &_pointer;
     Screen    &_screen;
-    long      _timer = 0;
     vzone     _zone[VPAGE_COUNT];
     int       _index = 0;
     vpointer  _lastPointer;

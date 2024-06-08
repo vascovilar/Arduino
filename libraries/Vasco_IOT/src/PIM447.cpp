@@ -42,7 +42,7 @@ bool PIM447::check()
 bool PIM447::update()
 {
   // update local variables
-  if (_trackBall.changed()) { // TODO vasco do same thing for other classes update functions (if new data)
+  if (_trackBall.changed()) { // TODO vasco * do same thing for other classes update functions (if new data)
     int leftDelta = pow(_trackBall.left(), 2) / 2;
     int rightDelta = pow(_trackBall.right(), 2) / 2;
     int upDelta = pow(_trackBall.up(), 2) / 2;

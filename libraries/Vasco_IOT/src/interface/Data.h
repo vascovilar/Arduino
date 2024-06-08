@@ -36,15 +36,24 @@ enum vstatus {
   VIOLET = 5, // maximum
 };
 
-static const byte VPAGE_COUNT = 6;
+static const byte VPAGE_COUNT = 8;
 
-enum vpage { // TODO vasco ca ne devrait pas etre là
+enum vpage { // TODO vasco *** ca ne devrait pas etre là
   NONE = 0,
   HOME_PAGE = 1,
-  BUFFER_GRAPH = 2,
-  EAR_REALTIME = 3,
-  EMF_REALTIME = 4,
-  SAT_TABLE = 5,
+  CURRENT_EVENT = 2,
+  BUFFER_UP = 3,
+  BUFFER_DOWN = 4,
+  EAR_REALTIME = 5,
+  EMF_REALTIME = 6,
+  SAT_TABLE = 7,
+};
+
+enum vdirection {// TODO vasco *** ca ne devrait pas etre là
+  UP = 0,
+  DOWN = 1,
+  LEFT = 2,
+  RIGHT = 3,
 };
 
 

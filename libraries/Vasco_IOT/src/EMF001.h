@@ -30,7 +30,7 @@ class EMF001 : public Sensor, public AdcPin
     float   read();
     vfield  get(vsensor code)
     {
-      switch(code) {
+      switch (code) {
         case EMF_LEVEL:
           return _maxValue;
       }

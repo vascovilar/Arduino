@@ -25,7 +25,7 @@ class SpiPins
 class AdcPin
 {
   static const int  _ADC_MAX_VALUE = 4095; // override with device value in child class
-  static const int  _ADC_ZERO_VALUE = 0; // override with device value in child class
+  static const int  _ADC_ZEROledcSetup_VALUE = 0; // override with device value in child class
 
   public:
 
@@ -49,15 +49,15 @@ class AdcPin
 class PwmPin
 {
   static const byte _PWM_CHANNEL = 0; // override with device value in child class
-  static const int _LED_FADEOUT_DELAY = 10;
+  static const int  _LED_FADEOUT_DELAY = 10;
 
   public:
 
     void    led(bool onOrOff);
     void    led(int percentage); // 0~100%
-    void    led(int from, int to, int duration); // 0~100%, ms
-    void    runLedFader();
-    void    emit(int frequency);
+    bool    led(int from, int to, int duration); // 0~100%, ms
+    int     magnitude(); // 0~100%
+    bool    note(int frequency); // in Hz
 
   protected:
 
@@ -67,10 +67,6 @@ class PwmPin
 
     byte    _attachedPin;
     byte    _channel;
-    int   _fadeOutMagnitude = 0;
-    int   _fadeOutIncrement = 0;
-    long    _fadeOutTimer = 0;
-
 };
 
 #endif

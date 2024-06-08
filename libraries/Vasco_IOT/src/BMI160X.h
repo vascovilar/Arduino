@@ -12,10 +12,11 @@
 #include "interface/Data.h"
 #include "interface/Sensor.h"
 #include "component/Pins.h"
+#include "component/Timer.h"
 #include "CurieIMU.h"
 #include "Wire.h"
 
-class BMI160X : public Sensor, public I2cPins, public CurieIMUClass
+class BMI160X : public Sensor, public I2cPins, public CurieIMUClass, public Timer
 {
   public:
 
@@ -35,7 +36,7 @@ class BMI160X : public Sensor, public I2cPins, public CurieIMUClass
     float   read();
     vfield  get(vsensor code)
     {
-      switch(code) {
+      switch (code) {
         case MOVEMENT:
           return _maxValue;
       }
@@ -63,7 +64,6 @@ class BMI160X : public Sensor, public I2cPins, public CurieIMUClass
   private:
 
     byte    _i2cAddress;
-    long    _timer = 0;
     float   _maxValueBuffer = 0;
     vfield  _maxValue = {"Quantité mouvement", "g", 1};
     float   _gx = 0;

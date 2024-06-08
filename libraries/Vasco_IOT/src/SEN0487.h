@@ -31,7 +31,7 @@ class SEN0487 : public Sensor, public AdcPin
     float   read();
     vfield  get(vsensor code)
     {
-      switch(code) {
+      switch (code) {
         case EAR_LEVEL:
           return _maxValue;
       }

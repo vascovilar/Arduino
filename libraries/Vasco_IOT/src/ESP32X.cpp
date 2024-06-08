@@ -20,6 +20,9 @@ bool ESP32X::init()
     return false;
   }
 
+  // reset led
+  led(0);
+
   return true;
 }
 
@@ -35,9 +38,6 @@ bool ESP32X::wake()
 
 bool ESP32X::check()
 {
-  // led fadeout if needed
-  runLedFader();
-
   // count checks
   _processedChecks++;
 

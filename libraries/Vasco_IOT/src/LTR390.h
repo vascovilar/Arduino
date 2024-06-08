@@ -30,7 +30,7 @@ class LTR390 : public Sensor, public I2cPins
     float   read();
     vfield  get(vsensor code)
     {
-      switch(code) {
+      switch (code) {
         case UV_INDEX:
           return _uvIndex;
         case VISIBLE:

@@ -42,8 +42,7 @@ bool BMI160X::wake()
 bool BMI160X::check()
 {
   // check 10 time per second only
-  if (millis() - _timer >= 100) {
-    _timer = millis(); // reset timer
+  if (isTime(100)) {
     float value = read();
 
     // store max

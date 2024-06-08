@@ -3,10 +3,11 @@
 
 #include "Arduino.h"
 #include "../interface/Run.h"
+#include "../component/Timer.h"
 #include "../interface/Chipset.h"
 
 
-class Sequencer : public Run
+class Sequencer : public Run, public Timer
 {
   public:
 
@@ -28,12 +29,11 @@ class Sequencer : public Run
 
   private:
 
-    Chipset  &_child;
-    vrun    _processModeSave;
+    Chipset  &_child; // by  reference
+    vrun    _processModeSave = INIT_ERROR;
     int     _processedChecks = 0;
     int     _processedUpdates = 0;
     int     _currentDelay = 0;
-    long    _timer = 0;
     long    _timeBuffer = 0;
     int     _checksBuffer = 0;
     int     _updatesBuffer = 0;

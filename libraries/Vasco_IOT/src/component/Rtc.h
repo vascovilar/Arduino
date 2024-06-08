@@ -13,19 +13,19 @@ class Rtc
 
   public:
 
-    long    getTimeStamp(); // timestamp Unix
-    void    setTimeStamp(long timeStamp); // set internal Real Time Clock with timestamp Unix
+    time_t  getTimeStamp(); // timestamp Unix, time_t is simply a long
+    void    setTimeStamp(time_t timeStamp); // set internal Real Time Clock with timestamp Unix (long)
     String  getDateTime(); // return standard string format "2024-01-23 19:34:55"
     void    setDateTime(String dateTime); // set RTC with standard string format "2024-01-23 19:34:55"
     String  getUpTime(); // get seconds from power on
 
   protected:
 
-    String  _convertTimeStampToDateTime(long timeStamp); // in seconds
+    String  _convertTimeStampToDateTime(time_t timeStamp); // in seconds
     long    _convertDateTimeToTimeStamp(String dateTime); // string format "2024-01-23 19:34:55"
-    String  _convertUpTimeToDateTime(int upTime, bool isShort = false); // in seconds
+    String  _convertUpTimeToDateTime(long upTime, bool isShort = false); // in seconds
 
-    // TODO vasco include timezone
+    // TODO vasco *** include timezone
 
 };
 

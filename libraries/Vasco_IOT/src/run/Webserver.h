@@ -24,14 +24,16 @@
 
 #include "Arduino.h"
 #include "../interface/Run.h"
+#include "../component/Timer.h"
 #include "WebServer.h"
+#include "WiFi.h"
 #include "FS.h"
 
 // need to be global because called by lambda functions
 static WebServer _server(80);
 
 
-class Webserver : public Run
+class Webserver : public Run, public Timer
 {
   public:
 
@@ -51,7 +53,6 @@ class Webserver : public Run
 
   private:
 
-    long    _timer = 0;
     long    _timeBuffer = 0;
 };
 

@@ -1,9 +1,13 @@
 /*
- * scraped from https://github.com/muwerk/mufonts/tree/master
- * @ 28/05/2024
+ * Custom GFX Font
+ *
+ * created with mufont, the muwerk font compiler
+ * scraped from https://github.com/muwerk/mufonts/tree/master @ 28/05/2024
  */
 
-// muMatrix8ptRegular.h - created with mufont, the muwerk font compiler
+#ifndef muMatrix8ptRegular_h
+#define muMatrix8ptRegular_h
+
 
 const uint8_t muMatrix8ptRegular_bitmaps[] PROGMEM = {
 	0xfa, 0xb4, 0x52, 0xbe, 0xaf, 0xa9, 0x40, 0x75, 0x68, 0xe2, 0xd5, 0xc0, 0xce, 0x84, 0x44, 0x2e,
@@ -137,3 +141,5 @@ const GFXfont muMatrix8ptRegular PROGMEM = {
 };
 
 // Approx. 1135 bytes
+
+#endif

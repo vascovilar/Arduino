@@ -1,6 +1,6 @@
 #include "Rtc.h"
 
-long Rtc::getTimeStamp()
+time_t Rtc::getTimeStamp()
 {
   time_t now;
   time(&now);
@@ -8,7 +8,7 @@ long Rtc::getTimeStamp()
   return now;
 }
 
-void Rtc::setTimeStamp(long timeStamp)
+void Rtc::setTimeStamp(time_t timeStamp)
 {
   timeval epoch = {timeStamp, 0};
   settimeofday((const timeval*)&epoch, 0);
@@ -16,14 +16,14 @@ void Rtc::setTimeStamp(long timeStamp)
 
 String Rtc::getDateTime()
 {
-  long now = getTimeStamp();
+  time_t now = getTimeStamp();
 
   return _convertTimeStampToDateTime(now);
 }
 
 void Rtc::setDateTime(String dateTime)
 {
-  long timeStamp = _convertDateTimeToTimeStamp(dateTime);
+  time_t timeStamp = _convertDateTimeToTimeStamp(dateTime);
   setTimeStamp(timeStamp);
 }
 
@@ -34,7 +34,7 @@ String Rtc::getUpTime()
   return _convertUpTimeToDateTime(upTime);
 }
 
-String Rtc::_convertTimeStampToDateTime(long timeStamp)
+String Rtc::_convertTimeStampToDateTime(time_t timeStamp)
 {
   struct tm timeinfo;
   localtime_r(&timeStamp, &timeinfo); // convert unix timeStamp to timeinfo var containing year, mon, day, ...
@@ -54,8 +54,7 @@ String Rtc::_convertTimeStampToDateTime(long timeStamp)
 
 long Rtc::_convertDateTimeToTimeStamp(String dateTime)
 {
-  struct tm timeinfo;
-  //struct tm timeinfo = {0, 0, 0, 0, 0, 0, 0, 0, 0}; // Initalize to all zero ?
+  struct tm timeinfo = {0, 0, 0, 0, 0, 0, 0, 0, 0}; // Initalize to all zero ?
 
   timeinfo.tm_year = dateTime.substring(0,4).toInt() - 1900;
   timeinfo.tm_mon = dateTime.substring(5,7).toInt() - 1;
@@ -67,7 +66,7 @@ long Rtc::_convertDateTimeToTimeStamp(String dateTime)
   return mktime(&timeinfo);
 }
 
-String Rtc::_convertUpTimeToDateTime(int upTime, bool isShort)
+String Rtc::_convertUpTimeToDateTime(long upTime, bool isShort)
 {
   int sec = upTime;
   int min = sec / 60;

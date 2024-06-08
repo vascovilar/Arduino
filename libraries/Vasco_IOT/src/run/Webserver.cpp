@@ -39,6 +39,7 @@ bool Webserver::run()
     case LOW_REFRESH:
       delay = VRUN_SECOND_DELAY;
       break;
+    case HIGH_REFRESH:
     case EACH_SECOND:
     case EVENT_TRIG:
     case AWARE:
@@ -49,9 +50,11 @@ bool Webserver::run()
       return false;
   }
 
-  if (millis() - _timer > delay) { // TODO vasco count callbacks too, howto
-    _timer = millis(); // reset timer
+  if (isTime(delay)) {
     _server.handleClient();
+    _timeBuffer += esp_timer_get_time() - time;
+
+    // update processed and reset counters
     _processedTime = _timeBuffer / 1000;
     _timeBuffer = 0;
 

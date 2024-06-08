@@ -2,22 +2,17 @@
 
 bool ST7789SD::init()
 {
+  // set custom font
+  _gfxFont = (GFXfont *)&muMatrix8ptRegular;
+
   // SPI tft device
-  _tft.init(VSCREEN_HEIGHT, VSCREEN_WIDTH);
-  _tft.setRotation(3); // set to 3 when device will be finally assembled
+  _tft.init();
+  _tft.setRotation(1); // set to 3 when device will be finally assembled
   _tft.fillScreen(0);
-  //_tft.setFont(); // system font
-  _tft.setFont(&muMatrix8ptRegular); // custom font included
+  _tft.setFreeFont(_gfxFont); // argument void = system font
   _tft.setTextWrap(false);
 
-
-  // TODO vasco: fix SD card ? or device dead ?
-  /*
-  // SPI SD card device
-  if(!_sd.begin(_sdcdPin, SD_SCK_MHZ(10))) { // Breakouts require 10 MHz limit due to longer wires
-    Serial.println(F("SD Card init failed"));
-    return false;
-  }*/
+  // SD card // TODO vasco
 
   // backlight
   if (!_initPWM(_litPin, _PWM_CHANNEL)) {
@@ -45,9 +40,6 @@ bool ST7789SD::wake()
 
 bool ST7789SD::check()
 {
-  // led fadeout if needed
-  runLedFader();
-
   return false;
 }
 
@@ -56,95 +48,95 @@ bool ST7789SD::update()
   return false;
 }
 
-void ST7789SD::text(float x, float y, String content, vtextsize size, vcolor color, vcolor bgColor, bool isFixedWidthFont, bool isInBuffer)
+void ST7789SD::text(float x, float y, String content, vtextsize size, vcolor color, vcolor bgColor, bool isFixedWidthFont)
 {
-  Adafruit_GFX *display = _getDisplayPointer(isInBuffer);
-
 //bgColor = COLOR_RED; // debug
 
   // none font supports latin chars
   _removeLatinChar(content);
 
+  // switch to selected size
+  _tft.setTextSize(_convertToSize(size));
+
   // switch to fixed size fonts
   if (isFixedWidthFont) {
-    display->setFont();
-  }
-
-  // With custom font setted in init()
-  display->setTextSize(_convertToSize(size));
-  if (isFixedWidthFont) {
-    display->setCursor(x, y);
+    _tft.setFreeFont();
+    _tft.setCursor(x, y);
     if (bgColor != COLOR_TRANSPARENT) {
-      display->setTextColor(_convertToRGB565(color), _convertToRGB565(bgColor));
+      _tft.setTextColor(_convertToRGB565(color), _convertToRGB565(bgColor));
     } else {
-      display->setTextColor(_convertToRGB565(color));
+      _tft.setTextColor(_convertToRGB565(color));
     }
   } else {
     // Adafruit convention custom fonts draw up from baseline so move cursor
-    display->setCursor(x, y + VSCREEN_CHAR_HEIGHT * _convertToSize(size));
+    _tft.setCursor(x, y + VSCREEN_CHAR_HEIGHT * _convertToSize(size));
     // custom font dont use background parameter in setTextColor function
-    display->setTextColor(_convertToRGB565(color));
-    // COLOR_WHITE is defined as transparent for backgrounds in custom font mode
+    _tft.setTextColor(_convertToRGB565(color));
+    // COLOR_WHITE is defined as transparent for backgrounds
     if (bgColor != COLOR_TRANSPARENT) {
-      short int xo, yo;
-      short unsigned int width, height;
-      display->getTextBounds(content, x, y, &xo, &yo, &width, &height);
-      // draw missing backgorund
-      display->fillRect(xo, yo + VSCREEN_CHAR_HEIGHT * _convertToSize(size), width, height, _convertToRGB565(bgColor));
+      // draw missing background
+      _tft.fillRect(x, y, width(content), height(content), _convertToRGB565(bgColor));
     }
   }
 
   // draw text
-  display->print(content);
+  _tft.print(content);
 
-  // switch to custom fonts right after printing
+  // switch back to custom fonts right after printing
   if (isFixedWidthFont) {
-    display->setFont(&muMatrix8ptRegular);
+    _tft.setFreeFont(_gfxFont);
   }
 }
 
-void ST7789SD::point(float x, float y, vcolor color, bool isInBuffer)
+void ST7789SD::point(float x, float y, vcolor color)
 {
-  Adafruit_GFX *display = _getDisplayPointer(isInBuffer);
-  display->drawPixel(x, y, _convertToRGB565(color));
+  _tft.drawPixel(x, y, _convertToRGB565(color));
 }
 
-void ST7789SD::line(float x1, float y1, float x2, float y2, vcolor color, bool isInBuffer)
+void ST7789SD::line(float x1, float y1, float x2, float y2, vcolor color)
 {
-  Adafruit_GFX *display = _getDisplayPointer(isInBuffer);
-  display->drawLine(x1, y1, x2, y2, _convertToRGB565(color));
+  _tft.drawLine(x1, y1, x2, y2, _convertToRGB565(color));
 }
-void ST7789SD::rect(float x, float y, int width, int height, vcolor color, int radius, bool isFilled, bool isInBuffer)
+void ST7789SD::rect(float x, float y, int width, int height, vcolor color, int radius, bool isFilled)
 {
-  Adafruit_GFX *display = _getDisplayPointer(isInBuffer);
   if (isFilled) {
-    display->fillRoundRect(x, y, width, height, radius, _convertToRGB565(color));
+    _tft.fillRoundRect(x, y, width, height, radius, _convertToRGB565(color));
   } else {
-    display->drawRoundRect(x, y, width, height, radius, _convertToRGB565(color));
+    _tft.drawRoundRect(x, y, width, height, radius, _convertToRGB565(color));
   }
 }
 
-void ST7789SD::arrow(float x, float y, int width, int height, vcolor color, bool isInBuffer)
+void ST7789SD::arrow(float x, float y, int width, int height, vcolor color, vdirection direction)
 {
-  Adafruit_GFX *display = _getDisplayPointer(isInBuffer);
-  display->fillTriangle(x, y, x + width, y + height / 2, x + width, y - height / 2, _convertToRGB565(color));
+  // center x, y is arrowhead
+  switch (direction) {
+    case UP:
+      _tft.fillTriangle(x, y, x - width / 2, y + height, x + width / 2, y + height, _convertToRGB565(color));
+      break;
+    case DOWN:
+      _tft.fillTriangle(x, y, x - width / 2, y - height, x + width / 2, y - height, _convertToRGB565(color));
+      break;
+    case LEFT:
+      _tft.fillTriangle(x, y, x - width, y + height / 2, x - width, y - height / 2, _convertToRGB565(color));
+      break;
+    case RIGHT:
+      _tft.fillTriangle(x, y, x + width, y + height / 2, x + width, y - height / 2, _convertToRGB565(color));
+      break;
+  }
 }
 
-void ST7789SD::circle(float x, float y, int radius, vcolor color, bool isInBuffer)
+void ST7789SD::circle(float x, float y, int radius, vcolor color)
 {
-  Adafruit_GFX *display = _getDisplayPointer(isInBuffer);
-  display->fillCircle(x + radius, y + radius, radius, _convertToRGB565(color));
+  _tft.fillCircle(x + radius, y + radius, radius, _convertToRGB565(color));
 }
 
-void ST7789SD::bitmap(float x, float y, const unsigned char* data, int width, int height, vcolor color, vcolor bgColor, bool isInBuffer)
+void ST7789SD::bitmap(float x, float y, const unsigned char* data, int width, int height, vcolor color, vcolor bgColor)
 {
-  Adafruit_GFX *display = _getDisplayPointer(isInBuffer);
-
   if (bgColor != COLOR_TRANSPARENT) {
-    rect(x, y, width, height, bgColor, isInBuffer);
+    rect(x, y, width, height, bgColor);
   }
 
-  display->drawBitmap(x, y, data, width, height, _convertToRGB565(color));
+  _tft.drawBitmap(x, y, data, width, height, _convertToRGB565(color));
 }
 
 float ST7789SD::width(String content, vtextsize size, bool isFixedWidthFont)
@@ -153,19 +145,21 @@ float ST7789SD::width(String content, vtextsize size, bool isFixedWidthFont)
 
   if (content == "") {
 
-    return 0;
+    return width;
   }
 
-  // none font supports latin chars
+  // no font supports latin chars
   _removeLatinChar(content);
 
   if (isFixedWidthFont) {
+    // keep simple to be fastest
     width = content.length() * VSCREEN_CHAR_WIDTH * _convertToSize(size);
   } else {
-    short int xo, yo;
-    short unsigned int height;
-    _tft.setTextSize(_convertToSize(size));
-    _tft.getTextBounds(content, 0, 0, &xo, &yo, &width, &height); // get text zone by reference
+    if (size != SIZE_NULL) {
+      _tft.setTextSize(_convertToSize(size));
+      _tft.setFreeFont(_gfxFont);
+    }
+    width = _tft.textWidth(content, 1);
   }
 
   return width;
@@ -178,28 +172,47 @@ float ST7789SD::height(String content, vtextsize size)
     return 0;
   }
 
-  return VSCREEN_CHAR_HEIGHT * _convertToSize(size); // ever 1 line height
+  int multiplier = (size != SIZE_NULL) ? _convertToSize(size): _tft.textsize;
+
+  return (VSCREEN_CHAR_HEIGHT + 1) * multiplier; // ever 1 line height
 }
 
-void ST7789SD::swap()
+void ST7789SD::vertical(float x, float y, String content, vtextsize size, vcolor color, vcolor bgColor)
 {
-  // swap double-buffer (canvas -> tft)
-  _tft.drawRGBBitmap(0, 0, _canvas.getBuffer(), _canvas.width(), _canvas.height());  // TODO vasco use too much memory
-  // reset buffer
-  _canvas.fillScreen(0);
+  _spr.createSprite(60, VSCREEN_COL_PAGE);
+  _spr.setPivot(y, x);      // Set pivot relative to top left corner of Sprite
+  if (bgColor != COLOR_TRANSPARENT) {
+    _spr.fillSprite(_convertToRGB565(bgColor));
+  }
+  _spr.setTextColor(_convertToRGB565(color));
+  _spr.drawString(content, 0, 0, size);
+  _spr.pushRotated(270);
+  _spr.deleteSprite();
 }
+
+void ST7789SD::copy(float x, float y, int width, int height)
+{
+  _tft.readRect(x, y , width, height, _bitmapBuffer);
+}
+
+void ST7789SD::paste(float x, float y, int width, int height)
+{
+  _tft.pushRect(x, y , width, height, _bitmapBuffer);
+}
+
 
 void ST7789SD::clear()
 {
   _tft.fillScreen(0);
 }
 
-void ST7789SD::print(String content)
+void ST7789SD::show(String content)
 {
   float paddingToCenter = VSCREEN_WIDTH / 2.0 - width(content, SIZE_TEXT) / 2.0;
-  float offset = VSCREEN_HEIGHT / 2.0;
+  float offsetToCenter = VSCREEN_HEIGHT / 2.0;
 
-  text(paddingToCenter, offset, content, SIZE_TEXT, COLOR_WHITE, COLOR_BLACK);
+  rect(0, offsetToCenter - 10, VSCREEN_WIDTH, offsetToCenter + 10, COLOR_BLACK);
+  text(paddingToCenter, offsetToCenter, content, SIZE_TEXT, COLOR_WHITE, COLOR_TRANSPARENT, true);
 }
 
 void ST7789SD::listFiles()
@@ -220,19 +233,6 @@ void ST7789SD::listFiles()
     Serial.println(String(entry.name()) + " (" + String(entry.size()) + " bytes)");
     entry.close();
   }
-}
-
-Adafruit_GFX* ST7789SD::_getDisplayPointer(bool isInBuffer)
-{
-  Adafruit_GFX *display;
-
-  if (isInBuffer) {
-    display = &_canvas;
-  } else {
-    display = &_tft;
-  }
-
-  return display;
 }
 
 int ST7789SD::_convertToRGB565(int hexadecimal)
@@ -259,7 +259,7 @@ int ST7789SD::_convertToRGB565(String html)
 
 int ST7789SD::_convertToSize(vtextsize size)
 {
-  switch(size) {
+  switch (size) {
     case SIZE_SMALL:
       return 1;       // 6x8 px
     case SIZE_TEXT:

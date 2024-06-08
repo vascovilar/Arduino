@@ -30,7 +30,7 @@ class BME680 : public Sensor, public I2cPins
     float   read();
     vfield  get(vsensor code)
     {
-      switch(code) {
+      switch (code) {
         case TEMPERATURE:
           return _temperature;
         case PRESSURE:
@@ -94,8 +94,8 @@ class BME680 : public Sensor, public I2cPins
 
     vlegend _humidities[7] = {
       {10, ROUGE, "dangereux"},
-      {20, ORANGE, "très sec"},
-      {40, JAUNE, "sec"},
+      {25, ORANGE, "très sec"},
+      {35, JAUNE, "sec"},
       {60, VERT, "confortable"},
       {70, JAUNE, "humide"},
       {90, ORANGE, "très humide"},
@@ -130,7 +130,7 @@ class BME680 : public Sensor, public I2cPins
       {15, VERT, "air bon"},
       {30, JAUNE, "aérer"},
       {50, ORANGE, "ventiler"},
-      {80, ROUGE, "attention"},
+      {80, ROUGE, "toxique"},
       {100, ROUGE, "maximum"},
     };
 

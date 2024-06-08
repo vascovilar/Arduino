@@ -36,7 +36,7 @@ class ESP32X : public Sensor, public PwmPin, public Psram, public Eeprom, public
     float   read();
     vfield  get(vsensor code)
     {
-      switch(code) {
+      switch (code) {
         case MEMORY_USED:
           return _memoryAvailable;
         case RUN_CYCLES:
@@ -50,7 +50,7 @@ class ESP32X : public Sensor, public PwmPin, public Psram, public Eeprom, public
     float   getPsRamUsed() { return _psRamAvailable; } // 0 -> 100 %
     String  getClockWatch() { return _clockWatch; }  // string format "19:34:55"
 
-    // TODO vasco tmp testing proxy
+    // tmp testing
     void    getPsramTest();
     void    getEepromTest();
 
@@ -73,8 +73,8 @@ class ESP32X : public Sensor, public PwmPin, public Psram, public Eeprom, public
 
 
     vlegend _memories[3] = {
-      {10, ROUGE, "plus de mémoire"},
-      {50, ORANGE, "peu de mémoire"},
+      {130, ROUGE, "insuffisante"},
+      {160, ORANGE, "faible"},
       {10000, VERT, "ok"},
     };
 

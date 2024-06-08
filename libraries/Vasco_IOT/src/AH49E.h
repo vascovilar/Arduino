@@ -16,7 +16,7 @@
 class AH49E : public Sensor, public AdcPin
 {
   static const int  _ADC_MAX_VALUE = 4095;
-  static const int  _ADC_ZERO_VALUE = 1652;
+  static const int  _ADC_ZERO_VALUE = 1851;
   const float       _EVENT_THRESOLD_VALUE = 10.0;
 
   public:
@@ -32,7 +32,7 @@ class AH49E : public Sensor, public AdcPin
     float   read();
     vfield  get(vsensor code)
     {
-      switch(code) {
+      switch (code) {
         case GAUSS_LEVEL:
           return _maxValue;
       }
@@ -47,14 +47,14 @@ class AH49E : public Sensor, public AdcPin
 
     byte    _analogPin;
     float   _maxValueBuffer = 0;
-    vfield  _maxValue = {"Champ magnétique", "%", 1};
+    vfield  _maxValue = {"Champ magnétique", "gauss", 10};
 
     vlegend _maxValues[5] = {
       {0, VERT, "aucun champ"},
-      {20, VERT, "champ faible"},
-      {40, JAUNE, "champ moyen"},
-      {80, JAUNE, "champ fort"},
-      {100, ORANGE, "champ maximum"},
+      {40, VERT, "faible"},
+      {100, JAUNE, "moyen"},
+      {400, JAUNE, "fort"},
+      {1000, ORANGE, "champ maximum"},
     };
 };
 

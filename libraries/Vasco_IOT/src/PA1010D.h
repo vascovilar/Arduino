@@ -31,7 +31,7 @@ class PA1010D : public Sensor, public I2cPins
     float   read();
     vfield  get(vsensor code)
     {
-      switch(code) {
+      switch (code) {
         case ALTITUDE:
           return _altitude;
       }

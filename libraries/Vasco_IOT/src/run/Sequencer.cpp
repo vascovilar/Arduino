@@ -56,11 +56,15 @@ bool Sequencer::run()
   _checksBuffer++;
 
   // called by periodic trig
-  if (millis() - _timer >= _currentDelay) {
-    _timer = millis(); // reset timer
+  if (isTime(_currentDelay)) {
     _updatesBuffer++;
+
     // trig custom function and update local counters
     if (_child.update()) {
+      _isSomethingNew = true;
+      _timeBuffer += esp_timer_get_time() - time;
+
+      // update processed and reset counters
       _processedTime = _timeBuffer / 1000;
       _processedChecks = _checksBuffer;
       _processedUpdates = _updatesBuffer;
@@ -68,14 +72,13 @@ bool Sequencer::run()
       _checksBuffer = 0;
       _updatesBuffer = 0;
 
-      _isSomethingNew = true;
+      return true;
     }
   }
 
-  // increment process time containing calls to check and update chipset functions
   _timeBuffer += esp_timer_get_time() - time;
 
-  return _isSomethingNew;
+  return false;
 }
 
 void Sequencer::pause()

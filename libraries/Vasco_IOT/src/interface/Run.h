@@ -3,7 +3,6 @@
 
 #include "Arduino.h"
 
-
 static const int  VRUN_LONG_DELAY = 60000;
 static const int  VRUN_SHORT_DELAY = 3000;
 static const int  VRUN_SECOND_DELAY = 1000;

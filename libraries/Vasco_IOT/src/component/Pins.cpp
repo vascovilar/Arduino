@@ -14,6 +14,7 @@ bool AdcPin::_initADC(byte attachedPin, bool isAmplified, float maxAnalogValue, 
   _zeroAnalogValue = zeroAnalogValue;
 
   pinMode(_attachedPin, INPUT);
+  //analogSetWidth(12); // works ?
   analogReadResolution(12); // 4096 values
   analogSetPinAttenuation(_attachedPin, _isAmplified ? ADC_0db: ADC_11db);
 
@@ -62,63 +63,56 @@ float AdcPin::readAnalogFrequency() // TODO vasco use FFT
 bool PwmPin::_initPWM(byte attachedPin, byte channel)
 {
   // ESP 32
-  if ((attachedPin >= 0 && attachedPin <= 19)
+  if (!((attachedPin >= 0 && attachedPin <= 19)
     || (attachedPin >= 21 && attachedPin <= 23)
     || (attachedPin >= 25 && attachedPin <= 27)
     || (attachedPin >= 32 && attachedPin <= 39)
-  ) {
-    _attachedPin = attachedPin;
-    _channel = channel;
+  )) {
+    Serial.println(F("You must use PWM pins"));
 
-    ledcSetup(_channel, 2300, 12); // 4096 values
-    ledcAttachPin(_attachedPin, _channel);
-    analogWriteResolution(12); // for analogWrite function argument
-
-    return true;
+    return false;
   }
 
-  Serial.println(F("You must use PWM pins in order to work with ESP32"));
+  _attachedPin = attachedPin;
+  _channel = channel;
 
-  return false;
+  pinMode(_attachedPin, OUTPUT);
+
+  if (!ledcAttachChannel(_attachedPin, 1000, 12, _channel)) { // 12 bits = 4096 values
+    Serial.println(F("Can't attach pin to PWM"));
+
+    return false;
+  }
+
+  analogWriteResolution(_attachedPin, 12); // for analogWrite function argument
+
+  return true;
 }
 
 void PwmPin::led(bool onOrOff)
 {
-  pinMode(_attachedPin, OUTPUT);
-  digitalWrite(_attachedPin, (int)onOrOff);
+  digitalWrite(_attachedPin, onOrOff ? 4095: 0);
 }
 
-void PwmPin::led(int percentage) // 0~100%
+void PwmPin::led(int percentage)
 {
   analogWrite(_attachedPin, (percentage / 100.0) * 4095);
 }
 
-void PwmPin::led(int from, int to, int duration)
+bool PwmPin::led(int from, int to, int duration)
 {
-  // led fadeout start
-  led(from);
-  _fadeOutMagnitude = from;
-  _fadeOutIncrement = (from - to) / (float)(duration / (float)_LED_FADEOUT_DELAY); // TODO vasco try something else this sucks
-  _fadeOutTimer = millis();
+  if (duration > 2000) duration = 2000; // TODO vasco why not more than 2 seconds ?
+
+  return ledcFade(_attachedPin, 4095 * (from / 100.0), 4095 * (to / 100.0), duration);
 }
 
-void PwmPin::runLedFader()
+int PwmPin::magnitude()
 {
-  // led fadeout update
-  if (_fadeOutIncrement != 0) {
-    if (millis() - _fadeOutTimer > _LED_FADEOUT_DELAY) {
-      _fadeOutTimer = millis(); // reset timer
-      _fadeOutMagnitude -= _fadeOutIncrement;
-      if (_fadeOutMagnitude <= 0) {
-        _fadeOutMagnitude = 0;
-        _fadeOutIncrement = 0;
-      }
-      led(_fadeOutMagnitude);
-    }
-  }
+  return (ledcRead(_attachedPin) / 4095) * 100;
 }
 
-void PwmPin::emit(int frequency)
+bool PwmPin::note(int frequency)
 {
-  ledcWriteTone(_channel, frequency);
+  // this send 50% duty wave, to use 100% call analogWriteFrequency(_attachedPin, frequency)
+  return 0 != ledcWriteTone(_attachedPin, frequency);
 }

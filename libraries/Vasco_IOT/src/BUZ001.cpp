@@ -97,13 +97,13 @@ void BUZ001::_note(byte octave, int milliHertz, int milliSeconds)
 {
   float frequencyInHerz = (pow(2, octave) * milliHertz) / 1000.0;
 
-  emit((int)frequencyInHerz);
+  note((int)frequencyInHerz);
   delay(milliSeconds);
   _silence(0);
 }
 
 void BUZ001::_silence(int milliSeconds)
 {
-  emit(0);
+  note(0);
   delay(milliSeconds);
 }

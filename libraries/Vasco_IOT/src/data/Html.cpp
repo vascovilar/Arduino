@@ -1,7 +1,7 @@
 #include "Html.h"
 
 
-void Html::text(float x, float y, String content, vtextsize size, vcolor color, vcolor bgColor, bool isFixedWidthFont, bool isInBuffer)
+void Html::text(float x, float y, String content, vtextsize size, vcolor color, vcolor bgColor, bool isFixedWidthFont)
 {
   if (size == SIZE_BIG) {
     _htmlScript += "<text x='" + String((810 - x) - (String(content).length()) * 24) + "' y='44' font-size='" + _getHtmlSize(size) + "' font-weight='bold' fill='url(#shaded)' letter-spacing='-3' transform='scale(0.5, 1)'>" + content + "</text>";
@@ -10,34 +10,35 @@ void Html::text(float x, float y, String content, vtextsize size, vcolor color, 
   }
 }
 
-void Html::point(float x, float y, vcolor color, bool isInBuffer)
+void Html::point(float x, float y, vcolor color)
 {
-  // TODO vasco use here
+  // TODO vasco ** use here
 }
 
-void Html::line(float x1, float y1, float x2, float y2, vcolor color, bool isInBuffer)
+void Html::line(float x1, float y1, float x2, float y2, vcolor color)
 {
   _htmlScript += "<line x1='" + String(x1) + "' y1='" + String(y1) + "' x2='" + String(x2) + "' y2='" + String(y2) + "' stroke='" + _getHtmlColor(color) + "' />";
 }
 
-void Html::rect(float x, float y, int width, int height, vcolor color, int radius, bool isFilled, bool isInBuffer)
+void Html::rect(float x, float y, int width, int height, vcolor color, int radius, bool isFilled)
 {
   _htmlScript += "<rect x='" + String(x) + "' y='" + String(y) + "' width='" + String(width) + "' height='" + String(height) + "' fill='" + _getHtmlColor(color) + "' />";;
 }
 
-void Html::arrow(float x, float y, int width, int height, vcolor color, bool isInBuffer)
+void Html::arrow(float x, float y, int width, int height, vcolor color, vdirection direction)
 {
+  // TODO vasco ** make other arrow directions
   _htmlScript += "<polygon points='" + String(x) + " " + String(y) + ", " + String(x + 6) + " " + String(y + 3) + ", " + String(x + 6) + " " + String(y - 3) + "' fill='" + _getHtmlColor(color) + "' />";
 }
 
-void Html::circle(float x, float y, int radius, vcolor color, bool isInBuffer)
+void Html::circle(float x, float y, int radius, vcolor color)
 {
   _htmlScript += "<circle cx='" + String(x) + "' cy='" + String(y) +"' r='" + String(radius) + "' fill='" + _getHtmlColor(color) + "' />";
 }
 
-void Html::bitmap(float x, float y, const unsigned char* data, int width, int height, vcolor color, vcolor bgColor, bool isInBuffer)
+void Html::bitmap(float x, float y, const unsigned char* data, int width, int height, vcolor color, vcolor bgColor)
 {
-  // TODO vasco use here
+  // TODO vasco ** use here
 }
 
 float Html::width(String content, vtextsize size, bool isFixedWidthFont)
@@ -52,7 +53,16 @@ float Html::height(String content, vtextsize size)
   return 0;
 }
 
-void Html::swap()
+void Html::vertical(float x, float y, String content, vtextsize size, vcolor color, vcolor bgColor)
+{
+  // not used here
+}
+
+void Html::copy(float x, float y, int width, int height)
+{
+  // not used here
+}
+void Html::paste(float x, float y, int width, int height)
 {
   // not used here
 }
