@@ -14,6 +14,7 @@
 
 #include "Arduino.h"
 #include "../data/Bitmap.h"
+
 #include "../data/Snapshot.h"
 #include "../bin/earthImage.h"
 

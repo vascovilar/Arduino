@@ -58,18 +58,18 @@ class ESP32X : public Sensor, public PwmPin, public Psram, public Eeprom, public
 
   private:
 
-    byte     _ledPin;
-    vfield   _memoryAvailable = {"Mémoire disponible", "Ko", 10};
-    vfield   _checkPerSecond = {"Programme", "fps", 100};
-    float    _psRamAvailable = 0;
-    String   _clockWatch = "";
-    int      _processedChecks = 0;
-    int      _processedTime = millis();
-    bool     _isLed = false;
+    byte    _ledPin;
+    vfield  _memoryAvailable = {"Mémoire disponible", "Ko", 10};
+    vfield  _checkPerSecond = {"Programme", "fps", 100};
+    float   _psRamAvailable = 0;
+    String  _clockWatch = "";
+    int     _processedChecks = 0;
+    int     _processedTime = millis();
+    bool    _isLed = false;
 
-    float _convertToUsedMemoryPercentage(int freeMemory);
-    float _convertToUsedPsRamPercentage(int freeMemory);
-    float _convertToKiloByte(int freeMemory);
+    float   _convertToUsedMemoryPercentage(int freeMemory);
+    float   _convertToUsedPsRamPercentage(int freeMemory);
+    float   _convertToKiloByte(int freeMemory);
 
 
     vlegend _memories[3] = {

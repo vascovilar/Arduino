@@ -1,24 +1,17 @@
 #include "EnvironmentHtml.h"
 
-
-String EnvironmentHtml::makeHtmlScript()
-{
-  String tmp = _htmlScript;
-  _htmlScript = "";
-
-  return tmp;
-}
-
 // Affiche la home
-String EnvironmentHtml::handleHomePage(int delay)
+String EnvironmentHtml::handleHomePage(String title, String subtitle, vsensor* list, int length, int reloadDelay)
 {
-  String bloc = _getHtmlBlocEnvironment(delay);
+  String content = "";
+  content += _drawTitleBloc(title, subtitle);
+  content += _drawEnvironmentGraphs(list, length, reloadDelay);
 
-  return _getPageWrapper(bloc);
+  return _drawPageWrapper(content);
 }
 
 // affiche un graphe svg de suivi (width='430' height='190')
-String EnvironmentHtml::handleHistorySvgGraph(vfield data, Buffer buffer)
+String EnvironmentHtml::handleHistorySvgGraphs(vfield data, Buffer buffer)
 {
   float top = buffer.maximum + data.tolerance;
   float bottom = buffer.minimum - data.tolerance;
@@ -48,19 +41,18 @@ String EnvironmentHtml::handleHistorySvgGraph(vfield data, Buffer buffer)
   // use Screen class function
   drawValueHistory(22, 60, data, buffer, VSCREEN_WIDTH_WEB, VSCREEN_HEIGHT_WEB, COLOR_TRANSPARENT);
 
-  return _getHtmlBlocSvgCartouche(makeHtmlScript());
+  return _drawSvgCartouche(popHtmlBuffer());
 }
 
 // Affiche un tableau de données
-String EnvironmentHtml::handleDataTable(vfield* sensors, int length)
+String EnvironmentHtml::handleDataTables(String title, String subtitle, vdatatable* chipsets, int chipsetLength, vfield* sensors, int sensorLength)
 {
-  String output = "<tr><th>Statut</th><th>Titre</th><th>Valeur</th><th>Commentaire</th>";
+  String content = "";
+  content += _drawTitleBloc(title, subtitle);
+  content += _drawDataTable(chipsets, chipsetLength);
+  content += _drawSensorDataTable(sensors, sensorLength);
 
-  for (int i = 0; i < length; i++) {
-    output += "<tr><td><b style='color:" + _getHtmlColor(sensors[i].status) + "'>█</b></td><td>" + sensors[i].label +"</td><td>" + sensors[i].value + sensors[i].unit + "</td><td>" + sensors[i].text + "</td></tr>";
-  }
-
-  return _getPageWrapper("<table>" + output + "</table>");
+  return _drawPageWrapper(content);
 }
 
 // Met a jour la map
@@ -73,6 +65,63 @@ String EnvironmentHtml::handleGpsInfo(int satellites, String quality, float alti
   return "Sat:<b style='font-size:16px; color:" + _getHtmlColor(COLOR_GREY) + "'>" + String(satellites) + " " + quality + "</b> | Altitude: " + String(altitude, 2) + " m | Speed: " + String(speed, 2) + " km/h";
 }
 
-String EnvironmentHtml::handleNotification(String text) {
-  return "<span class='material-symbols-outlined' style='font-size:12px; color:red;'>warning</span>&nbsp;" + text + "<br>";
+String EnvironmentHtml::handleNotification(String content) {
+  return "<span class='material-symbols-outlined' style='font-size:12px; color:red;'>warning</span>&nbsp;" + content + "<br>";
+}
+
+// affiche le bloc de divs a mettre a jour par ajax
+String EnvironmentHtml::_drawEnvironmentGraphs(vsensor* list, int length, int reloadDelay)
+{
+  String htmlBuffer = "";
+  String div = "";
+  String js = "";
+
+  for (int i = 0; i < length; i++) {
+    div += "<div id='div_" + String(list[i]) + "' class='simple bordered' onclick='call(\"/sensor/" + String(list[i]) + ".svg\", \"div_" + String(list[i]) + "\")'></div>";
+    js += "," + String(list[i]);
+  }
+  js = js.substring(1);
+
+  htmlBuffer += div;
+  htmlBuffer += F("\
+<div style='width:100%; padding-left:10px;'>\
+  <a href='/sensors'>view all sensors raw data</a>\
+</div>\
+<script>\
+  function refresh() {\
+    var seq = [");
+  htmlBuffer += js;
+  htmlBuffer += F("];\
+    for (var i in seq) {\
+      call('/sensor/' + seq[i] + '.svg', 'div_' + seq[i]);\
+    };\
+    /*window.setInterval(refresh, ");
+  htmlBuffer += String(reloadDelay);
+  htmlBuffer += F(");*/\
+  };\
+  refresh();\
+</script>");
+
+  return htmlBuffer;
+}
+
+// Affiche un tableau de données
+String EnvironmentHtml::_drawSensorDataTable(vfield* sensors, int sensorLength)
+{
+  String htmlBuffer = "";
+
+  htmlBuffer += "<table>";
+  htmlBuffer += "<tr style='background-color:#333333'><td><b>Statut</b></td><td><b>Titre</b></td><td><b>Valeur</b></td><td><b>Tolerance</b></td><td><b>Commentaire</b></td></tr>";
+  for (int i = 0; i < sensorLength; i++) {
+    htmlBuffer += "<tr>";
+    htmlBuffer += "<td><b style='color:" + _getHtmlColor(sensors[i].status) + "'>█</b></td>";
+    htmlBuffer += "<td>" + sensors[i].label + "</td>";
+    htmlBuffer += "<td>" + String(sensors[i].value) + sensors[i].unit + "</td>";
+    htmlBuffer += "<td>" + String(sensors[i].tolerance) + sensors[i].unit + "</td>";
+    htmlBuffer += "<td>" + sensors[i].text + "</td>";
+    htmlBuffer += "</tr>";
+  }
+  htmlBuffer += "</table><br>";
+
+  return htmlBuffer;
 }

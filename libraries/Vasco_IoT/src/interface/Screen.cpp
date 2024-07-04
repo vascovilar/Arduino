@@ -16,18 +16,18 @@ float Screen::_isometric(float value, float minimum, float maximum, int width, i
   return (1 - ((value - minimum) / (float)(maximum - minimum))) * width + offset;
 }
 
-void Screen::drawValueHistory(float x, float y, vfield field, Buffer buffer, int width2, int height2, vcolor bgColor)
+void Screen::drawValueHistory(float x, float y, vfield field, Buffer buffer, int width, int height2, vcolor bgColor)
 {
   float top = buffer.maximum + field.tolerance;
   float bottom = buffer.minimum - field.tolerance;
   float totalTime = VBUFFER_PUSH_DELAY * VBUFFER_MAX_SIZE / 1000.0;
-  float paddingToRight = width2 - 11; // because margin = 5 and arrow size 6
+  float paddingToRight = width - 11; // because margin = 5 and arrow size 6
   float offsetBottom = y + height2;
 
   if (buffer.length > 0) {
     // clear old graph
     if (bgColor != COLOR_TRANSPARENT) {
-      rect(x, y, width2 - x, VSCREEN_HEIGHT - y - 1, bgColor);
+      rect(x, y, width - x, VSCREEN_HEIGHT - y - 1, bgColor);
     }
 
     // draw horizontal lines : values max, min, average
@@ -76,34 +76,38 @@ void Screen::drawValueHistory(float x, float y, vfield field, Buffer buffer, int
   }
 }
 
-void Screen::drawSensorSnap(float x, float y, Snapshot snap, int tolerance, String unit, int width2, int height2, vcolor bgColor)
+void Screen::drawSensorSnap(float x, float y, Snapshot snap, float tolerance, String unit, int width, int height, vcolor bgColor)
 {
-  float offsetBottom = y + height2;
+  float offsetBottom = y + height;
 
   // clear old graph
   if (bgColor != COLOR_TRANSPARENT) {
-    rect(x + 1, y, width2 - x - 1, height2 - 1, COLOR_BLACK, 0, true);
+    rect(x + 1, y, width - x - 1, height - 1, COLOR_BLACK, 0, true);
   }
 
   // distribution graph vertical line
   int distributionWidth = 30;
-  line(width2 - distributionWidth, y, width2 - distributionWidth, y + height2, COLOR_GREY_DARK);
+  line(width - distributionWidth, y, width - distributionWidth, y + height, COLOR_GREY_DARK);
 
   // draw graph zero line
-  float zero = _isometric(0, snap.minimum > -tolerance ? -tolerance: snap.minimum, snap.maximum < tolerance ? tolerance: snap.maximum, height2 - 2, y);
+  float zero = _isometric(0, snap.minimum > -tolerance ? -tolerance: snap.minimum, snap.maximum < tolerance ? tolerance: snap.maximum, height - 2, y);
   if (zero > (offsetBottom - 1)) {
     zero = offsetBottom - 1;
   }
-  line(x, zero, width2 - distributionWidth, zero, COLOR_GREY);
+  line(x, zero, width - distributionWidth, zero, COLOR_GREY);
+
+  // draw average
+  float moy = _isometric(snap.average, snap.minimum, snap.maximum, height - 2, y);
+  line(x, moy, width - distributionWidth, moy, COLOR_GREY_DARK);
 
   // draw distribution graph
   float x1, y1, xo, yo;
   for (int i = 0; i < snap.length; i++) {
-    x1 = x + 1 + i * (width2 - x - distributionWidth - 5) / (float)snap.length;
-    y1 = _isometric(snap.buffer[i], snap.minimum > -tolerance ? -tolerance: snap.minimum, snap.maximum < tolerance ? tolerance: snap.maximum, height2 - 2, y);
+    x1 = x + 1 + i * (width - x - distributionWidth - 5) / (float)snap.length;
+    y1 = _isometric(snap.buffer[i], snap.minimum > -tolerance ? -tolerance: snap.minimum, snap.maximum < tolerance ? tolerance: snap.maximum, height - 2, y);
     if (i != 0) {
       line(xo + 1, yo, x1 + 1, y1, COLOR_WHITE);
-      point(width2 - random(1, distributionWidth), yo, COLOR_GREY);
+      point(width - random(1, distributionWidth), yo, COLOR_GREY);
     }
     xo = x1;
     yo = y1;

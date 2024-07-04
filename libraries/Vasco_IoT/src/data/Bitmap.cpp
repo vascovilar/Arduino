@@ -91,7 +91,7 @@ vzone Bitmap::_drawBullet(float x, float y, vcolor color)
   return (vzone){NONE, x, y, x + bulletWidth, y + bulletHeight};
 }
 
-vzone Bitmap::_drawAnalogBar(float x, float y, float value, float minimum, float maximum, int tolerance)
+vzone Bitmap::_drawAnalogBar(float x, float y, float value, float minimum, float maximum, float tolerance)
 {
   int bulletWidth = _screen.width(" ", SIZE_TITLE, true);
   int bulletHeight = _screen.height(" ", SIZE_TITLE);

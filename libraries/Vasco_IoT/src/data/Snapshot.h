@@ -20,6 +20,7 @@ class Snapshot : public Data
     int     length = 0;
     float   maximum = 0;
     float   minimum = 9999999;
+    float   average = 0;
     float   time = 0;  // milliseconds
     float   score;    // absolute max value
 

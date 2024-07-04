@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 
-static const byte VCHIPSET_COUNT = 12;
+static const byte VCHIPSET_COUNT = 13;
 
 enum vchipset {
   MICRO_CONTROLLER = 0,
@@ -18,7 +18,12 @@ enum vchipset {
   BUZZER = 9,
   POINTER = 10,
   INERTIAL_UNIT = 11,
+  BATTERY_SENSOR = 12,
 };
+
+static const String vchipsetName[VCHIPSET_COUNT] = { "Controller maitre", "Capteur meteo", "Capteur lumière", "Navigateur GPS", "Ecran TFT",
+  "Capteur microphone", "Capteur magnétisme", "Capteur EMF", "Capteur rayonnement gamma", "Buzzer", "Souris", "Capteur inertie",
+  "Capteur batterie"};
 
 
 class Chipset

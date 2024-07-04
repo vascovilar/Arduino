@@ -36,6 +36,7 @@ class PIM447 : public Device, public Pointer, public I2cPins, public Data
     // api
     void      led(int hex, byte brightness = 0); // this led dont use PWM, it's a 3 color onboarded led
     void      led(vstatus code);
+    int       getMagnitude() { return _magnitude; } // 0~100%
 
   private:
 
@@ -51,6 +52,7 @@ class PIM447 : public Device, public Pointer, public I2cPins, public Data
     bool              _right = false;
     bool              _up = false;
     bool              _down = false;
+    int               _magnitude = 0;
 };
 
 #endif

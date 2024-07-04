@@ -15,16 +15,17 @@ class EnvironmentHtml: public Html
 {
   public:
 
-    EnvironmentHtml(Webserver &obj) : Html(obj) {};
-
-    String    makeHtmlScript();
-    String    handleHomePage(int delay);
-    String    handleHistorySvgGraph(vfield data, Buffer buffer);
-    String    handleDataTable(vfield* sensors, int length);
+    String    handleHomePage(String title, String subtitle, vsensor* list, int length, int reloadDelay);
+    String    handleHistorySvgGraphs(vfield data, Buffer buffer);
+    String    handleDataTables(String title, String subtitle, vdatatable* chipsets, int chipsetLength, vfield* sensors, int sensorLength);
     String    handleOsmPoint(float latitude, float longitude, float angle);
     String    handleGpsInfo(int satellites, String quality, float altitude, float speed);
-    String    handleNotification(String text);
+    String    handleNotification(String content);
 
+  private:
+
+    String    _drawEnvironmentGraphs(vsensor* list, int length, int reloadDelay);
+    String    _drawSensorDataTable(vfield* sensors, int sensorLength);
 };
 
 #endif

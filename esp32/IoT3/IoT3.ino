@@ -44,12 +44,13 @@ PA1010D           gps(0x10);
 BMI160X           imu(0x68);
 AH49E             hall(35);
 ESP32X            esp(2);
-Webserver         server;
 
+Webserver         server;
 Container         container;
+EnvironmentHtml   html;
+
 Mouse             mouse(track, tft);
 EnvironmentBitmap bitmap(tft, mouse);
-EnvironmentHtml   html(server);
 
 static const int  javascript_reload_delay = 10000;
 static const int  screen_brightness = 100;
@@ -64,11 +65,16 @@ void initialize()
   // Init: devices
   Serial.print("Devices initialization... ");
 
+  // turn on secondary power supply // TODO vasco: move to a class
+  pinMode(26, OUTPUT);
+  digitalWrite(26, HIGH);
+  delay(500);
+
   // needed hardware 25000 fps
   container.bind(buzzer);
   container.bind(tft);
   container.bind(track, AWARE); // to draw points on screen
-  container.bind(esp, EACH_SECOND);
+  container.bind(esp, EACH_SECOND); // this is the IoT metronom
 
   // ADC consumers, realtime sensors
   container.bind(hall); // curently disconnected use nothing
@@ -82,7 +88,7 @@ void initialize()
   container.bind(light); // big load fpm to 3000
 
   // let's run
-  if (container.begin(HIGH_REFRESH)) { // for all but already configured
+  if (container.begin(HIGH_FREQUENCY)) { // for all but already configured
     Serial.println("OK");
   }
   tft.led(10);
@@ -106,10 +112,12 @@ void startServer()
 
   // Init: webserver
   Serial.print("Initializing webserver...");
-  server.onHtml("/", [](){ return html.handleHomePage(javascript_reload_delay); });
-  for (int i = 0; i < VSENSOR_COUNT; i++) {
-    server.onHtml("/sensor/" + String(i) + ".svg", [i](){
-      return html.handleHistorySvgGraph(container.getField((vsensor)i), container.getBuffer((vsensor)i));
+  server.onHtml("/", [](){
+    return html.handleHomePage("IoT3", container.list, container.length, javascript_reload_delay);
+  });
+  for (int i = 0; i < container.length; i++) {
+    server.onHtml("/sensor/" + String(container.list[i]) + ".svg", [i](){
+      return html.handleHistorySvgGraphs(container.getField((vsensor)container.list[i]), container.getBuffer((vsensor)container.list[i]));
     });
   }
   if (server.begin(AWARE)) {
@@ -119,7 +127,6 @@ void startServer()
     Serial.println("failed");
   }
   delay(500);
-
 }
 
 
@@ -195,18 +202,6 @@ void onUpdate()
 {
   bool activity = false;
 
-  if (container.changed(POINTER)) {
-    // screen saver
-    if (tft.getMagnitude() == 0) {
-      // wake from economy mode
-      tft.led(0, screen_brightness, screen_transition);
-      container.begin(HIGH_REFRESH);
-    }
-    activity = true;
-    // page manager ?
-    onClick();
-  }
-
   if (container.changed(MICRO_CONTROLLER)) {
     // page manager
     if (container.getCurrentPage() == HOME_PAGE) {
@@ -224,23 +219,35 @@ void onUpdate()
     onEvent();
   }
 
+  if (container.changed(POINTER)) {
+    // screen saver
+    if (tft.getMagnitude() == 0) {
+      // wake from economy mode
+      tft.led(0, screen_brightness, screen_transition);
+      container.begin(HIGH_FREQUENCY);
+    }
+    activity = true;
+    // page manager ?
+    onClick();
+  }
+
+  if (container.changed(INERTIAL_UNIT)) {
+    // screen saver
+    if (imu.get(MOVEMENT).value > 10) {
+      if (tft.getMagnitude() == 0) {
+        // wake from economy mode
+        tft.led(0, screen_brightness, screen_transition);
+        container.begin(HIGH_FREQUENCY);
+      }
+      activity = true;
+    }
+  }
+
   if (container.changed(GPS_NAVIGATOR)) {
     // page manager
     if (container.getCurrentPage() == SAT_TABLE) {
       bitmap.handleSatelliteUpdate(gps.getDateTime(), gps.getSatellite(), gps.getLatitude(), gps.getLongitude(), gps.getSpeed(),
         container.getField(ALTITUDE), gps.getCompassAngle(), gps.getFixQuality(), VBITMAP_OFFSET_HEADER + 10);
-    }
-  }
-
-  if (container.changed(INERTIAL_UNIT)) {
-    // screen saver
-    if (imu.get(MOVEMENT).value > 0.1) {
-      if (tft.getMagnitude() == 0) {
-        // wake from economy mode
-        tft.led(0, screen_brightness, screen_transition);
-        container.begin(HIGH_REFRESH);
-      }
-      activity = true;
     }
   }
 
@@ -251,9 +258,9 @@ void onUpdate()
   if (millis() - _lastActivityTime > screen_saver_delay) {
     // turn off if not already done
     if (tft.getMagnitude() != 0) {
-      // go in economy mode
+      // go to economy mode
       tft.led(screen_brightness, 0, screen_transition);
-      container.begin(LOW_REFRESH);
+      container.begin(LOW_FREQUENCY);
     }
   }
 }
@@ -294,27 +301,46 @@ void onLoop()
 
 void onEvent()
 {
-  vfield field = {};
-  Buffer buffer = {};
+  vfield  field = {};
+  Buffer  buffer = {};
   vsensor index;
+
   vstatus limit = JAUNE;
   vstatus status = GRIS;
+  bool    isEvent = false;
+
+  // in sensor list
   for (int i = 0; i < VSENSOR_COUNT; i++) {
-    vfield value = container.getField((vsensor)i);
-    if (value.status > status) { // && (vsensor)i != RUN_CYCLES) {
-      status = value.status;
-      field = value;
-      buffer = container.getBuffer((vsensor)i);
+    vfield tmpField = container.getField((vsensor)i);
+    Buffer tmpBuffer = container.getBuffer((vsensor)i);
+
+    // get max status
+    if (tmpField.status > status && tmpField.status >= limit) {
+      field = tmpField;
+      buffer = tmpBuffer;
       index = (vsensor)i;
+      isEvent = true;
+    }
+
+    // get max value evolution
+    if (abs(tmpField.value) > (abs(tmpBuffer.average) + 3 * tmpField.tolerance) && i != (int)RUN_CYCLES) {
+      field = tmpField;
+      buffer = tmpBuffer;
+      index = (vsensor)i;
+      isEvent = true;
+      // modify color for this specific case
+      field.status = VIOLET;
     }
   }
-  if (status >= limit) {
+
+  // trig event
+  if (isEvent) {
     container.setCurrentEvent(index);
     if (container.getCurrentPage() == HOME_PAGE) {
       bitmap.handleEventUpdate(index, esp.getClockWatch(), field, buffer, COLOR_GREY_DEEPDARK, VBITMAP_OFFSET_EVENT);
     }
-    track.led(status);
-  } else {
+    track.led(field.status);
+  } else if (track.getMagnitude() != 0) {
     track.led(false);
   }
 }
@@ -402,13 +428,13 @@ void calibrate(vsensor code)
   for (int i = 0; i < length; i++) {
     switch (code) {
       case EMF_LEVEL:
-        value = emf.raw();
+        value = emf.readAnalogValue();
         break;
       case GAUSS_LEVEL:
-        value = hall.raw();
+        value = hall.readAnalogValue();
         break;
       case EAR_LEVEL:
-        value = ear.raw();
+        value = ear.readAnalogValue();
         break;
       default:
 

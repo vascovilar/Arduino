@@ -2,6 +2,8 @@
 
 bool Wifi::connectWifi()
 {
+  WiFi.mode(WIFI_STA);
+
   int count = WiFi.scanNetworks();
 
   for (int i = 0; i < count; ++i) {
@@ -9,8 +11,8 @@ bool Wifi::connectWifi()
       if (String(_credentials[j].user) == WiFi.SSID(i)) {
         // connect with first matching credentials
         WiFi.begin(_credentials[j].user, _credentials[j].password);
-        // wait for 10 seconds max
-        for (int k = 0; k < 20; k++) {
+        // wait for 15 seconds max
+        for (int k = 0; k < 30; k++) {
           delay(500);
           if (WiFi.status() == WL_CONNECTED) {
             // synchronize dateTime from web

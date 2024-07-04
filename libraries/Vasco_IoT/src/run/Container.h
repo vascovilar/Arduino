@@ -5,10 +5,18 @@
 #include "../interface/Run.h"
 #include "../component/Rtc.h"
 #include "../component/Timer.h"
+
 #include "../interface/Device.h"
 #include "../interface/Sensor.h"
 #include "../run/Sequencer.h"
 #include "../data/Buffer.h"
+
+struct vcodes {
+  vchipset  chipsetCodes[VCHIPSET_COUNT];
+  int       chipsetLength;
+  vsensor   sensorCodes[VSENSOR_COUNT];
+  int       sensorLength;
+};
 
 
 class Container : public Run, public Rtc, public Timer
@@ -38,15 +46,20 @@ class Container : public Run, public Rtc, public Timer
 
     // get from instances
     bool        isEnabled(vchipset code);
-    int         getCurrentDelay(vsensor code);
+    bool        isSensor(vchipset code);
     bool        isRealTime(vsensor code);
+    int         getCurrentDelay(vchipset code);
+    int         getCurrentDelay(vsensor code);
 
-    // get from local vars
+    // get from updated local vars
+    vcodes      getBindedCodes();
     vfield      getField(vsensor code) { return _field[code]; }
     void        setField(vsensor code, vfield field);
     Buffer      getBuffer(vsensor code) { return _buffer[code]; }
     int         getProcessedChecks() { return _processedChecks; }
-
+    vdatatables getChipsetDataTable(vchipset* chipsetCodes, int chipsetLength);
+    vdatatables getSensorDataTable(vsensor* sensorCodes, int sensorLength);
+    vfield      getWorstField();
 
     // public getter/setter for page management
     vpage       getCurrentPage() { return _currentPage; }
@@ -69,7 +82,7 @@ class Container : public Run, public Rtc, public Timer
     int         _processedChecks = 0;
     int         _checksBuffer = 0;
 
-    void _updateLocalSensorsValues(vchipset code); // update local vars
+    void        _updateLocalSensorsValues(vchipset code); // update local vars
 };
 
 #endif

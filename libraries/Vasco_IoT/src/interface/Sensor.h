@@ -5,7 +5,7 @@
 #include "../interface/Chipset.h"
 #include "../interface/Data.h"
 
-static const byte VSENSOR_COUNT = 16;
+static const byte VSENSOR_COUNT = 17;
 
 enum vsensor {
   TEMPERATURE = 0,
@@ -24,6 +24,7 @@ enum vsensor {
   MOVEMENT = 13,
   MEMORY_USED = 14,
   RUN_CYCLES = 15,
+  BAT_LEVEL = 16,
 };
 
 

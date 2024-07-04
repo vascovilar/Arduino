@@ -9,17 +9,21 @@ static const int  VRUN_SECOND_DELAY = 1000;
 static const int  VRUN_AWARE_DELAY = 100; // seems continuous with 10 measure per second
 static const int  VRUN_CONTINUOUS_DELAY = 10; // really continuous, better is not use
 
+static const byte VRUN_COUNT = 8;
 
 enum vrun {
   INIT_ERROR = 0, // can't start due to communication error, bad wiring or faulty chipset
   SLEEPING = 1, // device consumption is reduced to minimum
-  PAUSE = 2, // paused by container's pause function, remuse previous modes with resume
-  LOW_REFRESH = 3,
-  HIGH_REFRESH = 4,
+  PAUSED = 2, // paused by container's pause function, resume previous modes with resume, else stays locked
+  LOW_FREQUENCY = 3,
+  HIGH_FREQUENCY = 4,
   EACH_SECOND = 5,
   EVENT_TRIG = 6, // low refresh mode + trigs on event (event = check function returns true)
   AWARE = 7, // almost continuous + can't be paused by container
 };
+
+static const String vrunName[VRUN_COUNT] = {"erreur", "sommeil", "pause", "rafraich. lent", "rafraich. rapide",
+  "chaque seconde", "sur évènement", "temps réel"};
 
 
 class Run

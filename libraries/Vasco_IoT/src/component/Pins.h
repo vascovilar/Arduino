@@ -25,13 +25,14 @@ class SpiPins
 class AdcPin
 {
   static const int  _ADC_MAX_VALUE = 4095; // override with device value in child class
-  static const int  _ADC_ZEROledcSetup_VALUE = 0; // override with device value in child class
+  static const int  _ADC_ZERO_VALUE = 0; // override with device value in child class
 
   public:
 
-    int     readAnalogRawValue();
-    float   readAnalogPercentage();
-    float   readAnalogFrequency();
+    int     readAnalogValue(); // value depending resolution (1é bits = 4095)
+    int     readAnalogVoltage(); // in millitvolt
+    float   readAnalogPercentage(); // in %
+    float   readAnalogFrequency(); // in Hz
 
   protected:
 
@@ -66,6 +67,14 @@ class PwmPin
 
     byte    _attachedPin;
     byte    _channel;
+};
+
+class TouchPin
+{
+
+  public:
+
+
 };
 
 #endif

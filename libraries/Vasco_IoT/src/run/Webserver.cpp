@@ -16,12 +16,14 @@ bool Webserver::begin(vrun mode)
     }
     _server.send(404, "text/plain", out);
   });
+
   // if wifi connected
   if (WiFi.status() != WL_CONNECTED) {
-    Serial.println(F("Wifi must be connected to begin webserver"));
+    Serial.println(F("Error: Wifi must be connected"));
 
     return false;
   }
+
   // init
   _server.begin();
   _processMode = mode;
@@ -36,10 +38,10 @@ bool Webserver::run()
   int delay;
 
   switch (_processMode) {
-    case LOW_REFRESH:
+    case LOW_FREQUENCY:
       delay = VRUN_SECOND_DELAY;
       break;
-    case HIGH_REFRESH:
+    case HIGH_FREQUENCY:
     case EACH_SECOND:
     case EVENT_TRIG:
     case AWARE:
@@ -51,8 +53,10 @@ bool Webserver::run()
   }
 
   if (isTime(delay)) {
-    _server.handleClient();
     _timeBuffer += esp_timer_get_time() - time;
+
+    // run
+    _server.handleClient();
 
     // update processed and reset counters
     _processedTime = _timeBuffer / 1000;
@@ -85,6 +89,7 @@ void Webserver::onHtml(const String &uri, std::function<String(int)> callHtml)
 void Webserver::onSvg(const String &uri, std::function<String()> callSvg)
 {
   _server.on(Uri(uri), [&, callSvg]() {
+
     _server.send(200, "image/svg+xml", callSvg());
   });
 }

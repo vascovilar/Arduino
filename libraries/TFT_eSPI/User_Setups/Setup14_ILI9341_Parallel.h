@@ -8,12 +8,12 @@
 
 
 // ESP32 pins used for the parallel interface TFT
-#define TFT_CS   33  // Chip select control pin
-#define TFT_DC   15  // Data Command control pin - must use a pin in the range 0-31
-#define TFT_RST  32  // Reset pin
+#define TFT_CS   4 //33  // Chip select control pin
+#define TFT_DC   3 //15  // /!\ RS pin. Data Command control pin - must use a pin in the range 0-31
+#define TFT_RST  5 //32  // Reset pin
 
-#define TFT_WR    4  // Write strobe control pin - must use a pin in the range 0-31
-#define TFT_RD    2
+#define TFT_WR   2 //4  // Write strobe control pin - must use a pin in the range 0-31
+#define TFT_RD   1 //2
 
 #define TFT_D0   12  // Must use pins in the range 0-31 for the data bus
 #define TFT_D1   13  // so a single register write sets/clears all bits

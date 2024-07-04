@@ -56,13 +56,3 @@ float EMF001::read()
 {
   return readAnalogPercentage();
 }
-
-int EMF001::raw()
-{
-  return readAnalogRawValue();
-}
-
-float EMF001::frequency()
-{
-  return readAnalogFrequency();
-}

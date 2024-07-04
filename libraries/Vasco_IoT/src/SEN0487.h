@@ -39,9 +39,6 @@ class SEN0487 : public Sensor, public AdcPin
       return (vfield){};
     }
 
-    // api
-    int     raw();
-
   private:
 
     byte     _analogPin;

@@ -9,7 +9,7 @@ class Filter : public Data
 {
   static const byte _BUFFER_MAX_SIZE = 100;
 
-  public:
+  protected:
 
     // iterators to smooth graphs
     float   smoothFilter(float value, int factor);

@@ -79,7 +79,8 @@ class BME680 : public Sensor, public I2cPins
       {85, ROUGE, "danger"},
     };
 
-    vlegend _pressures[10] = {
+    vlegend _pressures[11] = {
+      {10, ROUGE, "espace intersidéral"},
       {920, ROUGE, "ouragan classe 5"},
       {944, ROUGE, "ouragan classe 4"},
       {964, ROUGE, "ouragan classe 3"},

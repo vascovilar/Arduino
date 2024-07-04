@@ -40,9 +40,6 @@ class AH49E : public Sensor, public AdcPin
       return (vfield){};
     }
 
-    // api
-    int     raw();
-
   private:
 
     byte    _analogPin;

@@ -7,7 +7,7 @@
 #include "../component/Timer.h"
 
 
-static const int    VBUFFER_PUSH_DELAY = 10000; // 180000 = 3 min means 240 mesures = 12h
+static const int    VBUFFER_PUSH_DELAY = 15000; // 180000 = 3 min means 240 mesures = 12h
 static const int    VBUFFER_MAX_SIZE = 240; // 240
 
 

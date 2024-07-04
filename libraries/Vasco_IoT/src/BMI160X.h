@@ -21,10 +21,10 @@ class BMI160X : public Sensor, public I2cPins, public CurieIMUClass, public Time
 {
   public:
 
-    static const int _GYROSCOPE_RATE = 100; // reads/second. values: 25, 50, 100, 200, 400, 800, 1600, 3200 (Hz)
-    static const int _GYROSCOPE_RANGE = 1000; // max - min value. values: 125, 250, 500, 1000, 2000 (degrees/second)
-    static const int _ACCELEROMETER_RATE = 100; // values: 12.5, 25, 50, 100, 200, 400, 800, 1600 (Hz)
-    static const int _ACCELEROMETER_RANGE = 2; // values: 2, 4, 8, 16 (G)
+    static const int _GYROSCOPE_RATE = 100; // reads/second. Values: 25, 50, 100, 200, 400, 800, 1600, 3200 (Hz)
+    static const int _GYROSCOPE_RANGE = 1000; // (max - min) angle value: 125, 250, 500, 1000, 2000 (degrees/second)
+    static const int _ACCELEROMETER_RATE = 100; // reads/second. Values: 12.5, 25, 50, 100, 200, 400, 800, 1600 (Hz)
+    static const int _ACCELEROMETER_RANGE = 2; // acceleration max value: 2, 4, 8, 16 (G)
 
     BMI160X(byte addr) : Sensor(INERTIAL_UNIT, true) { _i2cAddress = addr; }
 

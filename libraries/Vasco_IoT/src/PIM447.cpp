@@ -42,7 +42,7 @@ bool PIM447::check()
 bool PIM447::update()
 {
   // update local variables
-  if (_trackBall.changed()) { // TODO vasco * do same thing for other classes update functions (if new data)
+  if (_trackBall.changed()) {
     int leftDelta = pow(_trackBall.left(), 2) / 2;
     int rightDelta = pow(_trackBall.right(), 2) / 2;
     int upDelta = pow(_trackBall.up(), 2) / 2;
@@ -107,13 +107,20 @@ void PIM447::reset()
   _down = false;
   }
 
-  void PIM447::led(int hexadecimal, byte brightness)
-  {
-    // split RGB channels
+void PIM447::led(int hexadecimal, byte brightness)
+{
+  // split RGB channels
   _trackBall.setRed(hexadecimal >> 16);
   _trackBall.setGreen(hexadecimal >> 8 & 0xFF);
   _trackBall.setBlue(hexadecimal & 0xFF);
   _trackBall.setWhite(brightness);
+
+  // memorize
+  if (hexadecimal != 0x0 || brightness != 0) {
+    _magnitude = max(hexadecimal, (int)brightness);
+  } else {
+    _magnitude = 0;
+  }
 }
 
 void PIM447::led(vstatus code)

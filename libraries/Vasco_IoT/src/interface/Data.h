@@ -66,7 +66,7 @@ enum vpage {
 struct vfield {
   String    label;
   String    unit;
-  int       tolerance;
+  float     tolerance;
   float     value;
   vstatus   status;
   String    text;
@@ -105,6 +105,21 @@ struct vcoord {
   float     x;
   float     y;
   float     z;
+};
+
+// Html presenter
+
+struct vdatatable {
+  String    id;
+  String    title;
+  String    value;
+  String    description;
+  String    comment;
+};
+
+struct vdatatables {
+  vdatatable lines[30];
+  int       length;
 };
 
 

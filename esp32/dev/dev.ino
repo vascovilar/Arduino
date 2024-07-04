@@ -26,8 +26,8 @@
 
 // instanciations come here
 //
-BUZ001        buzzer(4);
-ST7789SD      tft(5, 25, 33, 32);
+//BUZ001        buzzer(4);
+//ST7789SD      tft(5, 25, 33, 32);
 //PIM447        track(0x0A);
 //BME680        air(0x77);
 //LTR390        light(0x53);
@@ -36,9 +36,9 @@ ST7789SD      tft(5, 25, 33, 32);
 //PA1010D       gps(0x10);
 //BMI160X       imu(0x68);
 //AH49E         hall(35);
-//ESP32X        esp(2);
+ESP32X        esp(2);
 
-//Container     contfttainer;
+//Container     container;
 //Mouse         mouse(track, tft);
 //Bitmap        bitmap(tft, mouse);
 
@@ -60,20 +60,27 @@ void setup()//
   // INIT
   // -----------------------------------------------------
 
+  // list wifi AP
+  esp.init();
+
+  int length = esp.getAccessPointsCount();
+  for (int i = 0; i < length; i++) {
+    Serial.println(esp.getAccessPointInfo(i));
+  }
+
+  /*
   tft.init();
   tft.text(100, 60, "test", SIZE_BIG, COLOR_WHITE);
-  //tft.led(0,10,5);
-  tft.led(100);
-//pinMode(32, OUTPUT);
-//digitalWrite(32, 0);
+  tft.led(0,10,5);
+  //tft.led(100);
   //bitmap.iconTestPage();
-tft.image(183, 20, VIMAGE_earth, 57, 120);
+  //tft.image(183, 20, VIMAGE_earth, 57, 120);
+  */
 
-
-
+  /*
   buzzer.init();
   buzzer.warning();
-
+  */
 
   /*
   tft.line(0, 5, VSCREEN_WIDTH, 5, COLOR_GREY);
@@ -136,7 +143,7 @@ tft.image(183, 20, VIMAGE_earth, 57, 120);
   container.bind(light); // big load fpm to 3000
 
   // let's run
-  if (container.begin(HIGH_REFRESH)) { // for all but already configured
+  if (container.begin(HIGH_FREQUENCY)) { // for all but already configured
     Serial.println("OK");
   }
 
@@ -153,12 +160,13 @@ void loop()
 
 
 
+
+
+
+
+
   //Serial.println("*** " + String(esp.getDateTime()));
   //delay(1000);
-
-
-
-
 
   /*
   ear.update();

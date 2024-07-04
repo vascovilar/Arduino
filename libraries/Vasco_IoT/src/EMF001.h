@@ -38,10 +38,6 @@ class EMF001 : public Sensor, public AdcPin
       return (vfield){};
     }
 
-    // api
-    int     raw();
-    float   frequency();
-
   private:
 
     byte    _analogPin;

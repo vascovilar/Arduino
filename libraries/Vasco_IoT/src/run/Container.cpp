@@ -7,7 +7,7 @@ bool Container::begin(vrun mode)
   for (int i = 0; i < VCHIPSET_COUNT; i++) {
     if (_instance[i]) {
       vrun run = mode;
-      // if already init-setted modifiy input mode variable
+      // if initially setted, modifiy input mode variable
       if (_initialMode[i] != INIT_ERROR) {
         run = _initialMode[i];
       }
@@ -29,10 +29,12 @@ bool Container::run()
     if (_instance[i]) {
       // if something new
       if (_sequencer[i]->run()) {
-        // update local variable field and buffer (Sensors only)
-        _updateLocalSensorsValues((vchipset)i);
-        // set flag to harvest laster
-        somethingUpdated = true;
+        if (_instance[(vchipset)i]->isSensor()) {
+          // update local variable field and buffer (Sensors only)
+          _updateLocalSensorsValues((vchipset)i);
+          // set flag to harvest laster
+          somethingUpdated = true;
+        }
       }
     }
   }
@@ -75,7 +77,7 @@ bool Container::changed(vchipset code)
 {
   if (_instance[code]) {
 
-    return _sequencer[(int)code]->isSomethingNew();
+    return _sequencer[(int)code]->popSomethingNew();
   }
 
   return false;
@@ -103,22 +105,24 @@ void Container::resume()
   }
 }
 
-int Container::getCurrentDelay(vsensor code)
+bool Container::isEnabled(vchipset code)
 {
-  for (int i = 0; i < VCHIPSET_COUNT; i++) {
-    if (_instance[i]) {
-      if (_instance[i]->isSensor()) {
-        Sensor* sensor = (Sensor*)_instance[i];
-        vfield field = sensor->get(code);
-        if (field.label != "") {
+  if (_instance[code]) {
 
-          return _sequencer[i]->getCurrentDelay();
-        }
-      }
-    }
+    return _sequencer[code]->isEnabled();
   }
 
-  return 0; // never goes here but needed for compilator :-/
+  return false;
+}
+
+bool Container::isSensor(vchipset code)
+{
+  if (_instance[code]) {
+
+    return _instance[code]->isSensor();
+  }
+
+  return false;
 }
 
 bool Container::isRealTime(vsensor code)
@@ -139,15 +143,103 @@ bool Container::isRealTime(vsensor code)
   return false;
 }
 
-
-bool Container::isEnabled(vchipset code)
+int Container::getCurrentDelay(vchipset code)
 {
   if (_instance[code]) {
 
-    return _sequencer[code]->isEnabled();
+    return _sequencer[code]->getCurrentDelay();
   }
 
-  return false;
+  return 0;
+}
+
+int Container::getCurrentDelay(vsensor code)
+{
+  for (int i = 0; i < VCHIPSET_COUNT; i++) {
+    if (_instance[i]) {
+      if (_instance[i]->isSensor()) {
+        Sensor* sensor = (Sensor*)_instance[i];
+        vfield field = sensor->get(code);
+        if (field.label != "") {
+
+          return _sequencer[i]->getCurrentDelay();
+        }
+      }
+    }
+  }
+
+  return 0;
+}
+
+vcodes Container::getBindedCodes()
+{
+  vcodes list = {{}, 0, {}, 0};
+
+  for (int i = 0; i < VCHIPSET_COUNT; i++) {
+    if (_instance[i]) {
+      list.chipsetCodes[list.chipsetLength++] = (vchipset)i;
+      if (_instance[i]->isSensor()) {
+        Sensor* sensor = (Sensor*)_instance[i];
+        for (int j = 0; j < VSENSOR_COUNT; j++) {
+          vfield field = sensor->get((vsensor)j);
+          if (field.label != "") {
+            list.sensorCodes[list.sensorLength++] = (vsensor)j;
+          }
+        }
+      }
+    }
+  }
+
+  return list;
+}
+
+vdatatables Container::getChipsetDataTable(vchipset* chipsetCodes, int chipsetLength)
+{
+  vdatatables table = {};
+
+  // header
+  table.lines[table.length++] = (vdatatable){"Chipset", "Programme", "Délai m.a.j", "Mode", "Capteur"};
+  // other lines
+  for (int i = 0; i < chipsetLength; i++) {
+    if (_instance[chipsetCodes[i]]) {
+      table.lines[table.length++] = (vdatatable){
+        vchipsetName[chipsetCodes[i]],
+        String(_sequencer[chipsetCodes[i]]->getProcessedChecks()) + " frames",
+        String(_sequencer[chipsetCodes[i]]->getCurrentDelay()) + " ms",
+        vrunName[_sequencer[chipsetCodes[i]]->getCurrentMode()],
+        _instance[chipsetCodes[i]]->isSensor() ? "oui": "",
+      };
+    }
+  }
+
+  return table;
+}
+
+vdatatables Container::getSensorDataTable(vsensor* sensorCodes, int sensorLength)
+{
+  vdatatables table;
+
+
+  return table;
+}
+
+vfield Container::getWorstField()
+{
+  vstatus status = GRIS;
+  vfield worst;
+  vcodes list = getBindedCodes();
+
+  for (int i = 0; i < list.sensorLength; i++) {
+    vfield field = getField(list.sensorCodes[i]);
+    if (field.label != "Pression") { // TODO vasco remove this exception when resolved
+      if (field.status > status) {
+        status = field.status;
+        worst = field;
+      }
+    }
+  }
+
+  return worst;
 }
 
 void Container::setField(vsensor code, vfield field)
@@ -159,14 +251,12 @@ void Container::setField(vsensor code, vfield field)
 
 void Container::_updateLocalSensorsValues(vchipset code)
 {
-  if (_instance[code]->isSensor()) {
-    Sensor* sensor = (Sensor*)_instance[code];
-    for (int i = 0; i < VSENSOR_COUNT; i++) {
-      vfield field = sensor->get((vsensor)i);
-      if (field.label != "" && field.status > GRIS) { // >GRIS to avoid storing zeros
-        // try get each sensor code in a sensor instance
-        setField((vsensor)i, field);
-      }
+  Sensor* sensor = (Sensor*)_instance[code];
+  for (int i = 0; i < VSENSOR_COUNT; i++) {
+    vfield field = sensor->get((vsensor)i);
+    if (field.label != "" && field.status > GRIS) { // >GRIS to avoid storing zeros
+      // try get each sensor code in a sensor instance
+      setField((vsensor)i, field);
     }
   }
 }

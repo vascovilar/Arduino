@@ -193,7 +193,7 @@ float ST7789SD::height(String content, vtextsize size)
 
 void ST7789SD::vertical(float x, float y, String content, vtextsize size, vcolor color, vcolor bgColor)
 {
-  _spr.createSprite(60, 8);
+  _spr.createSprite(width(content, size), height(content, size));
   _spr.setPivot(y, x);      // Set pivot relative to top left corner of Sprite
   if (bgColor != COLOR_TRANSPARENT) {
     _spr.fillSprite(_convertToRGB565(bgColor));

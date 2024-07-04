@@ -2,17 +2,15 @@
 
 bool SEN0487::init()
 {
+  pinMode(_analogPin, INPUT);
+
   if (!_initADC(_analogPin, false, _ADC_MAX_VALUE, _ADC_ZERO_VALUE)) {
     Serial.println(F("Error initializing analog SEN0487 device"));
 
     return false;
   }
 
-  pinMode(26, OUTPUT);
-  digitalWrite(26, HIGH);
-
-  delay(500);
-  if (readAnalogRawValue() == 0) {
+  if (readAnalogValue() == 0) {
     Serial.println(F("Error SEN0487 device not responding"));
 
     return false;
@@ -23,15 +21,11 @@ bool SEN0487::init()
 
 bool SEN0487::sleep()
 {
-  digitalWrite(26, LOW);
-
   return true;
 }
 
 bool SEN0487::wake()
 {
-  digitalWrite(26, HIGH);
-
   return true;
 }
 
@@ -63,9 +57,4 @@ bool SEN0487::update()
 float SEN0487::read()
 {
   return readAnalogPercentage();
-}
-
-int SEN0487::raw()
-{
-  return readAnalogRawValue();
 }

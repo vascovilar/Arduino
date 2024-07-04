@@ -8,7 +8,7 @@
  * - invert colors
  * - scale to fit,keeping proportions
  * - fine tune with brightness
- * then report name in Bitmap::_getIcon() and bitmap.iconTestPage() // TODO vasco automatic for test
+ * then report name in Bitmap::_getIcon() and bitmap.iconTestPage()
  */
 
 #ifndef iconMonoTransparent_h

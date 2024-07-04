@@ -31,6 +31,7 @@
 
 // need to be global because called by lambda functions
 static WebServer _server(80);
+//static WiFiServer _server(80);
 
 
 class Webserver : public Run, public Timer

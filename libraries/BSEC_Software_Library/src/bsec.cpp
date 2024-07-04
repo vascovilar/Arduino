@@ -29,11 +29,11 @@
  * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
  * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  * @file	bsec.cpp
  * @date	27 May 2022
  * @version	1.4.1492
- *  
+ *
  */
 
 #include "bsec.h"
@@ -92,7 +92,7 @@ void Bsec::begin(uint8_t chipSelect, SPIClass &spi)
 	_bme68x.read = Bsec::spiRead;
 	_bme68x.write = Bsec::spiWrite;
 	_bme68x.delay_us = Bsec::delay_us;
-	_bme68x.amb_temp = 25;	
+	_bme68x.amb_temp = 25;
 
 	pinMode(chipSelect, OUTPUT);
 	digitalWrite(chipSelect, HIGH);
@@ -113,7 +113,7 @@ void Bsec::beginCommon(void)
     bsecStatus = bsec_init();
 
 	getVersion();
-	
+
 	bme68xStatus = bme68x_init(&_bme68x);
 }
 
@@ -143,9 +143,9 @@ bool Bsec::run(void)
 	bool newData = false;
 	/* Check if the time has arrived to call do_steps() */
 	int64_t callTimeMs = getTimeMs();
-	
+
 	if (callTimeMs >= nextCall) {
-	
+
 		bsec_bme_settings_t bme68xSettings;
 
 		int64_t callTimeNs = callTimeMs * INT64_C(1000000);
@@ -161,9 +161,9 @@ bool Bsec::run(void)
 			return false;
 		}
 
-		newData = readProcessData(callTimeNs, bme68xSettings);	
+		newData = readProcessData(callTimeNs, bme68xSettings);
 	}
-	
+
 	return newData;
 }
 
@@ -223,7 +223,7 @@ bool Bsec::readProcessData(int64_t currTimeNs, bsec_bme_settings_t bme68xSetting
 		{
 			return false;
 		}
-	
+
 		if (nFields)
 		{
 			if (bme68xSettings.process_data & BSEC_PROCESS_TEMPERATURE)
@@ -250,10 +250,10 @@ bool Bsec::readProcessData(int64_t currTimeNs, bsec_bme_settings_t bme68xSetting
 			}
 			if (bme68xSettings.process_data & BSEC_PROCESS_PRESSURE)
 			{
-				inputs[nInputs].sensor_id = BSEC_INPUT_PRESSURE;
+				/*inputs[nInputs].sensor_id = BSEC_INPUT_PRESSURE; // TODO vasco if uncommented all sensors failed
 				inputs[nInputs].signal = _data.pressure;
 				inputs[nInputs].time_stamp = currTimeNs;
-				nInputs++;
+				nInputs++;*/
 			}
 			if (bme68xSettings.process_data & BSEC_PROCESS_GAS)
 			{
@@ -351,7 +351,7 @@ int8_t Bsec::setBme68xConfig(bsec_bme_settings_t bme68xSettings)
 	int8_t bme68xSts = BME68X_OK;
 	uint16_t meas_period;
 	uint8_t current_op_mode;
-	
+
 	/* Check if a forced-mode measurement should be triggered now */
     if (bme68xSettings.trigger_measurement)
 	{
@@ -365,7 +365,7 @@ int8_t Bsec::setBme68xConfig(bsec_bme_settings_t bme68xSettings)
 
 		if (bme68xSts == BME68X_ERROR)
 		{
-			return bme68xSts;	
+			return bme68xSts;
 		}
 
 		heatrConf.enable = bme68xSettings.run_gas;
@@ -373,12 +373,12 @@ int8_t Bsec::setBme68xConfig(bsec_bme_settings_t bme68xSettings)
 		heatrConf.heatr_dur = bme68xSettings.heating_duration;
 
 		bme68xSts = bme68x_set_heatr_conf(BME68X_FORCED_MODE, &heatrConf, &_bme68x);
-		
+
 		if (bme68xSts == BME68X_ERROR)
 		{
 			return bme68xSts;
 		}
-		
+
 		bme68xSts = bme68x_set_op_mode(BME68X_FORCED_MODE, &_bme68x);
 
 		if (bme68xSts == BME68X_ERROR)
@@ -572,5 +572,5 @@ int8_t Bsec::spiWrite(uint8_t regAddr, const uint8_t *regData, uint32_t length, 
  */
 void Bsec::setTPH(uint8_t osTemp, uint8_t osPres, uint8_t osHum)
 {
-	
+
 }

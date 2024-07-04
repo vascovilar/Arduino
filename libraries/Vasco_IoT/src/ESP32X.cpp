@@ -41,7 +41,7 @@ bool ESP32X::check()
   // count checks
   _processedChecks++;
 
-  // blink blue led each 10 round // TODO vasco limit call to ledc api
+  // blink blue led each 10 round
   if (_processedChecks % 10) {
     led(_isLed);
     _isLed = !_isLed;
@@ -56,13 +56,13 @@ bool ESP32X::update()
   feed(_memoryAvailable, _convertToKiloByte(ESP.getFreeHeap()), _memories, 3);
   feed(_checkPerSecond, _processedChecks / ((millis() - _processedTime) / 1000.0), _checks, 3);
 
-  // udpate other local variables
-  _psRamAvailable = _convertToKiloByte(ESP.getFreePsram()); // readed on SPI channel 3, or use new esp_psram_get_size()
-  _clockWatch = getDateTime().substring(11, 19);
-
   // reset counters
   _processedChecks = 0;
   _processedTime = millis(); // reset timer
+
+  // udpate other local variables
+  _psRamAvailable = _convertToKiloByte(ESP.getFreePsram()); // readed on SPI channel 3, or use new esp_psram_get_size()
+  _clockWatch = getDateTime().substring(11, 19);
 
   return true;
 }

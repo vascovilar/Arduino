@@ -42,9 +42,9 @@ class Screen : public Rtc
     virtual void    paste(float x, float y, int width, int height) = 0;
     virtual void    clear() = 0; // clear screen
 
-    // common math tools
+    // api common abstract draws
     void            drawValueHistory(float x, float y, vfield field, Buffer buffer, int width, int height, vcolor bgColor = COLOR_TRANSPARENT);
-    void            drawSensorSnap(float x, float y, Snapshot snap, int tolerance, String unit, int width, int height, vcolor bgColor = COLOR_TRANSPARENT);
+    void            drawSensorSnap(float x, float y, Snapshot snap, float tolerance, String unit, int width, int height, vcolor bgColor = COLOR_TRANSPARENT);
 
   protected:
 

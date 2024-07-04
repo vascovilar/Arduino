@@ -2,12 +2,6 @@
 
 bool AdcPin::_initADC(byte attachedPin, bool isAmplified, float maxAnalogValue, float zeroAnalogValue)
 {
-  if (!(attachedPin >= 32 && attachedPin <= 39)) {
-    Serial.println(F("You must use ADC1 (pin 32 to 39) in order to work with ESP32. ADC2 is already used by Wifi"));
-
-    return false;
-  }
-
   _attachedPin = attachedPin;
   _isAmplified = isAmplified;
   _maxAnalogValue = maxAnalogValue;
@@ -21,14 +15,19 @@ bool AdcPin::_initADC(byte attachedPin, bool isAmplified, float maxAnalogValue, 
   return true;
 }
 
-int AdcPin::readAnalogRawValue()
+int AdcPin::readAnalogValue()
 {
   return analogRead(_attachedPin);
 }
 
+int AdcPin::readAnalogVoltage()
+{
+  return analogReadMilliVolts(_attachedPin);
+}
+
 float AdcPin::readAnalogPercentage()
 {
-  int rawValue = readAnalogRawValue();
+  int rawValue = readAnalogValue();
 
   // float mapping
   if (rawValue > _maxAnalogValue) rawValue = _maxAnalogValue;
@@ -49,7 +48,7 @@ float AdcPin::readAnalogFrequency() // TODO vasco use FFT
   while (i < 100) { // total 100ms to measure
     if (micros() - timer > 1000) {
       timer = micros();
-      buffer[i] = readAnalogRawValue();
+      buffer[i] = readAnalogValue();
       if (buffer[i] == 0 && buffer[i-1] > 0) {
         beat++;
       }
@@ -62,17 +61,6 @@ float AdcPin::readAnalogFrequency() // TODO vasco use FFT
 
 bool PwmPin::_initPWM(byte attachedPin, byte channel)
 {
-  // ESP 32
-  if (!((attachedPin >= 0 && attachedPin <= 19)
-    || (attachedPin >= 21 && attachedPin <= 23)
-    || (attachedPin >= 25 && attachedPin <= 27)
-    || (attachedPin >= 32 && attachedPin <= 39)
-  )) {
-    Serial.println(F("You must use PWM pins"));
-
-    return false;
-  }
-
   _attachedPin = attachedPin;
   _channel = channel;
 

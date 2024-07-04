@@ -38,7 +38,7 @@ void Mouse::draw()
 
   // remove min pixels
   if (_lastPointer.x != pointer.x || _lastPointer.y != pointer.y) {
-    // copy screen background in memory // TODO vasco dont works beacause cant read screen memory
+    // copy screen background in memory // dont works beacause cant read screen memory
     //_screen.paste(_lastPointer.x, _lastPointer.y, 12, 16);
     //_screen.copy(pointer.x, pointer.y, 12, 16);
 

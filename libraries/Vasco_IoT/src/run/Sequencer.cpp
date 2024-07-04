@@ -6,6 +6,8 @@ bool Sequencer::begin(vrun mode)
     // init while not enabled
     _enabled = _child.init();
   }
+
+  // switch to mode
   if (_enabled) {
     if (mode == SLEEPING) {
       // call custom function then change mode
@@ -17,8 +19,8 @@ bool Sequencer::begin(vrun mode)
       if (_child.wake()) {
         _processMode = mode;
       }
-    } else {
-      // not knows mode change mode anyways
+    } else if (_processMode != PAUSED) {
+      // change mode. Mode PAUSED stays locked to pause anyway
       _processMode = mode;
     }
   }
@@ -31,11 +33,11 @@ bool Sequencer::run()
   long time = esp_timer_get_time();
 
   switch (_processMode) {
-    case LOW_REFRESH:
+    case LOW_FREQUENCY:
     case EVENT_TRIG:
       _currentDelay = VRUN_LONG_DELAY;
       break;
-    case HIGH_REFRESH:
+    case HIGH_FREQUENCY:
       _currentDelay = VRUN_SHORT_DELAY;
       break;
     case EACH_SECOND:
@@ -85,18 +87,18 @@ void Sequencer::pause()
 {
   // save current mode and change mode
   _processModeSave = _processMode;
-  _processMode = PAUSE;
+  _processMode = PAUSED;
 }
 
 void Sequencer::resume()
 {
   // restore saved mode for paused chipsets
-  if (_processMode == PAUSE) {
+  if (_processMode == PAUSED) {
     _processMode = _processModeSave;
   }
 }
 
-bool Sequencer::isSomethingNew()
+bool Sequencer::popSomethingNew()
 {
   if (_isSomethingNew) {
     _isSomethingNew = false;

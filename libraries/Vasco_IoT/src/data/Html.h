@@ -19,8 +19,6 @@ class Html : public Data, public Screen
 {
   public:
 
-    Html(Webserver &obj) : _server(obj) {};  // bind objects
-
     // interface
     void      text(float x, float y, String content, vtextsize size, vcolor color, vcolor bgColor = COLOR_TRANSPARENT, bool isFixedWidthFont = false);
     void      point(float x, float y, vcolor color);
@@ -37,20 +35,21 @@ class Html : public Data, public Screen
     void      paste(float x, float y, int width, int height); // not used here
     void      clear(); // not used here
 
+    // api
+    String    popHtmlBuffer();
+
   protected:
 
-    Webserver &_server;
-    String    _htmlScript = ""; // TODO vasco *** temporaire, essayer en envoyant directment dans _server
+    String    _htmlBuffer = "";
+
+    String    _drawPageWrapper(String content);
+    String    _drawTitleBloc(String title, String subtitle);
+    String    _drawSvgCartouche(String content);
+    String    _drawDataTable(vdatatable* data, int length);
 
     String    _getHtmlSize(vtextsize size);
     String    _getHtmlColor(vcolor color);
     String    _getHtmlColor(vstatus status);
-
-    String    _getPageWrapper(String content);
-    String    _getHtmlBlocEnvironment(int reloadDelay);
-    String    _getHtmlBlocSvgCartouche(String content);
-    String    _getHtmlLink(String href, String text);
-
 };
 
 #endif

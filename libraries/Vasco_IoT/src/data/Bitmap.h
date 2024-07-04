@@ -11,6 +11,7 @@
 #include "../interface/Data.h"
 #include "../interface/Screen.h"
 #include "../data/Mouse.h"
+
 #include "../data/Buffer.h"
 #include "../bin/iconMonoTransparent.h"
 
@@ -50,7 +51,7 @@ class Bitmap : public Data
     vzone   _drawButtonArrow(float x, float y, vdirection direction, vpage target);
     vzone   _drawButtonBack(float x, vpage target);
     vzone   _drawBullet(float x, float y, vcolor color);
-    vzone   _drawAnalogBar(float x, float y, float value, float minimum, float maximum, int tolerance);
+    vzone   _drawAnalogBar(float x, float y, float value, float minimum, float maximum, float tolerance);
     vzone   _drawIcon(float x, float y, const unsigned char* icon, int width, int height, vcolor color, vcolor bgColor = COLOR_TRANSPARENT);
     vzone   _drawTableHeader(float x, float y, String* titles, int length);
     vzone   _drawTableData(float x, float y, String* values, int length);
